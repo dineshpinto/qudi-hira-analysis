@@ -63,7 +63,7 @@ def save_figures(filename, folder="", overwrite=True):
                 raise IOError(filename + ext + " already exists.")
 
     for ext in exts:
-        if ext is ".png":
+        if ext == ".png":
             dpi = 600
         else:
             dpi = 1000

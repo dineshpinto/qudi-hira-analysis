@@ -157,7 +157,7 @@ def frequency_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], n
     x /= 1e6 # Frequency in MHz    
     count_data = raw_data[b"count_data"]
     # Extract data as per data type
-    if dtype is "deer_spec":
+    if dtype == "deer_spec":
         s, sn = spin_state(count_data, shot_noise_toggle=True)
     else:
         raise KeyError('Invalid dtype, dtype=["deer_spec"]')
@@ -166,7 +166,7 @@ def frequency_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], n
 
 def raw_counting_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False):
     c = raw_data[b"counts"]
-    if dtype is "odmr":
+    if dtype == "odmr":
         x = raw_data[b"frequency"]
         x /= 1e6 # Frequency in MHz
         sn = np.sqrt(c)
@@ -178,7 +178,7 @@ def raw_counting_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins
 
 def autocorrelation_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False):
     c = raw_data[b"counts"]
-    if dtype is "autocorrelation":
+    if dtype == "autocorrelation":
         x = raw_data[b"time_bins"]
         sn = np.sqrt(c)
         

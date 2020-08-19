@@ -1,11 +1,15 @@
+# Conda env
+conda  create --name jupyterlab
+
+# Activate env
+activate jupyterlab
+
 # Conda base environment
 conda install -c conda-forge python scipy numpy jupyterlab lmfit matplotlib pandas peakutils
- 
 
 # Interactive plots with jupyterlab
-conda install -y nodejs
-pip install ipympl
-pip install --upgrade jupyterlab
+conda install -c conda-forge nodejs
+pip install ipympl; pip install --upgrade jupyterlab
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install jupyter-matplotlib
 jupyter nbextension enable --py widgetsnbextension
