@@ -306,35 +306,33 @@ def rabi_oscillations(x, y, n, dtype="rabi", decay=5, contrast_shift=1, num_bins
 
     return bigdict
 
-def fit_fano(x, y, center_hint=1, sigma_hint=1, offset_hint=1):
+def fit_fano(x, y):
     fano = BreitWignerModel()
-    fano.set_param_hint('center', value=center_hint)
-    fano.set_param_hint('sigma', value=sigma_hint)
+    params = fano.guess(y, x=x)
 
     offset = ConstantModel()
-    offset.set_param_hint('c', value=offset_hint)
+    params += offset.guess(y, x=x)
+    
     model = fano + offset
 
-    out = model.fit(y, x=x, method="leastsq")
+    out = model.fit(y, x=x, params=params, method="leastsq")
     return out
 
-def fit_lorentzian(x, y, linear_offset=False, center_hint=1, sigma_hint=1, slope_hint=1, intercept_hint=1, offset_hint=1):
-    model = LorentzianModel()
-    model.set_param_hint('center', value=center_hint)
-    model.set_param_hint('sigma', value=sigma_hint)
-    
+def fit_lorentzian(x, y, linear_offset=False):
+    lorentzian = LorentzianModel()
+    params = lorentzian.guess(-y, x=x)
+
     if linear_offset:
         offset = LinearModel()
-        offset.set_param_hint('m', value=slope_hint)
-        offset.set_param_hint('n', value=intercept_hint)
+        params += offset.guess(y, x=x)
     else:
         offset = ConstantModel()
-        offset.set_param_hint('c', value=offset_hint)
+        params += offset.guess(y, x=x)
 
-    model = model + offset
+    model = lorentzian + offset
 
     # Alternate fit methods:
     # 1. Slower but "more" accurate `method='nelder'`
     # 2. Faster but "less" accurate `method='powell'`
-    out = model.fit(y, x=x, method="leastsq")
+    out = model.fit(y, x=x, params=params, method="leastsq")
     return out

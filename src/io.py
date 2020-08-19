@@ -71,17 +71,50 @@ def save_figures(filename, folder="", overwrite=True):
 
         
 """
-Functions for reading Nanonis Data
+Functions for reading Nanonis data files
 """
 
 
-def read_dat(filename, folder=""):
+def extract_data_from_dat(filename, folder=""):
     path = "../../Data/" + folder
 
     with open(path + filename) as dat_file:
         for num, line in enumerate(dat_file, 1):
             if "[DATA]" in line:
+                # Find number of rows to skip when extracting data
                 skiprows = num
+                break
 
     df = pd.read_table(path + filename, sep="\t", skiprows=skiprows)
     return df
+
+
+def extract_parameters_from_dat(filename, folder=""):
+    path = "../../Data/" + folder
+    
+    d = {}
+    with open(path + filename) as dat_file:
+        for line in dat_file:
+            if line == "\n":
+                # Break when reaching empty line
+                break
+            if "User" in line:
+                # Cleanup excess parameters
+                pass
+            else:
+                label, value, _ = line.split("\t")
+                try:
+                    # Convert strings to numbers where possible
+                    value = float(value)
+                except ValueError:
+                    pass
+                if "Oscillation Control>" in label:
+                    label = label.replace("Oscillation Control>", "")
+                d[label] = value
+    
+    return d
+
+def read_dat(filename, folder=""):
+    parameters = extract_parameters_from_dat(filename, folder=folder)
+    data = extract_data_from_dat(filename, folder=folder)
+    return parameters, data
