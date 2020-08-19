@@ -74,8 +74,9 @@ def save_figures(filename, folder="", overwrite=True):
 Functions for reading Nanonis Data
 """
 
+
 def read_dat(filename, folder=""):
-    path = "../data/" + folder
+    path = "../../Data/" + folder
 
     with open(path + filename) as dat_file:
         for num, line in enumerate(dat_file, 1):
@@ -84,4 +85,3 @@ def read_dat(filename, folder=""):
 
     df = pd.read_table(path + filename, sep="\t", skiprows=skiprows)
     return df
-
