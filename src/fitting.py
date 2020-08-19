@@ -1,0 +1,340 @@
+import numpy as np
+import peakutils
+from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWignerModel
+import scipy
+from scipy.signal import find_peaks
+from scipy.optimize import curve_fit
+import scipy.fftpack
+from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, interp1d
+import pandas as pd
+from .preprocessing import baseline_als
+
+"""
+Old fitting methods.
+"""
+def antibunching_init(x, y):
+    N = 1
+    A = 1
+    a = np.max(y) - np.min(y)
+    tau0 = 0
+    tau1 = 20
+    tau2 = 30
+    return [N, A, a, tau0, tau1, tau2]
+
+def antibunching(x, N, A, a, tau0, tau1, tau2):
+    return A * ((1 - (1 + a) * np.exp(-abs(x - tau0) / tau1) + a * np.exp(-abs(x - tau0) / tau2)) * 1 / N + 1 - 1 / N)
+
+def autocorrelation(x, y):
+    popt, pcov = curve_fit(antibunching, x, y, p0=antibunching_init(x, y))
+    fit = antibunching(x, *popt)
+    d = {"x": x, "y": y, "fit": fit, "popt": popt}
+    return d
+
+def peakfinder(x, y, thres=0.9, min_dist=10, plot=True):
+    """ Returns indices of peaks in y. Can also plot peaks with markings. """
+    indexes = peakutils.indexes(-y, thres=thres/max(y), min_dist=min_dist)
+    if plot:
+        plt.plot(x, y, "-", color="C0", alpha=0.7)
+        plt.plot(x[indexes], y[indexes], "x", color="C1")
+    return indexes
+
+def make_model(num, amplitude, center, width):
+    """ Used internally to generate Lorentzian model for each peak. """
+    pref = "f{}_".format(num)
+    model = LorentzianModel(prefix=pref)
+    # model.set_param_hint(pref+'amplitude', value=amplitude[num], min=0, max=2*amplitude[num])
+    model.set_param_hint(pref+'center', value=center[num], min=center[num]-0.5, max=center[num]+0.5)
+    model.set_param_hint(pref+'sigma', value=width[num], min=0, max=20)
+    return model
+
+def lorentzian_fit(x, y, peaks):
+    """ Uses lmfit to fit all peaks to Lorentzian with a constant baseline. """
+    num_peaks = len(peaks)
+    amplitude = np.zeros(num_peaks) - 1
+    width = np.zeros(num_peaks) + 1
+    center = x[peaks]
+
+    mod = None
+    for i in range(num_peaks):
+        this_mod = make_model(i, amplitude, center, width)
+        if mod is None:
+            mod = this_mod
+        else:
+            mod = mod + this_mod
+
+    offset = ConstantModel()
+    offset.set_param_hint('c', value=1)
+    mod = mod + offset
+
+    # Alternate fit methods:
+    # 1. Slower but "more" accurate `method='nelder'`
+    # 2. Faster but "less" accurate `method='powell'`
+    out = mod.fit(y, x=x, method="leastsq")
+    return out
+
+def find_peaks2(x, y, num_peaks, thres, min_dist):
+    """ Iterates through threshold values to find peaks in data. """
+    i = 0
+    maxiter = 2000
+
+    while True:
+        peak_indexes = peakfinder(x, y, thres=thres, min_dist=min_dist, plot=False)
+        if len(peak_indexes) == num_peaks:
+            break
+        if min_dist > 0:
+            if i < maxiter:
+                if len(peak_indexes) < num_peaks:
+                    thres -= 0.01
+                    i += 1
+                else:
+                    thres += 0.01
+                    i += 1
+            else:
+                min_dist -= 1
+                i = 0
+        else:
+            raise ValueError("Peaks could not be determined."
+                             f"Maximum iterations ({maxiter}) exceeded. thres={thres}, min_dist={min_dist}")
+    return peak_indexes
+
+def spectroscopy(x, y, n, num_peaks, num_bins=-1, arr_range=[0, -1], dtype=None, height=-0.9, width=2):
+    """
+    Analyzes spectroscopic data, performs the following operations:
+        1. Extracts (x, y) from binary data
+        2. Finds y baseline and subtracts it
+        3. Finds peaks in data iteratively
+        4. Generates a Lorentzian fitting model
+        5. Fits data to model
+        6. Calculates standard error and signal to noise ratio
+    Returns a dictionary.
+    """
+    bigdict = {}
+
+    bigdict["x"] = x
+    bigdict["y"] = y
+    bigdict["n"] = n
+    
+    if num_peaks == 0:
+        return bigdict
+    
+    peak_indexes, _ = find_peaks(-y, height=height, width=width)
+
+    if len(peak_indexes) != num_peaks:
+        if len(peak_indexes) > num_peaks:
+            error_message = "Try decreasing height or increasing width."
+        else:
+            error_message = "Try increasing height or decreasing width."
+        raise ValueError("Incorrect number of peaks ({}). ".format(len(peak_indexes)) + error_message)
+
+    opt = lorentzian_fit(x, y, peak_indexes)
+    fit = opt.best_fit
+    fit_report = opt.fit_report()
+
+    x_int = np.linspace(x.min(), x.max(), len(x)*8)
+    fit_interpolant = interp1d(x, fit, kind='cubic')
+    fit_int = fit_interpolant(x_int)
+    
+    bigdict["fit_int"] = fit_int
+    bigdict["x_int"] = x_int
+    bigdict["peak_indexes"] = peak_indexes
+    bigdict["peaks"] = x[peak_indexes]
+    bigdict["fit"] = fit
+    bigdict["fit_report"] = fit_report
+
+    return bigdict
+
+
+
+def exp(x, c, A, d, a=1):
+    return c + A * np.exp(-(x/d)**a)
+
+# def exphahn_init(x, y, decay):
+#     c = np.mean(y)
+#     A = np.std(y) * np.sqrt(2)
+#     d = decay
+#     freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
+#     w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
+#     init = [c, A, d, 2.*np.pi*w, np.pi]
+#     return init
+#
+# def exphahn(x, c, A, d, w, p):
+#     return c + A * np.exp(-(x/d)) * np.cos(w*x + p) ** 2
+def exphahn_init(x, y, decay, period):
+    c = np.mean(y)
+    A = np.std(y) * np.sqrt(2)
+    d = decay
+    # freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
+    # w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
+    t = period
+    # f = 1 / p
+    init = [c, A, d, t]
+    return init
+
+def exp_init(x, y, decay):
+    c = np.mean(y)
+    A = np.std(y) * np.sqrt(2)
+    d = decay
+    init = [c, A, d]
+    return init
+
+def exphahn(x, c, A, d, t):
+    return c + A * np.exp(-(x/d)) * np.cos(2*np.pi/t*x)
+
+def hahn_decay(x, y, n, dtype=None, decay=10, period=15, contrast_shift=1, num_bins=-1, arr_range=[0, -1], revivals=False, base=False):
+    bigdict = {}
+
+    bigdict["x"] = x
+    bigdict["y"] = y
+
+    if base:
+        baseline = baseline_als(y, lam=1e6, p=0.01)
+        y = y - baseline
+
+    if revivals:
+        init = exphahn_init(x, y, decay=decay, period=period)
+        popt, pcov = curve_fit(exphahn, x, y, p0=init)
+        fit = exphahn(x, *popt)
+        fit_exp = exp(x, *popt[0:3])
+    else:
+        init = exp_init(x, y, decay=decay)
+        popt, pcov = curve_fit(exp, x, y, p0=init)
+        fit = exp(x, *popt)
+        fit_exp = fit
+
+    y_contrast = y * 100 + contrast_shift
+    n_contrast  = n * 100
+    fit_exp_contrast = fit_exp * 100 + contrast_shift
+    fit_contrast = fit * 100 + contrast_shift
+
+    x_int = np.linspace(x.min(), x.max(), len(x)*4)
+
+    fit_interpolant = interp1d(x, fit, kind='cubic')
+    fit_int = fit_interpolant(x_int)
+
+    
+    fit_contrast_interpolant = interp1d(x, fit_contrast, kind='cubic')
+    fit_contrast_int = fit_contrast_interpolant(x_int)
+
+    fit_exp_contrast_interpolant = interp1d(x, fit_exp_contrast, kind='cubic')
+    fit_exp_contrast_int = fit_exp_contrast_interpolant(x_int)
+
+    bigdict["y_contrast"] = y_contrast
+    bigdict["fit"] = fit
+    bigdict["fit_exp"] = fit_exp
+    bigdict["fit_exp_contrast"] = fit_exp_contrast
+    bigdict["fit_exp_contrast_int"] = fit_exp_contrast_int
+    bigdict["fit_contrast"] = fit_contrast
+    bigdict["n"] = n
+    bigdict["x_int"] = x_int
+    bigdict["fit_contrast_int"] = fit_contrast_int
+    bigdict["fit_int"] = fit_int
+    bigdict["decay"] = init[2]
+    bigdict["n_contrast"] = n_contrast
+    bigdict["popt"] = popt
+    bigdict["perr"] = np.sqrt(np.diag(pcov))
+
+    return bigdict
+
+
+def expsine(x, c, A, d, w, p):
+        return c + A * np.exp(- x/d) * np.sin(2*np.pi*x/w + p)
+
+def expsine_init(x, y, decay):
+    c = np.mean(y)
+    A = np.std(y) * np.sqrt(2)
+    freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
+    w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
+    init = [c, A, decay, 1/(w), np.pi]
+    return init
+
+def take_fft(x, y):
+    N = len(x)
+    dx = x[1] - x[0]
+    yf = scipy.fftpack.fft(y)
+    y_fft = 2/N * np.abs(yf[:N//2])[1:]
+    x_fft = np.linspace(0, 1/(2*dx), N/2)[1:]
+    return x_fft, y_fft
+
+def rabi_oscillations(x, y, n, dtype="rabi", decay=5, contrast_shift=1, num_bins=-1, arr_range=[0, -1], base=False):
+    bigdict = {}
+
+    if base:
+        # Use with caution. Rabi should not require a baseline correction. The parameters are set to avoid overcorrecting.
+        base2 = baseline_als(y, lam=1e6, p=0.5)
+        y = y - base2
+
+    bigdict["x"] = x
+    bigdict["y"] = y
+    bigdict["n"] = n
+
+    init = expsine_init(x, y, decay)
+
+    popt, pcov = curve_fit(expsine, x, y, p0=init)
+
+    fit = expsine(x, *popt)
+    # exp1, exp2 = exp(x, *popt)
+    y_contrast = y * 100 + contrast_shift
+    n_contrast  = n * 100
+    fit_contrast = fit * 100 + contrast_shift
+
+    fit_contrast_interpolant = interp1d(x, fit_contrast, kind='cubic')
+    x_int = np.linspace(x.min(), x.max(), 1000)
+    fit_contrast_int = fit_contrast_interpolant(x_int)
+    
+    fit_interpolant = interp1d(x, fit, kind='cubic')
+    fit_int = fit_interpolant(x_int)
+    
+    x_fft, y_fft = take_fft(x, y_contrast)
+    
+    
+    bigdict["x_fft"] = x_fft
+    bigdict["y_fft"] = y_fft
+    bigdict["y_contrast"] = y_contrast
+    bigdict["fit"] = fit
+    bigdict["fit_contrast"] = fit_contrast
+    bigdict["n"] = n
+    bigdict["x_int"] = x_int
+    bigdict["fit_int"] = fit_int
+    bigdict["fit_contrast_int"] = fit_contrast_int
+    bigdict["decay"] = init[2]
+    bigdict["n_contrast"] = n_contrast
+    # bigdict["exp1"] = exp1
+    # bigdict["exp2"] = exp2
+    bigdict["popt"] = popt
+    bigdict["perr"] = np.sqrt(np.diag(pcov))
+
+
+    return bigdict
+
+def fit_fano(x, y, center_hint=1, sigma_hint=1, offset_hint=1):
+    fano = BreitWignerModel()
+    fano.set_param_hint('center', value=center_hint)
+    fano.set_param_hint('sigma', value=sigma_hint)
+
+    offset = ConstantModel()
+    offset.set_param_hint('c', value=offset_hint)
+    model = fano + offset
+
+    out = model.fit(y, x=x, method="leastsq")
+    return out
+
+def fit_lorentzian(x, y, linear_offset=False, center_hint=1, sigma_hint=1, slope_hint=1, intercept_hint=1, offset_hint=1):
+    model = LorentzianModel()
+    model.set_param_hint('center', value=center_hint)
+    model.set_param_hint('sigma', value=sigma_hint)
+    
+    if linear_offset:
+        offset = LinearModel()
+        offset.set_param_hint('m', value=slope_hint)
+        offset.set_param_hint('n', value=intercept_hint)
+    else:
+        offset = ConstantModel()
+        offset.set_param_hint('c', value=offset_hint)
+
+    model = model + offset
+
+    # Alternate fit methods:
+    # 1. Slower but "more" accurate `method='nelder'`
+    # 2. Faster but "less" accurate `method='powell'`
+    out = model.fit(y, x=x, method="leastsq")
+    return out

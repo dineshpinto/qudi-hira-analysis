@@ -1,0 +1,21 @@
+# Folders
+analysis_code-master/
+data/
+deliver/
+develop/
+raw_data/
+simulation/
+figures/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# C extensions
+*.so
