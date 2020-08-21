@@ -1,12 +1,14 @@
 import os
 import pickle
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 """
 Functions for reading and writing into data files.
 """
+
 
 def load_pys(filename, folder=""):
     """ Loads raw pys data files. Wraps around numpy.load. """
@@ -16,42 +18,47 @@ def load_pys(filename, folder=""):
     else:
         return np.load(path + filename + ".pys", encoding="bytes", allow_pickle=True)
 
+
 def save_pys(dictionary, filename, folder=""):
     """ Saves processed pickle files for plotting/further analysis. """
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
-    
+
     with open(path + filename + '.pys', 'wb') as f:
-        pickle.dump(dictionary, f, 1)  
-        
+        pickle.dump(dictionary, f, 1)
+
+
 def save_df(df, filename, folder=""):
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
     df.to_csv(path + filename + ".csv", sep='\t', encoding='utf-8')
 
+
 def load_pkl(filename, folder=""):
     """ Loads processed pickle files for plotting/further analysis. """
-    path = "../data/" + folder    
+    path = "../data/" + folder
     with open(path + filename + '.pkl', 'rb') as f:
         return pickle.load(f)
-    
+
+
 def save_pkl(obj, filename, folder=""):
     """ Saves processed pickle files for plotting/further analysis. """
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
-    
+
     with open(path + filename + '.pkl', 'wb') as f:
         pickle.dump(obj, f)
+
 
 def save_figures(filename, folder="", overwrite=True):
     """ Saves figures from matplotlib plot data. """
     path = "../figures/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
-    
+
     exts = [".pdf", ".svg", ".png"]
 
     if filename.endswith(".pys"):
@@ -67,9 +74,10 @@ def save_figures(filename, folder="", overwrite=True):
             dpi = 600
         else:
             dpi = 1000
-        plt.savefig(path + filename + ext, dpi=dpi, bbox_inches="tight", metadata={"Title":"{}".format(filename), "Author":"Dinesh Pinto"})
+        plt.savefig(path + filename + ext, dpi=dpi, bbox_inches="tight",
+                    metadata={"Title": "{}".format(filename), "Author": "Dinesh Pinto"})
 
-        
+
 """
 Functions for reading Nanonis data files
 """
@@ -77,6 +85,8 @@ Functions for reading Nanonis data files
 
 def extract_data_from_dat(filename, folder=""):
     path = "../../Data/" + folder
+    if not filename.endswith(".dat"):
+        filename += ".dat"
 
     with open(path + filename) as dat_file:
         for num, line in enumerate(dat_file, 1):
@@ -91,15 +101,17 @@ def extract_data_from_dat(filename, folder=""):
 
 def extract_parameters_from_dat(filename, folder=""):
     path = "../../Data/" + folder
-    
+    if not filename.endswith(".dat"):
+        filename += ".dat"
+
     d = {}
     with open(path + filename) as dat_file:
         for line in dat_file:
             if line == "\n":
                 # Break when reaching empty line
                 break
-            if "User" in line:
-                # Cleanup excess parameters
+            elif "User" in line or line.split("\t")[0] == "":
+                # Cleanup excess parameters and skip empty lines
                 pass
             else:
                 label, value, _ = line.split("\t")
@@ -111,8 +123,9 @@ def extract_parameters_from_dat(filename, folder=""):
                 if "Oscillation Control>" in label:
                     label = label.replace("Oscillation Control>", "")
                 d[label] = value
-    
+
     return d
+
 
 def read_dat(filename, folder=""):
     parameters = extract_parameters_from_dat(filename, folder=folder)

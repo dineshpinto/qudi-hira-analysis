@@ -1,17 +1,19 @@
 import numpy as np
 import peakutils
-from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWignerModel
 import scipy
-from scipy.signal import find_peaks
-from scipy.optimize import curve_fit
 import scipy.fftpack
-from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, interp1d
-import pandas as pd
+from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWignerModel, StepModel, VoigtModel, GaussianModel
+from scipy.interpolate import interp1d
+from scipy.optimize import curve_fit
+from scipy.signal import find_peaks
+
 from .preprocessing import baseline_als
 
 """
 Old fitting methods.
 """
+
+
 def antibunching_init(x, y):
     N = 1
     A = 1
@@ -21,8 +23,10 @@ def antibunching_init(x, y):
     tau2 = 30
     return [N, A, a, tau0, tau1, tau2]
 
+
 def antibunching(x, N, A, a, tau0, tau1, tau2):
     return A * ((1 - (1 + a) * np.exp(-abs(x - tau0) / tau1) + a * np.exp(-abs(x - tau0) / tau2)) * 1 / N + 1 - 1 / N)
+
 
 def autocorrelation(x, y):
     popt, pcov = curve_fit(antibunching, x, y, p0=antibunching_init(x, y))
@@ -30,22 +34,22 @@ def autocorrelation(x, y):
     d = {"x": x, "y": y, "fit": fit, "popt": popt}
     return d
 
+
 def peakfinder(x, y, thres=0.9, min_dist=10, plot=True):
     """ Returns indices of peaks in y. Can also plot peaks with markings. """
-    indexes = peakutils.indexes(-y, thres=thres/max(y), min_dist=min_dist)
-    if plot:
-        plt.plot(x, y, "-", color="C0", alpha=0.7)
-        plt.plot(x[indexes], y[indexes], "x", color="C1")
+    indexes = peakutils.indexes(-y, thres=thres / max(y), min_dist=min_dist)
     return indexes
+
 
 def make_model(num, amplitude, center, width):
     """ Used internally to generate Lorentzian model for each peak. """
     pref = "f{}_".format(num)
     model = LorentzianModel(prefix=pref)
     # model.set_param_hint(pref+'amplitude', value=amplitude[num], min=0, max=2*amplitude[num])
-    model.set_param_hint(pref+'center', value=center[num], min=center[num]-0.5, max=center[num]+0.5)
-    model.set_param_hint(pref+'sigma', value=width[num], min=0, max=20)
+    model.set_param_hint(pref + 'center', value=center[num], min=center[num] - 0.5, max=center[num] + 0.5)
+    model.set_param_hint(pref + 'sigma', value=width[num], min=0, max=20)
     return model
+
 
 def lorentzian_fit(x, y, peaks):
     """ Uses lmfit to fit all peaks to Lorentzian with a constant baseline. """
@@ -72,6 +76,7 @@ def lorentzian_fit(x, y, peaks):
     out = mod.fit(y, x=x, method="leastsq")
     return out
 
+
 def find_peaks2(x, y, num_peaks, thres, min_dist):
     """ Iterates through threshold values to find peaks in data. """
     i = 0
@@ -97,6 +102,7 @@ def find_peaks2(x, y, num_peaks, thres, min_dist):
                              f"Maximum iterations ({maxiter}) exceeded. thres={thres}, min_dist={min_dist}")
     return peak_indexes
 
+
 def spectroscopy(x, y, n, num_peaks, num_bins=-1, arr_range=[0, -1], dtype=None, height=-0.9, width=2):
     """
     Analyzes spectroscopic data, performs the following operations:
@@ -108,15 +114,11 @@ def spectroscopy(x, y, n, num_peaks, num_bins=-1, arr_range=[0, -1], dtype=None,
         6. Calculates standard error and signal to noise ratio
     Returns a dictionary.
     """
-    bigdict = {}
+    bigdict = {"x": x, "y": y, "n": n}
 
-    bigdict["x"] = x
-    bigdict["y"] = y
-    bigdict["n"] = n
-    
     if num_peaks == 0:
         return bigdict
-    
+
     peak_indexes, _ = find_peaks(-y, height=height, width=width)
 
     if len(peak_indexes) != num_peaks:
@@ -130,10 +132,10 @@ def spectroscopy(x, y, n, num_peaks, num_bins=-1, arr_range=[0, -1], dtype=None,
     fit = opt.best_fit
     fit_report = opt.fit_report()
 
-    x_int = np.linspace(x.min(), x.max(), len(x)*8)
+    x_int = np.linspace(x.min(), x.max(), len(x) * 8)
     fit_interpolant = interp1d(x, fit, kind='cubic')
     fit_int = fit_interpolant(x_int)
-    
+
     bigdict["fit_int"] = fit_int
     bigdict["x_int"] = x_int
     bigdict["peak_indexes"] = peak_indexes
@@ -144,31 +146,20 @@ def spectroscopy(x, y, n, num_peaks, num_bins=-1, arr_range=[0, -1], dtype=None,
     return bigdict
 
 
-
 def exp(x, c, A, d, a=1):
-    return c + A * np.exp(-(x/d)**a)
+    return c + A * np.exp(-(x / d) ** a)
 
-# def exphahn_init(x, y, decay):
-#     c = np.mean(y)
-#     A = np.std(y) * np.sqrt(2)
-#     d = decay
-#     freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
-#     w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
-#     init = [c, A, d, 2.*np.pi*w, np.pi]
-#     return init
-#
-# def exphahn(x, c, A, d, w, p):
-#     return c + A * np.exp(-(x/d)) * np.cos(w*x + p) ** 2
+
 def exphahn_init(x, y, decay, period):
     c = np.mean(y)
     A = np.std(y) * np.sqrt(2)
     d = decay
-    # freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
-    # w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
+
     t = period
     # f = 1 / p
     init = [c, A, d, t]
     return init
+
 
 def exp_init(x, y, decay):
     c = np.mean(y)
@@ -177,10 +168,13 @@ def exp_init(x, y, decay):
     init = [c, A, d]
     return init
 
-def exphahn(x, c, A, d, t):
-    return c + A * np.exp(-(x/d)) * np.cos(2*np.pi/t*x)
 
-def hahn_decay(x, y, n, dtype=None, decay=10, period=15, contrast_shift=1, num_bins=-1, arr_range=[0, -1], revivals=False, base=False):
+def exphahn(x, c, A, d, t):
+    return c + A * np.exp(-(x / d)) * np.cos(2 * np.pi / t * x)
+
+
+def hahn_decay(x, y, n, dtype=None, decay=10, period=15, contrast_shift=1, num_bins=-1, arr_range=[0, -1],
+               revivals=False, base=False):
     bigdict = {}
 
     bigdict["x"] = x
@@ -202,16 +196,15 @@ def hahn_decay(x, y, n, dtype=None, decay=10, period=15, contrast_shift=1, num_b
         fit_exp = fit
 
     y_contrast = y * 100 + contrast_shift
-    n_contrast  = n * 100
+    n_contrast = n * 100
     fit_exp_contrast = fit_exp * 100 + contrast_shift
     fit_contrast = fit * 100 + contrast_shift
 
-    x_int = np.linspace(x.min(), x.max(), len(x)*4)
+    x_int = np.linspace(x.min(), x.max(), len(x) * 4)
 
     fit_interpolant = interp1d(x, fit, kind='cubic')
     fit_int = fit_interpolant(x_int)
 
-    
     fit_contrast_interpolant = interp1d(x, fit_contrast, kind='cubic')
     fit_contrast_int = fit_contrast_interpolant(x_int)
 
@@ -237,23 +230,26 @@ def hahn_decay(x, y, n, dtype=None, decay=10, period=15, contrast_shift=1, num_b
 
 
 def expsine(x, c, A, d, w, p):
-        return c + A * np.exp(- x/d) * np.sin(2*np.pi*x/w + p)
+    return c + A * np.exp(- x / d) * np.sin(2 * np.pi * x / w + p)
+
 
 def expsine_init(x, y, decay):
     c = np.mean(y)
     A = np.std(y) * np.sqrt(2)
     freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
     w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
-    init = [c, A, decay, 1/(w), np.pi]
+    init = [c, A, decay, 1 / (w), np.pi]
     return init
+
 
 def take_fft(x, y):
     N = len(x)
     dx = x[1] - x[0]
     yf = scipy.fftpack.fft(y)
-    y_fft = 2/N * np.abs(yf[:N//2])[1:]
-    x_fft = np.linspace(0, 1/(2*dx), N/2)[1:]
+    y_fft = 2 / N * np.abs(yf[:N // 2])[1:]
+    x_fft = np.linspace(0, 1 / (2 * dx), N // 2)[1:]
     return x_fft, y_fft
+
 
 def rabi_oscillations(x, y, n, dtype="rabi", decay=5, contrast_shift=1, num_bins=-1, arr_range=[0, -1], base=False):
     bigdict = {}
@@ -274,19 +270,18 @@ def rabi_oscillations(x, y, n, dtype="rabi", decay=5, contrast_shift=1, num_bins
     fit = expsine(x, *popt)
     # exp1, exp2 = exp(x, *popt)
     y_contrast = y * 100 + contrast_shift
-    n_contrast  = n * 100
+    n_contrast = n * 100
     fit_contrast = fit * 100 + contrast_shift
 
     fit_contrast_interpolant = interp1d(x, fit_contrast, kind='cubic')
     x_int = np.linspace(x.min(), x.max(), 1000)
     fit_contrast_int = fit_contrast_interpolant(x_int)
-    
+
     fit_interpolant = interp1d(x, fit, kind='cubic')
     fit_int = fit_interpolant(x_int)
-    
+
     x_fft, y_fft = take_fft(x, y_contrast)
-    
-    
+
     bigdict["x_fft"] = x_fft
     bigdict["y_fft"] = y_fft
     bigdict["y_contrast"] = y_contrast
@@ -303,8 +298,15 @@ def rabi_oscillations(x, y, n, dtype="rabi", decay=5, contrast_shift=1, num_bins
     bigdict["popt"] = popt
     bigdict["perr"] = np.sqrt(np.diag(pcov))
 
-
     return bigdict
+
+
+def offset_type(linear_offset):
+    if linear_offset:
+        return LinearModel()
+    else:
+        return ConstantModel()
+
 
 def fit_fano(x, y):
     fano = BreitWignerModel()
@@ -312,27 +314,55 @@ def fit_fano(x, y):
 
     offset = ConstantModel()
     params += offset.guess(y, x=x)
-    
-    model = fano + offset
 
+    model = fano + offset
     out = model.fit(y, x=x, params=params, method="leastsq")
     return out
 
+
 def fit_lorentzian(x, y, linear_offset=False):
     lorentzian = LorentzianModel()
-    params = lorentzian.guess(-y, x=x)
+    params = lorentzian.guess(y, x=x)
 
-    if linear_offset:
-        offset = LinearModel()
-        params += offset.guess(y, x=x)
-    else:
-        offset = ConstantModel()
-        params += offset.guess(y, x=x)
+    offset = offset_type(linear_offset)
+    params += offset.guess(y, x=x)
 
     model = lorentzian + offset
+    out = model.fit(y, x=x, params=params, method="leastsq")
+    return out
 
-    # Alternate fit methods:
-    # 1. Slower but "more" accurate `method='nelder'`
-    # 2. Faster but "less" accurate `method='powell'`
+
+def fit_gaussian(x, y, linear_offset=False):
+    gaussian = GaussianModel()
+    params = gaussian.guess(-y, x=x)
+
+    offset = offset_type(linear_offset)
+    params += offset.guess(y, x=x)
+
+    model = gaussian + offset
+    out = model.fit(y, x=x, method="leastsq")
+    return out
+
+
+def fit_voigt(x, y, linear_offset=False):
+    voigt = VoigtModel()
+    params = voigt.guess(-y, x=x)
+
+    offset = offset_type(linear_offset)
+    params += offset.guess(y, x=x)
+
+    model = voigt + offset
+    out = model.fit(y, x=x, params=params, method="leastsq")
+    return out
+
+
+def fit_logistic(x, y, linear_offset=False):
+    step = StepModel(form='logistic')
+    params = step.guess(y, x=x)
+
+    offset = offset_type(linear_offset)
+    params += offset.guess(y, x=x)
+
+    model = step + offset
     out = model.fit(y, x=x, params=params, method="leastsq")
     return out
