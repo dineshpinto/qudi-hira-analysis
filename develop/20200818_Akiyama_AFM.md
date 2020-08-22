@@ -19,7 +19,6 @@ sys.path.append('../')
 
 import numpy as np
 import matplotlib.pyplot as plt
-%matplotlib inline
 import pandas as pd
 from pprint import pprint
 
@@ -45,7 +44,7 @@ phase_freq_sweep = sft.fit_fano(freq_shift, phase)
 ```
 
 ```python
-%matplotlib widget
+%matplotlib inline
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
 ax1.plot(freq_shift, amplitude)
@@ -77,7 +76,7 @@ freq_shift = data["Frequency Shift (Hz)"]
 amplitude = data["Amplitude (m)"]
 phase = data["Phase (deg)"]
 fano = sft.fit_fano(freq_shift, amplitude)
-lorentzian = sft.fit_lorentzian(freq_shift, phase, linear_offset=False)
+lorentzian = sft.fit_fano(freq_shift, phase)
 ```
 
 ## Equations for calculating Q factor
@@ -106,7 +105,6 @@ print(osc_amp/A_drive)
 
 ```python
 %matplotlib widget
-
 fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
 ax1.plot(freq_shift, amplitude)
 ax1.plot(freq_shift, fano.best_fit)
