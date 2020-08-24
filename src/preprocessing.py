@@ -1,4 +1,5 @@
 import copy
+
 import numpy as np
 from scipy import stats, sparse
 
@@ -17,6 +18,7 @@ W, dT, T0, T1 = 0, 0, 0, 0
 Core functions for preprocessing data.
 """
 
+
 def find_edge(y, bins=20):
     """ Determine when laser is switched on. """
     h, b = np.histogram(y, bins=bins)
@@ -25,14 +27,15 @@ def find_edge(y, bins=20):
     threshold = 0.5 * (b[0] + b[i])
     return np.where(y > threshold)[0][0]
 
+
 def photons_in_window(count_data):
     """ Compute number of photons for |0> and |1> projections. """
     edge = find_edge(count_data.sum(0))
-    
+
     int_width = W // dT
     int_pos0 = edge + T0 // dT
     int_pos1 = edge + T1 // dT
-    
+
     if (int_pos1 + int_width) > count_data.shape[1]:
         raise ValueError("Parameters exceed limit.")
 
@@ -42,18 +45,21 @@ def photons_in_window(count_data):
     alpha0, alpha1 = np.array_split(photons_in_window, 2)
     return alpha0, alpha1
 
+
 def contrast(count_data):
     """ Spin state contrast computation by photon summation (Section II.A, [1]). """
     alpha0, alpha1 = photons_in_window(count_data)
-    c = 1 - alpha1/alpha0
+    c = 1 - alpha1 / alpha0
     return c
+
 
 def shot_noise(count_data):
     """ Photonic shot noise computation using Poisson statistics (square root of counted photons). """
     alpha0, alpha1 = photons_in_window(count_data)
     c = contrast(count_data)
-    sn = c * np.sqrt(1/alpha0 + 1/alpha1)
+    sn = c * np.sqrt(1 / alpha0 + 1 / alpha1)
     return sn
+
 
 def signal_to_noise(count_data):
     """ Signal to noise computation (Section II.A, [1]). """
@@ -61,6 +67,7 @@ def signal_to_noise(count_data):
     c = contrast(count_data)
     snr = np.sqrt(alpha0) * c / np.sqrt(2 - c)
     return snr
+
 
 def bin_data(x, y, num_bins):
     """ Use mean binning technique. """
@@ -75,7 +82,8 @@ def bin_data(x, y, num_bins):
     bin_width = bin_edges[1] - bin_edges[0]
     bin_centers = bin_edges[1:] - bin_width / 2
     return bin_centers, bin_means
-      
+
+
 def baseline_als(y, lam=1e6, p=0.9, niter=10):
     """ Asymmetric least squares baseline fit [2]. """
     L = len(y)
@@ -88,18 +96,19 @@ def baseline_als(y, lam=1e6, p=0.9, niter=10):
         w = p * (y > z) + (1 - p) * (y < z)
     return z
 
+
 def range_bin_and_normalize(x, c, sn, data_range, num_bins, normalize):
     # Select data range
     a, b = data_range[0], data_range[1]
     x, c, sn = x[a:b], c[a:b], sn[a:b]
-    
+
     # Normalization    
     if normalize:
         base = baseline_als(c)
         c = c / base
         # Under the assumption that d(base)=0
         sn = sn / base
-    
+
     # Perform binning
     if num_bins != -1:
         _, cb = bin_data(x, c, num_bins)
@@ -107,13 +116,16 @@ def range_bin_and_normalize(x, c, sn, data_range, num_bins, normalize):
         x, c, sn = xb, cb, snb
     return x, c, sn
 
+
 """
 Function wrappers for specific measurement sequences.
 """
 
-def time_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False, old_scheme=False):
+
+def time_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False,
+                                old_scheme=False):
     x = copy.deepcopy(raw_data[b"tau"])
-    x /= 1e3 # Time in micro seconds
+    x /= 1e3  # Time in micro seconds
     count_data = raw_data[b"count_data"]
     # Extract data as per data type
     if dtype in ["deer_rabi", "hahn", "t1", "hahn_corr", "t2*", "t1_corr"]:
@@ -125,7 +137,7 @@ def time_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], num_bi
             n = len(x)
             c = cc[:n] - cc[n:]
             n1, n2 = sn[:n], sn[n:]
-            sn = np.sqrt(n1**2 + n2**2)
+            sn = np.sqrt(n1 ** 2 + n2 ** 2)
     elif dtype in ["rabi"]:
         if old_scheme:
             c, sn = spin_state(count_data, shot_noise_toggle=True)
@@ -134,27 +146,28 @@ def time_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], num_bi
     elif dtype in ["deer_delay"]:
         s, sn = spin_state(count_data, shot_noise_toggle=True)
         n = len(x)
-        yref1, yref2 = s[:n], s[n:2*n]
-        ysig1, ysig2 = s[2*n:3*n], s[3*n:]
+        yref1, yref2 = s[:n], s[n:2 * n]
+        ysig1, ysig2 = s[2 * n:3 * n], s[3 * n:]
 
         ya = ysig1 - yref1
         yb = ysig2 - yref2
         c = yb - ya
 
-        nref1, nref2 = sn[:n], sn[n:2*n]
-        nsig1, nsig2 = sn[2*n:3*n], sn[3*n:]
+        nref1, nref2 = sn[:n], sn[n:2 * n]
+        nsig1, nsig2 = sn[2 * n:3 * n], sn[3 * n:]
 
-        na = np.sqrt(nsig1**2 + nref1**2)
-        nb = np.sqrt(nsig2**2 + nref2**2)
-        sn = np.sqrt(na**2 + nb**2)
+        na = np.sqrt(nsig1 ** 2 + nref1 ** 2)
+        nb = np.sqrt(nsig2 ** 2 + nref2 ** 2)
+        sn = np.sqrt(na ** 2 + nb ** 2)
     else:
         raise KeyError('Invalid dtype, dtype=["deer_rabi", "hahn", "t1", "hahn_corr", "t2*", "t1_corr"]')
     x, c, sn = range_bin_and_normalize(x, c, sn, data_range, num_bins, normalize)
     return x, c, sn
 
+
 def frequency_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False):
     x = copy.deepcopy(raw_data[b"frequency"])
-    x /= 1e6 # Frequency in MHz    
+    x /= 1e6  # Frequency in MHz
     count_data = raw_data[b"count_data"]
     # Extract data as per data type
     if dtype == "deer_spec":
@@ -164,16 +177,17 @@ def frequency_dependent_measurements(raw_data, dtype=None, data_range=[0, -1], n
     x, s, sn = range_bin_and_normalize(x, s, sn, data_range, num_bins, normalize)
     return x, s, sn
 
+
 def raw_counting_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False):
     c = raw_data[b"counts"]
     if dtype == "odmr":
         x = raw_data[b"frequency"]
-        x /= 1e6 # Frequency in MHz
+        x /= 1e6  # Frequency in MHz
         sn = np.sqrt(c)
         x, c, sn = range_bin_and_normalize(x, c, sn, data_range, num_bins, normalize)
     else:
         raise KeyError('Invalid dtype, dtype=["odmr", "autocorrelation"]')
-    return x, c, sn       
+    return x, c, sn
 
 
 def autocorrelation_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False):
@@ -181,17 +195,17 @@ def autocorrelation_measurements(raw_data, dtype=None, data_range=[0, -1], num_b
     if dtype == "autocorrelation":
         x = raw_data[b"time_bins"]
         sn = np.sqrt(c)
-        
+
         a, b = data_range[0], data_range[1]
         x, c, sn = x[a:b], c[a:b], sn[a:b]
-        
+
         # Normalization    
         if normalize:
             base = baseline_als(c, lam=1e10, p=0.5, niter=10)
             c = c / base
             # Under the assumption that d(base)=0
             sn = sn / base
-            
+
         # Perform binning
         if num_bins != -1:
             _, cb = bin_data(x, c, num_bins)
@@ -205,6 +219,8 @@ def autocorrelation_measurements(raw_data, dtype=None, data_range=[0, -1], num_b
 """
 The old data analysis method.
 """
+
+
 # def spin_state(c, shot_noise=False):
 #     """
 #     Compute the spin state from a 2D array of count data.
@@ -257,7 +273,7 @@ The old data analysis method.
 #         return y, noise
 #     else:
 #         return y
-    
+
 def spin_state(c, shot_noise_toggle=True):
     """
     Compute the spin state and shot noise error from a 2D array of count data.
@@ -278,7 +294,7 @@ def spin_state(c, shot_noise_toggle=True):
     t0 = T0
     t1 = T1
     dt = dT
-    
+
     profile = c.sum(0)
     edge = find_edge(profile)
 
@@ -305,7 +321,7 @@ def spin_state(c, shot_noise_toggle=True):
     else:
         raise ValueError("Parameter t1 may not be set correctly")
 
-    shot_noise = state * np.sqrt(1/photons_window1 + 1/photons_window2)
+    shot_noise = state * np.sqrt(1 / photons_window1 + 1 / photons_window2)
     if shot_noise_toggle:
         return state, shot_noise
     else:

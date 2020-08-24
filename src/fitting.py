@@ -2,7 +2,8 @@ import numpy as np
 import peakutils
 import scipy
 import scipy.fftpack
-from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWignerModel, StepModel, VoigtModel, GaussianModel
+from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWignerModel, \
+    StepModel, VoigtModel, GaussianModel
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
@@ -238,7 +239,7 @@ def expsine_init(x, y, decay):
     A = np.std(y) * np.sqrt(2)
     freq = np.fft.rfftfreq(len(x), (x[1] - x[0]))
     w = abs(freq[np.argmax(abs(np.fft.rfft(x))[1:]) + 1])
-    init = [c, A, decay, 1 / (w), np.pi]
+    init = [c, A, decay, 1 / w, np.pi]
     return init
 
 
@@ -255,7 +256,8 @@ def rabi_oscillations(x, y, n, dtype="rabi", decay=5, contrast_shift=1, num_bins
     bigdict = {}
 
     if base:
-        # Use with caution. Rabi should not require a baseline correction. The parameters are set to avoid overcorrecting.
+        # Use with caution. Rabi should not require a baseline correction.
+        # The parameters are set to avoid overcorrecting.
         base2 = baseline_als(y, lam=1e6, p=0.5)
         y = y - base2
 
