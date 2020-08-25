@@ -14,6 +14,7 @@ jupyter:
 ---
 
 ```python
+import os
 import sys
 sys.path.append('../')
 
@@ -21,6 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from pprint import pprint
+import scipy
 
 import src.io as sio
 import src.preprocessing as spp
@@ -125,95 +127,66 @@ print("{} = {:.1f} +- {:.1f}".format(fano.params["sigma"].name, fano.params["sig
 print("{} = {:.2e} +- {:.0e}".format(fano.params["amplitude"].name, fano.params["amplitude"].value, fano.params["amplitude"].stderr))
 ```
 
-## 20200824_Akiyama_AFM
+<!-- #region -->
+# 20200824_Akiyama_AFM
 
+## Loop to automatically read files from disk
+
+Reads all files stored in **AFM_FOLDER2 = "20200824_Akiyama_AFM/"** and plots the amplitude and phase data.
+
+Optionally, the data can be fit to Fano resonances by setting the variable
 ```python
-params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep001.dat")
-freq_shift = data["Frequency Shift (Hz)"]
-amplitude = data["Amplitude (m)"]
-phase = data["Phase (deg)"]
-fano = sft.fit_fano(freq_shift, amplitude)
-lorentzian = sft.fit_fano(freq_shift, phase, linear_offset=True)
+fit = True
 ```
+The Q-factor is calculated as:
+
+$$ Q = \frac{f_R}{\Delta f} = \frac{f_R}{2 \sigma} $$
+
+Erros are calculated as (this also gives an estimate of the SNR):
+$$ \frac{\Delta Q}{Q} = \sqrt{ \left( \frac{\Delta (\Delta f)}{\Delta f} \right)^2 + \left( \frac{\Delta (\sigma)}{\sigma} \right)^2 } $$
+
+Another estimate of the SNR, is the reduced Chi square (lower is better):
+$$ \chi^2_\nu = \frac{\chi^2} \nu $$
+where chi-squared is a weighted sum of squared deviations:
+$$ \chi^2 = \sum_{i} {\frac{(O_i - C_i)^2}{\sigma_i^2}} $$
+<!-- #endregion -->
 
 ```python
 %matplotlib widget
 
-params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep001.dat")
-freq_shift = data["Frequency Shift (Hz)"]
-amplitude = data["Amplitude (m)"]
-phase = data["Phase (deg)"]
-fano = sft.fit_fano(freq_shift, amplitude)
-lorentzian = sft.fit_fano(freq_shift, phase)
+fit = True    # Setting to True will take slightly longer due to the fitting protocols
 
-fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=4, sharex=True)
-ax1.plot(freq_shift, amplitude)
-ax1.plot(freq_shift, fano.best_fit)
-ax1.set_ylabel(data.columns[2])
+files = []
+for file in os.listdir("../../Data/" + AFM_FOLDER2):
+    if file.endswith(".dat"):
+        files.append(file)
 
-ax2.plot(freq_shift, phase)
-ax2.plot(freq_shift, lorentzian.best_fit)
-ax2.set_ylabel(data.columns[3])
-ax2.set_xlabel(data.columns[1])
+fig, ax = plt.subplots(nrows=len(files), ncols=2)
 
-params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep002.dat")
-freq_shift = data["Frequency Shift (Hz)"]
-amplitude = data["Amplitude (m)"]
-phase = data["Phase (deg)"]
-fano = sft.fit_fano(freq_shift, amplitude)
-lorentzian = sft.fit_lorentzian(freq_shift, phase)
+for idx, file in enumerate(files):
+    params, data = sio.read_dat(AFM_FOLDER2 + file)
+    freq_shift = data["Frequency Shift (Hz)"]
+    amplitude = data["Amplitude (m)"]
+    phase = data["Phase (deg)"]
 
-ax3.plot(freq_shift, amplitude)
-ax3.plot(freq_shift, fano.best_fit)
-ax3.set_ylabel(data.columns[2])
+    ax[idx, 0].plot(freq_shift, amplitude)
+    ax[idx, 0].set_ylabel(data.columns[2])
+    ax[idx, 0].set_title(file)
 
-ax4.plot(freq_shift, phase)
-ax4.plot(freq_shift, lorentzian.best_fit)
-ax4.set_ylabel(data.columns[3])
-ax4.set_xlabel(data.columns[1])
-```
+    ax[idx, 1].plot(freq_shift, phase)
+    ax[idx, 1].set_ylabel(data.columns[3])
+    ax[idx, 1].set_title(file)
+    
+    if fit:
+        fano1 = sft.fit_fano(freq_shift, amplitude)
+        q_factor = (params["Center Frequency (Hz)"] + fano1.params["center"].value) / (2 * fano1.params["sigma"].value)
+        q_factor_err = q_factor * np.sqrt((fano1.params["center"].stderr/fano1.params["center"].value)**2 + (fano1.params["sigma"].stderr/fano1.params["sigma"].value)**2)
+        ax[idx, 0].plot(freq_shift, fano1.best_fit, label="Q={:.0f}$\pm{:.0f}$".format(q_factor, q_factor_err))
+        ax[idx, 0].legend()
+        fano2 = sft.fit_fano(freq_shift, phase, linear_offset=True)
+        ax[idx, 1].plot(freq_shift, fano2.best_fit)
+        print("chi-square ({}) = {:.2e}".format(file, fano1.chisqr))
 
-```python
-lorentzian
-```
-
-```python
-print("Q =", (params["Center Frequency (Hz)"] + lorentzian.params["center"].value) / (2 * lorentzian.params["sigma"].value))
-```
-
-```python
-%matplotlib widget
-
-params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep003.dat")
-freq_shift = data["Frequency Shift (Hz)"]
-amplitude = data["Amplitude (m)"]
-phase = data["Phase (deg)"]
-fano = sft.fit_fano(freq_shift, amplitude)
-lorentzian = sft.fit_fano(freq_shift, phase, linear_offset=True)
-
-fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=4, sharex=True)
-ax1.plot(freq_shift, amplitude)
-ax1.plot(freq_shift, fano.best_fit)
-ax1.set_ylabel(data.columns[2])
-
-ax2.plot(freq_shift, phase)
-ax2.plot(freq_shift, lorentzian.best_fit)
-ax2.set_ylabel(data.columns[3])
-ax2.set_xlabel(data.columns[1])
-
-params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep002.dat")
-freq_shift = data["Frequency Shift (Hz)"]
-amplitude = data["Amplitude (m)"]
-phase = data["Phase (deg)"]
-fano = sft.fit_fano(freq_shift, amplitude)
-lorentzian = sft.fit_fano(freq_shift, phase, linear_offset=True)
-
-ax3.plot(freq_shift, amplitude)
-ax3.plot(freq_shift, fano.best_fit)
-ax3.set_ylabel(data.columns[2])
-
-ax4.plot(freq_shift, phase)
-ax4.plot(freq_shift, lorentzian.best_fit)
-ax4.set_ylabel(data.columns[3])
-ax4.set_xlabel(data.columns[1])
+fig.tight_layout()
+fig.text(0.5, 0.02, data.columns[1], ha='center', va='center')
 ```
