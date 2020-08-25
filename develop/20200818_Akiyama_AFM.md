@@ -30,6 +30,7 @@ import src.fitting as sft
 ```python
 AFM_FOLDER = "20200818_Akiyama_AFM/"
 AFM_FOLDER1 = "20200721_Akiyama_AFM/"
+AFM_FOLDER2 = "20200824_Akiyama_AFM/"
 ```
 
 ## 20200721_Akiyama_AFM
@@ -77,6 +78,7 @@ amplitude = data["Amplitude (m)"]
 phase = data["Phase (deg)"]
 fano = sft.fit_fano(freq_shift, amplitude)
 lorentzian = sft.fit_fano(freq_shift, phase)
+params
 ```
 
 ## Equations for calculating Q factor
@@ -123,12 +125,95 @@ print("{} = {:.1f} +- {:.1f}".format(fano.params["sigma"].name, fano.params["sig
 print("{} = {:.2e} +- {:.0e}".format(fano.params["amplitude"].name, fano.params["amplitude"].value, fano.params["amplitude"].stderr))
 ```
 
-## Print fit reports
+## 20200824_Akiyama_AFM
 
 ```python
-fano
+params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep001.dat")
+freq_shift = data["Frequency Shift (Hz)"]
+amplitude = data["Amplitude (m)"]
+phase = data["Phase (deg)"]
+fano = sft.fit_fano(freq_shift, amplitude)
+lorentzian = sft.fit_fano(freq_shift, phase, linear_offset=True)
+```
+
+```python
+%matplotlib widget
+
+params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep001.dat")
+freq_shift = data["Frequency Shift (Hz)"]
+amplitude = data["Amplitude (m)"]
+phase = data["Phase (deg)"]
+fano = sft.fit_fano(freq_shift, amplitude)
+lorentzian = sft.fit_fano(freq_shift, phase)
+
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=4, sharex=True)
+ax1.plot(freq_shift, amplitude)
+ax1.plot(freq_shift, fano.best_fit)
+ax1.set_ylabel(data.columns[2])
+
+ax2.plot(freq_shift, phase)
+ax2.plot(freq_shift, lorentzian.best_fit)
+ax2.set_ylabel(data.columns[3])
+ax2.set_xlabel(data.columns[1])
+
+params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep002.dat")
+freq_shift = data["Frequency Shift (Hz)"]
+amplitude = data["Amplitude (m)"]
+phase = data["Phase (deg)"]
+fano = sft.fit_fano(freq_shift, amplitude)
+lorentzian = sft.fit_lorentzian(freq_shift, phase)
+
+ax3.plot(freq_shift, amplitude)
+ax3.plot(freq_shift, fano.best_fit)
+ax3.set_ylabel(data.columns[2])
+
+ax4.plot(freq_shift, phase)
+ax4.plot(freq_shift, lorentzian.best_fit)
+ax4.set_ylabel(data.columns[3])
+ax4.set_xlabel(data.columns[1])
 ```
 
 ```python
 lorentzian
+```
+
+```python
+print("Q =", (params["Center Frequency (Hz)"] + lorentzian.params["center"].value) / (2 * lorentzian.params["sigma"].value))
+```
+
+```python
+%matplotlib widget
+
+params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep003.dat")
+freq_shift = data["Frequency Shift (Hz)"]
+amplitude = data["Amplitude (m)"]
+phase = data["Phase (deg)"]
+fano = sft.fit_fano(freq_shift, amplitude)
+lorentzian = sft.fit_fano(freq_shift, phase, linear_offset=True)
+
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=4, sharex=True)
+ax1.plot(freq_shift, amplitude)
+ax1.plot(freq_shift, fano.best_fit)
+ax1.set_ylabel(data.columns[2])
+
+ax2.plot(freq_shift, phase)
+ax2.plot(freq_shift, lorentzian.best_fit)
+ax2.set_ylabel(data.columns[3])
+ax2.set_xlabel(data.columns[1])
+
+params, data = sio.read_dat(AFM_FOLDER2 + "frq-sweep002.dat")
+freq_shift = data["Frequency Shift (Hz)"]
+amplitude = data["Amplitude (m)"]
+phase = data["Phase (deg)"]
+fano = sft.fit_fano(freq_shift, amplitude)
+lorentzian = sft.fit_fano(freq_shift, phase, linear_offset=True)
+
+ax3.plot(freq_shift, amplitude)
+ax3.plot(freq_shift, fano.best_fit)
+ax3.set_ylabel(data.columns[2])
+
+ax4.plot(freq_shift, phase)
+ax4.plot(freq_shift, lorentzian.best_fit)
+ax4.set_ylabel(data.columns[3])
+ax4.set_xlabel(data.columns[1])
 ```

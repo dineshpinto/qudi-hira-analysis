@@ -310,11 +310,11 @@ def offset_type(linear_offset):
         return ConstantModel()
 
 
-def fit_fano(x, y):
+def fit_fano(x, y, linear_offset=False):
     fano = BreitWignerModel()
     params = fano.guess(y, x=x)
 
-    offset = ConstantModel()
+    offset = offset_type(linear_offset)
     params += offset.guess(y, x=x)
 
     model = fano + offset
