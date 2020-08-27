@@ -1,0 +1,1 @@
+xcopy /s/e/y \\kernix\qudiamond\Data C:\Nextcloud\Data

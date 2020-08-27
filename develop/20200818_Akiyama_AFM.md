@@ -138,13 +138,19 @@ Optionally, the data can be fit to Fano resonances by setting the variable
 ```python
 fit = True
 ```
-The Q-factor is calculated as:
 
+### Q-factor
 $$ Q = \frac{f_R}{\Delta f} = \frac{f_R}{2 \sigma} $$
 
-Erros are calculated as (this also gives an estimate of the SNR):
+Errors are calculated as (this also gives an estimate of the SNR):
 $$ \frac{\Delta Q}{Q} = \sqrt{ \left( \frac{\Delta (\Delta f)}{\Delta f} \right)^2 + \left( \frac{\Delta (\sigma)}{\sigma} \right)^2 } $$
 
+### SNR
+best fit values / standard error of the residuals
+
+These are better viewed as relative values than as absolute measures.
+
+### Chi-square
 Another estimate of the SNR, is the reduced Chi square (lower is better):
 $$ \chi^2_\nu = \frac{\chi^2} \nu $$
 where chi-squared is a weighted sum of squared deviations:
@@ -179,14 +185,19 @@ for idx, file in enumerate(files):
     
     if fit:
         fano1 = sft.fit_fano(freq_shift, amplitude)
+        snr = np.mean(scipy.stats.sem(fano1.best_fit/fano1.residual, axis=None, ddof=0))
         q_factor = (params["Center Frequency (Hz)"] + fano1.params["center"].value) / (2 * fano1.params["sigma"].value)
         q_factor_err = q_factor * np.sqrt((fano1.params["center"].stderr/fano1.params["center"].value)**2 + (fano1.params["sigma"].stderr/fano1.params["sigma"].value)**2)
         ax[idx, 0].plot(freq_shift, fano1.best_fit, label="Q={:.0f}$\pm{:.0f}$".format(q_factor, q_factor_err))
         ax[idx, 0].legend()
         fano2 = sft.fit_fano(freq_shift, phase, linear_offset=True)
         ax[idx, 1].plot(freq_shift, fano2.best_fit)
-        print("chi-square ({}) = {:.2e}".format(file, fano1.chisqr))
+        print("({}) SNR = {:.0f}, reduced-chi-square = {:.2e}".format(file, snr, fano1.redchi))
+        fig.tight_layout()
 
-fig.tight_layout()
 fig.text(0.5, 0.02, data.columns[1], ha='center', va='center')
+```
+
+```python
+fano1
 ```
