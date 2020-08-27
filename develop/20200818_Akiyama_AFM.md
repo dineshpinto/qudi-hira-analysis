@@ -33,6 +33,8 @@ import src.fitting as sft
 AFM_FOLDER = "20200818_Akiyama_AFM/"
 AFM_FOLDER1 = "20200721_Akiyama_AFM/"
 AFM_FOLDER2 = "20200824_Akiyama_AFM/"
+AFM_FOLDER3 = "20200826_TFSC_Preamp_AFM/11613_Tip_5/Akiyama_Tip_Stage/"
+AFM_FOLDER4 = "20200826_TFSC_Preamp_AFM/11613_Tip_5/Custom_Tip_Stage/"
 ```
 
 ## 20200721_Akiyama_AFM
@@ -130,7 +132,7 @@ print("{} = {:.2e} +- {:.0e}".format(fano.params["amplitude"].name, fano.params[
 <!-- #region -->
 # 20200824_Akiyama_AFM
 
-## Loop to automatically read files from disk
+## Automatically read files from disk
 
 Reads all files stored in **AFM_FOLDER2 = "20200824_Akiyama_AFM/"** and plots the amplitude and phase data.
 
@@ -138,22 +140,14 @@ Optionally, the data can be fit to Fano resonances by setting the variable
 ```python
 fit = True
 ```
+The Q-factor is calculated as:
 
-### Q-factor
 $$ Q = \frac{f_R}{\Delta f} = \frac{f_R}{2 \sigma} $$
 
 Errors are calculated as (this also gives an estimate of the SNR):
 $$ \frac{\Delta Q}{Q} = \sqrt{ \left( \frac{\Delta (\Delta f)}{\Delta f} \right)^2 + \left( \frac{\Delta (\sigma)}{\sigma} \right)^2 } $$
 
-### SNR
-best fit values / standard error of the residuals
-
-These are better viewed as relative values than as absolute measures.
-
-### Chi-square
-Another estimate of the SNR, is the reduced Chi square (lower is better):
-$$ \chi^2_\nu = \frac{\chi^2} \nu $$
-where chi-squared is a weighted sum of squared deviations:
+Another estimate of the SNR, is the Chi square or weighted sum of squared deviations (lower is better):
 $$ \chi^2 = \sum_{i} {\frac{(O_i - C_i)^2}{\sigma_i^2}} $$
 <!-- #endregion -->
 
@@ -165,7 +159,7 @@ fit = True    # Setting to True will take slightly longer due to the fitting pro
 files = []
 for file in os.listdir("../../Data/" + AFM_FOLDER2):
     if file.endswith(".dat"):
-        files.append(file)
+        files.append(file) 
 
 fig, ax = plt.subplots(nrows=len(files), ncols=2)
 
@@ -185,19 +179,119 @@ for idx, file in enumerate(files):
     
     if fit:
         fano1 = sft.fit_fano(freq_shift, amplitude)
-        snr = np.mean(scipy.stats.sem(fano1.best_fit/fano1.residual, axis=None, ddof=0))
         q_factor = (params["Center Frequency (Hz)"] + fano1.params["center"].value) / (2 * fano1.params["sigma"].value)
         q_factor_err = q_factor * np.sqrt((fano1.params["center"].stderr/fano1.params["center"].value)**2 + (fano1.params["sigma"].stderr/fano1.params["sigma"].value)**2)
         ax[idx, 0].plot(freq_shift, fano1.best_fit, label="Q={:.0f}$\pm{:.0f}$".format(q_factor, q_factor_err))
         ax[idx, 0].legend()
         fano2 = sft.fit_fano(freq_shift, phase, linear_offset=True)
         ax[idx, 1].plot(freq_shift, fano2.best_fit)
-        print("({}) SNR = {:.0f}, reduced-chi-square = {:.2e}".format(file, snr, fano1.redchi))
-        fig.tight_layout()
+        print("chi-square ({}) = {:.2e}".format(file, fano1.chisqr))
 
+fig.tight_layout()
+fig.text(0.5, 0.02, data.columns[1], ha='center', va='center')
+```
+
+## 20200826_TFSC_Preamp_AFM 
+### 11613_Tip_5
+
+```python
+%matplotlib widget
+
+fit = True    # Setting to True will take slightly longer due to the fitting protocols
+
+files = []
+for file in os.listdir("../../Data/" + AFM_FOLDER4):
+    if file.endswith(".dat"):
+        files.append(file) 
+
+fig, ax = plt.subplots(nrows=len(files), ncols=2)
+
+for idx, file in enumerate(files):
+    params, data = sio.read_dat(AFM_FOLDER4 + file)
+    freq_shift = data["Frequency Shift (Hz)"]
+    amplitude = data["Amplitude (m)"]
+    phase = data["Phase (deg)"]
+
+    ax[idx, 0].plot(freq_shift, amplitude)
+    ax[idx, 0].set_ylabel(data.columns[2])
+    ax[idx, 0].set_title(file)
+
+    ax[idx, 1].plot(freq_shift, phase)
+    ax[idx, 1].set_ylabel(data.columns[3])
+    ax[idx, 1].set_title(file)
+    
+    if fit:
+        fano1 = sft.fit_fano(freq_shift, amplitude)
+        q_factor = (params["Center Frequency (Hz)"] + fano1.params["center"].value) / (fano1.params["sigma"].value)
+        q_factor_err = q_factor * np.sqrt((fano1.params["center"].stderr/fano1.params["center"].value)**2 + (fano1.params["sigma"].stderr/fano1.params["sigma"].value)**2)
+        ax[idx, 0].plot(freq_shift, fano1.best_fit, label="Q={:.0f}$\pm{:.0f}$".format(q_factor, q_factor_err))
+        ax[idx, 0].legend()
+        fano2 = sft.fit_fano(freq_shift, phase, linear_offset=True)
+        ax[idx, 1].plot(freq_shift, fano2.best_fit)
+        print("chi-square ({}) = {:.2e}".format(file, fano1.chisqr))
+
+fig.tight_layout()
 fig.text(0.5, 0.02, data.columns[1], ha='center', va='center')
 ```
 
 ```python
-fano1
+omega_0 = 1
+omega = np.linspace(0, 2, 1000)
+Q = 1
+
+ratio = omega / omega_0
+
+phi = np.arctan(-ratio / (Q * (1 - ratio**2)))
+
+fid, ax = plt.subplots()
+ax.plot(ratio, phi)
+```
+
+# Thermal Noise density
+
+```python
+f_0 = 44009
+bw = 300
+f = np.linspace(f_0-bw, f_0+bw, 1000)
+Q = 1000
+f_ratio = f / f_0
+N_v_th_exc_square = 1
+
+N_v_th_square = N_v_th_exc_square / ((1 - f_ratio**2)**2 + 1/Q**2 * f_ratio**2)
+
+def power_density(f, N_v_th_exc_square, f_0):
+    f_ratio = f / f_0
+    return  N_v_th_exc_square / ((1 - f_ratio**2)**2 + 1/Q**2 * f_ratio**2) 
+
+def S_sensor(N_v_th_exc_square):
+    k_B = 1.38e-23 
+    T = 300
+    k = 5
+    return np.sqrt( (2*k_B*T) / (np.pi * N_v_th_exc_square * k * Q * f_0) )
+```
+
+```python
+%matplotlib widget
+file = "SignalAnalyzer_Spectrum001"
+params, data = sio.read_dat(AFM_FOLDER4 + file)
+
+a, b = 270, 310
+
+frequency = data["Frequency (Hz)"].values[a:b]
+psd = data["Input 1 PowerSpectralDensity (V/sqrt(Hz))"].values[a:b] ** 2
+fig, ax = plt.subplots()
+ax.plot(frequency, psd)
+
+from scipy.optimize import curve_fit
+
+popt, pcov = curve_fit(power_density, xdata=frequency, ydata=psd, p0=[1e-10, 44000])
+
+ax.plot(frequency, power_density(frequency, *popt))
+
+print(popt)
+print(S_sensor(popt[0]))
+```
+
+```python
+
 ```
