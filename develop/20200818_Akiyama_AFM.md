@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from pprint import pprint
-import scipy
+from scipy.optimize import curve_fit
 
 import src.io as sio
 import src.preprocessing as spp
@@ -247,51 +247,22 @@ fid, ax = plt.subplots()
 ax.plot(ratio, phi)
 ```
 
-# Thermal Noise density
+# Calibration from Thermal Noise density
 
-```python
-f_0 = 44009
-bw = 300
-f = np.linspace(f_0-bw, f_0+bw, 1000)
-Q = 1000
-f_ratio = f / f_0
-N_v_th_exc_square = 1
+From Atomic Force Microscopy, Second Edition by Bert Voigtländer
 
-N_v_th_square = N_v_th_exc_square / ((1 - f_ratio**2)**2 + 1/Q**2 * f_ratio**2)
+Section 11.6.5 Experimental Determination of the Sensitivity and Spring Constant in AFM Without Tip-Sample Contact
 
-def power_density(f, N_v_th_exc_square, f_0):
-    f_ratio = f / f_0
-    return  N_v_th_exc_square / ((1 - f_ratio**2)**2 + 1/Q**2 * f_ratio**2) 
-
-def S_sensor(N_v_th_exc_square):
-    k_B = 1.38e-23 
-    T = 300
-    k = 5
-    return np.sqrt( (2*k_B*T) / (np.pi * N_v_th_exc_square * k * Q * f_0) )
-```
+Eq. 11.28 and 11.26
 
 ```python
 %matplotlib widget
 file = "SignalAnalyzer_Spectrum001"
 params, data = sio.read_dat(AFM_FOLDER4 + file)
 
-a, b = 270, 310
-
-frequency = data["Frequency (Hz)"].values[a:b]
-psd = data["Input 1 PowerSpectralDensity (V/sqrt(Hz))"].values[a:b] ** 2
+calibration_params = sft.find_afm_calibration_parameters(data, frequency_range=[40000, 48000], Q=1000, f_0_guess=44000)
 fig, ax = plt.subplots()
-ax.plot(frequency, psd)
-
-from scipy.optimize import curve_fit
-
-popt, pcov = curve_fit(power_density, xdata=frequency, ydata=psd, p0=[1e-10, 44000])
-
-ax.plot(frequency, power_density(frequency, *popt))
-
-print(popt)
-print(S_sensor(popt[0]))
-```
-
-```python
-
+ax.plot(calibration_params["Frequency (Hz)"], calibration_params["PSD squared (V**2/Hz)"])
+ax.plot(calibration_params["Frequency (Hz)"], calibration_params["PSD squared fit (V**2/Hz)"])
+print("Calibration (m/V) =", calibration_params["Calibration (m/V)"])
 ```
