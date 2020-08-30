@@ -35,6 +35,7 @@ AFM_FOLDER1 = "20200721_Akiyama_AFM/"
 AFM_FOLDER2 = "20200824_Akiyama_AFM/"
 AFM_FOLDER3 = "20200826_TFSC_Preamp_AFM/11613_Tip_5/Akiyama_Tip_Stage/"
 AFM_FOLDER4 = "20200826_TFSC_Preamp_AFM/11613_Tip_5/Custom_Tip_Stage/"
+AFM_FOLDER5 = "20200828_Tip_Approach1/"
 ```
 
 ## 20200721_Akiyama_AFM
@@ -265,4 +266,54 @@ fig, ax = plt.subplots()
 ax.plot(calibration_params["Frequency (Hz)"], calibration_params["PSD squared (V**2/Hz)"])
 ax.plot(calibration_params["Frequency (Hz)"], calibration_params["PSD squared fit (V**2/Hz)"])
 print("Calibration (m/V) =", calibration_params["Calibration (m/V)"])
+```
+
+```python
+%matplotlib inline
+
+fit = False    # Setting to True will take slightly longer due to the fitting protocols
+
+files = []
+for file in os.listdir("../../Data/" + AFM_FOLDER5):
+    if file.endswith(".dat"):
+        files.append(file) 
+
+
+files = ["Gold_leaf_approach/frq-sweep003.dat"]
+        
+fig, ax = plt.subplots(nrows=len(files), ncols=2)
+
+for idx, file in enumerate(files):
+    params, data = sio.read_dat(AFM_FOLDER5 + file)
+    freq_shift = data["Frequency Shift (Hz)"]
+    amplitude = data["Amplitude (m)"]
+    phase = data["Phase (deg)"]
+    
+    if len(files) == 1:
+        ax[0].plot(freq_shift, amplitude*1e12)
+        ax[0].set_ylabel("Amplitude (pm)")
+
+        ax[1].plot(freq_shift, phase)
+        ax[1].set_ylabel(data.columns[3])
+    else:
+        ax[idx, 0].plot(freq_shift, amplitude)
+        ax[idx, 0].set_ylabel(data.columns[2])
+        ax[idx, 0].set_title(file)
+
+        ax[idx, 1].plot(freq_shift, phase)
+        ax[idx, 1].set_ylabel(data.columns[3])
+        ax[idx, 1].set_title(file)
+
+        if fit:
+            fano1 = sft.fit_fano(freq_shift, amplitude)
+            #q_factor = (params["Center Frequency (Hz)"] + fano1.params["center"].value) / (fano1.params["sigma"].value)
+            #q_factor_err = q_factor * np.sqrt((fano1.params["center"].stderr/fano1.params["center"].value)**2 + (fano1.params["sigma"].stderr/fano1.params["sigma"].value)**2)
+            ax[idx, 0].plot(freq_shift, fano1.best_fit)
+            ax[idx, 0].legend()
+            fano2 = sft.fit_fano(freq_shift, phase, linear_offset=True)
+            ax[idx, 1].plot(freq_shift, fano2.best_fit)
+            print("chi-square ({}) = {:.2e}".format(file, fano1.chisqr))
+
+fig.tight_layout()
+fig.text(0.5, 0.02, data.columns[1], ha='center', va='center')
 ```

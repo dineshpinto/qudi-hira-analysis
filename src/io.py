@@ -123,7 +123,6 @@ def extract_parameters_from_dat(filename, folder=""):
                 if "Oscillation Control>" in label:
                     label = label.replace("Oscillation Control>", "")
                 d[label] = value
-
     return d
 
 
