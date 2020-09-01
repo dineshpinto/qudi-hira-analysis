@@ -274,24 +274,24 @@ print("Calibration (m/V) =", calibration_params["Calibration (m/V)"])
 fit = False    # Setting to True will take slightly longer due to the fitting protocols
 
 files = []
-for file in os.listdir("../../Data/" + AFM_FOLDER5):
+for file in os.listdir("../../Data/" + AFM_FOLDER4):
     if file.endswith(".dat"):
         files.append(file) 
 
 
-files = ["Gold_leaf_approach/frq-sweep003.dat"]
+files = ["frq-sweep002.dat"]
         
 fig, ax = plt.subplots(nrows=len(files), ncols=2)
 
 for idx, file in enumerate(files):
-    params, data = sio.read_dat(AFM_FOLDER5 + file)
+    params, data = sio.read_dat(AFM_FOLDER4 + file)
     freq_shift = data["Frequency Shift (Hz)"]
     amplitude = data["Amplitude (m)"]
     phase = data["Phase (deg)"]
     
     if len(files) == 1:
-        ax[0].plot(freq_shift, amplitude*1e12)
-        ax[0].set_ylabel("Amplitude (pm)")
+        ax[0].plot(freq_shift, amplitude)
+        ax[0].set_ylabel(data.columns[2])
 
         ax[1].plot(freq_shift, phase)
         ax[1].set_ylabel(data.columns[3])
