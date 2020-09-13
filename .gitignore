@@ -20,3 +20,9 @@ __pycache__/
 
 # Idea files
 .idea
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.bmp

@@ -36,6 +36,19 @@ AFM_FOLDER2 = "20200824_Akiyama_AFM/"
 AFM_FOLDER3 = "20200826_TFSC_Preamp_AFM/11613_Tip_5/Akiyama_Tip_Stage/"
 AFM_FOLDER4 = "20200826_TFSC_Preamp_AFM/11613_Tip_5/Custom_Tip_Stage/"
 AFM_FOLDER5 = "20200828_Tip_Approach1/"
+AFM_FOLDER6 = "20200901_Tip_Approach_2/Actual_tip_approach/"
+```
+
+# Approach
+
+```python
+params, data = sio.read_dat(AFM_FOLDER6 + "HistoryData001.dat")
+amplitude = data["Amplitude (m)"].values
+fig, ax = plt.subplots()
+ax.plot(amplitude*1e9)
+ax.set_ylabel("Amplitude (nm)")
+ax.set_xlabel("Time (a.u.)")
+#plt.savefig("snap.jpg", dpi=600)
 ```
 
 ## 20200721_Akiyama_AFM
@@ -45,7 +58,7 @@ params, data = sio.read_dat(AFM_FOLDER1 + "frq-sweep002.dat")
 freq_shift = data["Frequency Shift (Hz)"].values
 amplitude = data["Amplitude (m)"].values
 phase = data["Phase (deg)"].values
-amp_freq_sweep = sft.fit_lorentzian(freq_shift, amplitude, linear_offset=True)
+amp_freq_sweep = sft.fit_fano(freq_shift, amplitude, linear_offset=True)
 phase_freq_sweep = sft.fit_fano(freq_shift, phase)
 ```
 
@@ -53,18 +66,16 @@ phase_freq_sweep = sft.fit_fano(freq_shift, phase)
 %matplotlib inline
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
-ax1.plot(freq_shift, amplitude)
-ax1.plot(freq_shift, amp_freq_sweep.best_fit)
-ax1.set_ylabel(data.columns[2])
+ax1.plot(freq_shift, amplitude*1e12)
+#ax1.plot(freq_shift, amp_freq_sweep.best_fit)
+ax1.set_ylabel("Amplitude (pm)")
 
 ax2.plot(freq_shift, phase)
-ax2.plot(freq_shift, phase_freq_sweep.best_fit)
+#ax2.plot(freq_shift, phase_freq_sweep.best_fit)
 ax2.set_ylabel(data.columns[3])
 ax2.set_xlabel(data.columns[0])
-```
 
-```python
-
+plt.savefig("second.jpg", dpi=600)
 ```
 
 Quality factor can be calculated as $ Q = \frac{f_R}{\Delta f} $
@@ -153,9 +164,9 @@ $$ \chi^2 = \sum_{i} {\frac{(O_i - C_i)^2}{\sigma_i^2}} $$
 <!-- #endregion -->
 
 ```python
-%matplotlib widget
+%matplotlib inline
 
-fit = True    # Setting to True will take slightly longer due to the fitting protocols
+fit = False    # Setting to True will take slightly longer due to the fitting protocols
 
 files = []
 for file in os.listdir("../../Data/" + AFM_FOLDER2):
@@ -198,7 +209,7 @@ fig.text(0.5, 0.02, data.columns[1], ha='center', va='center')
 ```python
 %matplotlib widget
 
-fit = True    # Setting to True will take slightly longer due to the fitting protocols
+fit = False    # Setting to True will take slightly longer due to the fitting protocols
 
 files = []
 for file in os.listdir("../../Data/" + AFM_FOLDER4):
