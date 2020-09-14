@@ -6,10 +6,12 @@ activate jupyterlab
 
 # Conda base environment
 conda install -c conda-forge python scipy numpy jupyterlab lmfit matplotlib pandas peakutils jupytext
+pip install pySPM
 
 # Interactive plots with jupyterlab
 conda install -c conda-forge nodejs
-pip install ipympl; pip install --upgrade jupyterlab
+pip install ipympl
+pip install --upgrade jupyterlab
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install jupyter-matplotlib
 jupyter nbextension enable --py widgetsnbextension
