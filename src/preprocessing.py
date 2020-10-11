@@ -1,7 +1,11 @@
 import copy
+import os 
 
 import numpy as np
 from scipy import stats, sparse
+import matplotlib.pyplot as plt
+
+import src.io as sio
 
 # Preprocessing techniques from:
 # [1] Hopper, D. A., Shulevitz, H. J. & Bassett, L. C. Spin Readout Techniques of the Nitrogen-Vacancy Center in Diamond. Micromachines 9, 437 (2018).
@@ -326,3 +330,37 @@ def spin_state(c, shot_noise_toggle=True):
         return state, shot_noise
     else:
         return state
+
+
+def get_all_frq_sweeps(AFM_FOLDER, plot=True):
+    files = []
+
+    for file in os.listdir(AFM_FOLDER):
+        if file.startswith("frq-sweep") and file.endswith(".dat"):
+            files.append(file) 
+    
+    if plot:
+        fig, ax = plt.subplots(nrows=len(files), ncols=2, figsize=(15, len(files)*3))
+    
+    frq_sweep_dict = {}
+    
+    for idx, file in enumerate(files):
+        params, data = sio.read_dat(AFM_FOLDER + file)
+        frq_sweep_dict[file] = {'data': data, 'params': params}
+        
+        if plot:
+            freq_shift = data["Frequency Shift (Hz)"]
+            amplitude = data["Amplitude (m)"]
+            phase = data["Phase (deg)"]
+
+            ax[idx, 0].plot(freq_shift, amplitude)
+            ax[idx, 0].set_xlabel(data.columns[1])
+            ax[idx, 0].set_ylabel(data.columns[2])
+            ax[idx, 0].set_title(file)
+
+            ax[idx, 1].plot(freq_shift, phase)
+            ax[idx, 1].set_xlabel(data.columns[1])
+            ax[idx, 1].set_ylabel(data.columns[3])
+            ax[idx, 1].set_title(file)
+    
+    return frq_sweep_dict

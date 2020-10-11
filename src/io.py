@@ -84,28 +84,26 @@ Functions for reading Nanonis data files
 
 
 def extract_data_from_dat(filename, folder=""):
-    path = "../../Data/" + folder
     if not filename.endswith(".dat"):
         filename += ".dat"
 
-    with open(path + filename) as dat_file:
+    with open(folder + filename) as dat_file:
         for num, line in enumerate(dat_file, 1):
             if "[DATA]" in line:
                 # Find number of rows to skip when extracting data
                 skiprows = num
                 break
 
-    df = pd.read_table(path + filename, sep="\t", skiprows=skiprows)
+    df = pd.read_table(folder + filename, sep="\t", skiprows=skiprows)
     return df
 
 
 def extract_parameters_from_dat(filename, folder=""):
-    path = "../../Data/" + folder
     if not filename.endswith(".dat"):
         filename += ".dat"
 
     d = {}
-    with open(path + filename) as dat_file:
+    with open(folder + filename) as dat_file:
         for line in dat_file:
             if line == "\n":
                 # Break when reaching empty line
@@ -130,3 +128,16 @@ def read_dat(filename, folder=""):
     parameters = extract_parameters_from_dat(filename, folder=folder)
     data = extract_data_from_dat(filename, folder=folder)
     return parameters, data
+
+def get_folderpath(folder_name):
+    if os.environ['COMPUTERNAME'] == 'NBKK055':
+        return r"C:\\Nextcloud\\Data\\{}\\".format(folder_name)
+    else:
+        return r"Z:\\Data\\{}\\".format(folder_name)
+
+def savefig(filename):
+    path = "../figures/"
+    if "." in filename:
+        plt.savefig(path + filename, dpi=600)
+    else:
+        plt.savefig(path + filename + ".jpg", dpi=600)
