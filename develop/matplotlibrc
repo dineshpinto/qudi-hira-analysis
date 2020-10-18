@@ -526,7 +526,7 @@ ytick.major.width   : 0.5     ## major tick width in points
 #figure.facecolor   : white     ## figure facecolor
 #figure.edgecolor   : white     ## figure edgecolor
 #figure.frameon     : True      ## enable figure frame
-#figure.max_open_warning : 20   ## The maximum number of figures to open through
+figure.max_open_warning : 100   ## The maximum number of figures to open through
                                 ## the pyplot interface before emitting a warning.
                                 ## If less than one this feature is disabled.
 

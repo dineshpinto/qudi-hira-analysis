@@ -1,6 +1,8 @@
 import os
 import pickle
+from datetime import datetime
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -129,15 +131,39 @@ def read_dat(filename, folder=""):
     data = extract_data_from_dat(filename, folder=folder)
     return parameters, data
 
+
 def get_folderpath(folder_name):
     if os.environ['COMPUTERNAME'] == 'NBKK055':
         return r"C:\\Nextcloud\\Data\\{}\\".format(folder_name)
     else:
         return r"Z:\\Data\\{}\\".format(folder_name)
 
-def savefig(filename):
-    path = "../figures/"
-    if "." in filename:
-        plt.savefig(path + filename, dpi=600)
-    else:
-        plt.savefig(path + filename + ".jpg", dpi=600)
+
+def savefig(path=None, filename=None):
+    if path is None:
+        path = "../figures/"
+    if filename is None:
+        filename = "image"
+
+    path_filename = path + filename
+
+    if "." not in path_filename:
+        path_filename += ".jpg"
+
+    plt.savefig(path_filename, dpi=600)
+
+
+def read_tpg_data(filename, folder=None):
+    if not filename.endswith(".txt"):
+        filename += ".txt"
+
+    df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=["Date", "Time", "Main", "Prep", "Backing"])
+
+    datetimes = df["Date"] + " " + df["Time"]
+    # Convert raw dates and times to datetime Series, then to an matplotlib Series
+    dt_series_datetime = [datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
+    dt_series_mpl = matplotlib.dates.date2num(dt_series_datetime)
+    # Save matplotlib datetimes for plotting
+    df["MPL_datetimes"] = dt_series_mpl
+
+    return df

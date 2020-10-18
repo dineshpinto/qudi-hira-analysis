@@ -1,9 +1,9 @@
 import copy
-import os 
+import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats, sparse
-import matplotlib.pyplot as plt
 
 import src.io as sio
 
@@ -337,17 +337,17 @@ def get_all_frq_sweeps(AFM_FOLDER, plot=True):
 
     for file in os.listdir(AFM_FOLDER):
         if file.startswith("frq-sweep") and file.endswith(".dat"):
-            files.append(file) 
-    
+            files.append(file)
+
     if plot:
-        fig, ax = plt.subplots(nrows=len(files), ncols=2, figsize=(15, len(files)*3))
-    
+        fig, ax = plt.subplots(nrows=len(files), ncols=2, figsize=(15, len(files) * 3))
+
     frq_sweep_dict = {}
-    
+
     for idx, file in enumerate(files):
         params, data = sio.read_dat(AFM_FOLDER + file)
         frq_sweep_dict[file] = {'data': data, 'params': params}
-        
+
         if plot:
             freq_shift = data["Frequency Shift (Hz)"]
             amplitude = data["Amplitude (m)"]
@@ -362,5 +362,5 @@ def get_all_frq_sweeps(AFM_FOLDER, plot=True):
             ax[idx, 1].set_xlabel(data.columns[1])
             ax[idx, 1].set_ylabel(data.columns[3])
             ax[idx, 1].set_title(file)
-    
+
     return frq_sweep_dict
