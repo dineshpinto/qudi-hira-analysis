@@ -7,12 +7,12 @@ A python toolkit to analyze experimental data from an NV diamond atomic force mi
 **Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of code are sufficient to reproduce all analyzed data and figures.
 
 ## Logic
-Jupyter notebooks are stored in `develop/`.
-
-Reusable code is stored in `src/`
++ Jupyter notebooks are stored in `notebooks/`
++ Reusable code is stored in `src/`
   1. `io.py` Reading and writing data and figures
   2. `preprocessing.py` Processing raw counts into usable data
   3. `fitting.py` Set of (semi)-automated fitting routines
++ Utilities such as automated copy scripts, conda envs etc. are stored in `tools/`
 
 ## Setup Method 1
 
