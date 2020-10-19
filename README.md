@@ -6,6 +6,8 @@ A python toolkit to analyze experimental data from an NV diamond atomic force mi
 
 **Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of code are sufficient to reproduce all analyzed data and figures.
 
+This license of this project is located in `LICENSE.md`
+
 ## Logic
 + Jupyter notebooks are stored in `notebooks/`
 + Reusable code is stored in `src/`
