@@ -1,4 +1,4 @@
-# data-analysis
+# qudiamond-analysis
 
 A python toolkit to analyze experimental data from an NV diamond atomic force microscope. The toolkit aims to make the data analysis transparent and reproducible.
 
