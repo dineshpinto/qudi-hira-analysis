@@ -53,7 +53,7 @@ jupyter nbextension enable --py widgetsnbextension
 ```
 
 ### Notes
-- Use "import ipympl" in notebook
+- Use `import ipympl` in notebook
 
 
 ## Makefile options
