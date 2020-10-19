@@ -1,10 +1,5 @@
 # Folders
-analysis_code-master/
-data/
-deliver/
 figures/
-raw_data/
-simulation/
 
 # Jupyter Notebook
 */.ipynb_checkpoints/*
