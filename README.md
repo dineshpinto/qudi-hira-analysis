@@ -6,7 +6,7 @@ A python toolkit to analyze experimental data from an NV diamond atomic force mi
 
 **Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of code are sufficient to reproduce all analyzed data and figures.
 
-This license of this project is located in `LICENSE.md`
+This license of this project is located in the top level folder under `LICENSE`.
 
 ## Logic
 + Jupyter notebooks are stored in `notebooks/`
@@ -19,7 +19,7 @@ This license of this project is located in `LICENSE.md`
 ## Setup Method 1
 
 ### 1. Creating the conda environment
-```conda env create -f conda-environment.yml```
+```conda env create -f tools/conda-environment.yml```
 
 ### 2. Interactive plotting in jupyter lab
 ```
