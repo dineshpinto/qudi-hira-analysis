@@ -127,6 +127,12 @@ def extract_parameters_from_dat(filename, folder=""):
 
 
 def read_dat(filename, folder=""):
+    """
+    Read data from a Nanonis dat file
+    :param filename:
+    :param folder:
+    :return: parameters (dict) and data (dict)
+    """
     parameters = extract_parameters_from_dat(filename, folder=folder)
     data = extract_data_from_dat(filename, folder=folder)
     return parameters, data
@@ -139,18 +145,29 @@ def get_folderpath(folder_name):
         return r"Z:\\Data\\{}\\".format(folder_name)
 
 
-def savefig(path=None, filename=None):
-    if path is None:
-        path = "../figures/"
+def savefig(filename=None, folder=None):
+    """
+    General function to save figures, creates a sub-directory "folders/" to save images.
+    :param folder:
+    :param filename:
+    :return:
+    """
+    if folder is None:
+        folder = "../figures/"
+    else:
+        folder += r"figures\\"
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
     if filename is None:
         filename = "image"
 
-    path_filename = path + filename
+    _, ext = os.path.splitext(filename)
+    if not ext:
+        filename += ".jpg"
 
-    if "." not in path_filename:
-        path_filename += ".jpg"
-
-    plt.savefig(path_filename, dpi=600)
+    folder_filename = folder + filename
+    plt.savefig(folder_filename, dpi=600)
 
 
 def read_tpg_data(filename, folder=None):
