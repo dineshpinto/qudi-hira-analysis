@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The following code is under the MIT License.
+The following code is part of qudiamond-analysis under the MIT License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
-top-level directory of this distribution and at <https://github.com/dineshpinto/data-analysis/>
+top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
 import numpy as np
@@ -35,6 +35,12 @@ from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 
 from .preprocessing import baseline_als
+
+
+# AFM calibration from thermal noise density:
+# Atomic Force Microscopy, Second Edition by Bert Voigtländer
+# Section 11.6.5 Experimental Determination of the Sensitivity and Spring Constant in AFM Without Tip-Sample Contact
+# Eq. 11.28 and 11.26
 
 """
 Old fitting methods.
