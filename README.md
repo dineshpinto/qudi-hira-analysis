@@ -1,6 +1,6 @@
 # qudiamond-analysis
 
-A python toolkit to analyze experimental data from an NV diamond atomic force microscope. The toolkit aims to make the data analysis transparent and reproducible.
+A reproducibe and transparent toolkit to analyze experimental data from an NV diamond atomic force microscope.
 
 **Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written texts. The toolkit itself is built entirely on free and open-source software (FOSS).
 
