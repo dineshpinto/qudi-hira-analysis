@@ -1,6 +1,6 @@
 # qudiamond-analysis
 
- A reproducible and transparent toolkit to analyze experimental data from a single qubit scanning probe microscope. 
+ A reproducible and transparent toolkit to analyze experimental data from an imaging magnetometer in diamond.
  
 **Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written texts. The toolkit itself is built entirely on free and open-source software (FOSS).
 
