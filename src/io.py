@@ -1,3 +1,29 @@
+# -*- coding: utf-8 -*-
+"""
+The following code is under the MIT License.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
+top-level directory of this distribution and at <https://github.com/dineshpinto/data-analysis/>
+"""
+
 import os
 import pickle
 from datetime import datetime
@@ -176,11 +202,19 @@ def read_tpg_data(filename, folder=None):
 
     df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=["Date", "Time", "Main", "Prep", "Backing"])
 
+    # Save matplotlib datetimes for plotting
+    df["MPL_datetimes"] = convert_tpg_to_mpl_time(df)
+    return df
+
+
+def convert_tpg_to_mpl_time(df):
+    """
+    Read DataFrame from TPGand add in matplotlib datetimes using "Date" and "Time" cols.
+    :param df: Dataframe
+    :return: array of matplotlib datetimes
+    """
     datetimes = df["Date"] + " " + df["Time"]
     # Convert raw dates and times to datetime Series, then to an matplotlib Series
     dt_series_datetime = [datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
     dt_series_mpl = matplotlib.dates.date2num(dt_series_datetime)
-    # Save matplotlib datetimes for plotting
-    df["MPL_datetimes"] = dt_series_mpl
-
-    return df
+    return dt_series_mpl

@@ -1,3 +1,29 @@
+# -*- coding: utf-8 -*-
+"""
+The following code is under the MIT License.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
+top-level directory of this distribution and at <https://github.com/dineshpinto/data-analysis/>
+"""
+
 import copy
 import os
 
@@ -8,7 +34,8 @@ from scipy import stats, sparse
 import src.io as sio
 
 # Preprocessing techniques from:
-# [1] Hopper, D. A., Shulevitz, H. J. & Bassett, L. C. Spin Readout Techniques of the Nitrogen-Vacancy Center in Diamond. Micromachines 9, 437 (2018).
+# [1] Hopper, D. A., Shulevitz, H. J. & Bassett, L. C. Spin Readout Techniques of the Nitrogen-Vacancy Center in
+# Diamond. Micromachines 9, 437 (2018).
 # [2] Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric Least Squares Smoothing (2005).
 
 # These global parameters have to be defined when imported
