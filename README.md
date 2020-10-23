@@ -1,7 +1,7 @@
 # qudiamond-analysis
 
-A python toolkit to analyze experimental data from an NV diamond atomic force microscope. The toolkit aims to make the data analysis transparent and reproducible.
-
+ A reproducible and transparent toolkit to analyze experimental data from an imaging magnetometer in diamond.
+ 
 **Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written texts. The toolkit itself is built entirely on free and open-source software (FOSS).
 
 **Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of code are sufficient to reproduce all analyzed data and figures.

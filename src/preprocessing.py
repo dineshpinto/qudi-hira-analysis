@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The following code is under the MIT License.
+The following code is part of qudiamond-analysis under the MIT License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
-top-level directory of this distribution and at <https://github.com/dineshpinto/data-analysis/>
+top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
 import copy
@@ -51,7 +51,7 @@ Core functions for preprocessing data.
 
 
 def find_edge(y, bins=20):
-    """ Determine when laser is switched on. """
+    """ Determine when laser is switched on in photon time trace. """
     h, b = np.histogram(y, bins=bins)
     i0 = int(bins / 2)
     i = h[i0:].argmax() + i0

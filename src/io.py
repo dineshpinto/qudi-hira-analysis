@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The following code is under the MIT License.
+The following code is part of qudiamond-analysis under the MIT License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
-top-level directory of this distribution and at <https://github.com/dineshpinto/data-analysis/>
+top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
 import os
@@ -58,6 +58,7 @@ def save_pys(dictionary, filename, folder=""):
 
 
 def save_df(df, filename, folder=""):
+    """ Save Dataframe as csv. """
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
@@ -112,6 +113,7 @@ Functions for reading Nanonis data files
 
 
 def extract_data_from_dat(filename, folder=""):
+    """ Extract data from a Nanonis dat file. """
     if not filename.endswith(".dat"):
         filename += ".dat"
 
@@ -127,6 +129,7 @@ def extract_data_from_dat(filename, folder=""):
 
 
 def extract_parameters_from_dat(filename, folder=""):
+    """ Extract parameters from a Nanonis dat file. """
     if not filename.endswith(".dat"):
         filename += ".dat"
 
@@ -154,7 +157,7 @@ def extract_parameters_from_dat(filename, folder=""):
 
 def read_dat(filename, folder=""):
     """
-    Read data from a Nanonis dat file
+    Helper function to extract both data and parameters from a Nanonis dat file.
     :param filename:
     :param folder:
     :return: parameters (dict) and data (dict)
@@ -165,6 +168,7 @@ def read_dat(filename, folder=""):
 
 
 def get_folderpath(folder_name):
+    """ Automatically create absolute folder paths. """
     if os.environ['COMPUTERNAME'] == 'NBKK055':
         return r"C:\\Nextcloud\\Data\\{}\\".format(folder_name)
     else:
@@ -172,12 +176,7 @@ def get_folderpath(folder_name):
 
 
 def savefig(filename=None, folder=None):
-    """
-    General function to save figures, creates a sub-directory "folders/" to save images.
-    :param folder:
-    :param filename:
-    :return:
-    """
+    """ General function to save figures, creates a sub-directory "figures/" to save images. """
     if folder is None:
         folder = "../figures/"
     else:
@@ -197,6 +196,7 @@ def savefig(filename=None, folder=None):
 
 
 def read_tpg_data(filename, folder=None):
+    """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
     if not filename.endswith(".txt"):
         filename += ".txt"
 
@@ -208,11 +208,7 @@ def read_tpg_data(filename, folder=None):
 
 
 def convert_tpg_to_mpl_time(df):
-    """
-    Read DataFrame from TPGand add in matplotlib datetimes using "Date" and "Time" cols.
-    :param df: Dataframe
-    :return: array of matplotlib datetimes
-    """
+    """ Read DataFrame extracted using read_tpg_data and add in matplotlib datetimes using "Date" and "Time" cols. """
     datetimes = df["Date"] + " " + df["Time"]
     # Convert raw dates and times to datetime Series, then to an matplotlib Series
     dt_series_datetime = [datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
