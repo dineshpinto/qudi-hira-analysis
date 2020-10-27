@@ -437,3 +437,13 @@ def find_afm_calibration_parameters(data, frequency_range, Q, f_0_guess=44000, T
                           "PSD squared (V**2/Hz)": psd_squared, "PSD squared fit (V**2/Hz)": psd_squared_fit}
 
     return calibration_params
+
+
+def func_linear(x, a, b):
+    """ Simple linear function to use for scipy.curve_fit. """
+    return a + b * x
+
+
+def func_exponentional(x, a, b, c):
+    """ Simple exponentional function to use for scipy.curve_fit. """
+    return a + b * np.exp(c * x)
