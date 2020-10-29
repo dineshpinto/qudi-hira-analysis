@@ -194,16 +194,27 @@ def savefig(filename=None, folder=None):
     folder_filename = folder + filename
     plt.savefig(folder_filename, dpi=600)
 
-
+def channel_to_gauge_names(channel_names):
+    """ Replace the channel names with gauge locations. """
+    gauges = {"CH 1": "Main", "CH 2": "Prep", "CH 3": "Backing"} 
+    return [gauges.get(ch, ch) for ch in channel_names]
+    
+    
 def read_tpg_data(filename, folder=None):
     """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
     if not filename.endswith(".txt"):
         filename += ".txt"
 
-    df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=["Date", "Time", "Main", "Prep", "Backing"])
-
+    # Extract only the header to check which gauges are connected
+    file_header = pd.read_csv(folder + filename, sep="\t", skiprows=1, nrows=1)
+    header = channel_to_gauge_names(file_header)
+    
+    # Create DataFrame with new header
+    df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=header)
+    
     # Save matplotlib datetimes for plotting
     df["MPL_datetimes"] = convert_tpg_to_mpl_time(df)
+    
     return df
 
 
