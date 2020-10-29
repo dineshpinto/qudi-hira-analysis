@@ -175,7 +175,7 @@ def get_folderpath(folder_name):
         return r"Z:\\Data\\{}\\".format(folder_name)
 
 
-def savefig(filename=None, folder=None):
+def savefig(filename=None, folder=None, **kwargs):
     """ General function to save figures, creates a sub-directory "figures/" to save images. """
     if folder is None:
         folder = "../figures/"
@@ -187,20 +187,36 @@ def savefig(filename=None, folder=None):
     if filename is None:
         filename = "image"
 
-    _, ext = os.path.splitext(filename)
-    if not ext:
-        filename += ".jpg"
+    # Extract just the filename without extension
+    fname, ext = os.path.splitext(filename)
 
-    folder_filename = folder + filename
-    plt.savefig(folder_filename, dpi=600)
+    if not ext:
+        # If no extension given, use some sane defaults
+        extensions = [".jpg", ".svg"]
+    else:
+        extensions = [ext]
+
+    for extension in extensions:
+        try:
+            if not kwargs:
+                # Sane defaults for saving
+                plt.savefig(folder + fname + extension, dpi=600, bbox_inches="tight")
+            else:
+                plt.savefig(folder + fname + extension, **kwargs)
+        except AttributeError:
+            # Happens when using JupyterLab with ipympl, can be safely ignored
+            pass
 
 
 def read_tpg_data(filename, folder=None):
     """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
+    # Ordered list corresponding to columns in the TPG data file
+    gauges = ["Main", "Prep", "Backing"]
+
     if not filename.endswith(".txt"):
         filename += ".txt"
 
-    df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=["Date", "Time", "Main", "Prep", "Backing"])
+    df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=["Date", "Time"] + gauges)
 
     # Save matplotlib datetimes for plotting
     df["MPL_datetimes"] = convert_tpg_to_mpl_time(df)
