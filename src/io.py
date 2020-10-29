@@ -175,7 +175,7 @@ def get_folderpath(folder_name):
         return r"Z:\\Data\\{}\\".format(folder_name)
 
 
-def savefig(filename=None, folder=None):
+def savefig(filename=None, folder=None, **kwargs):
     """ General function to save figures, creates a sub-directory "figures/" to save images. """
     if folder is None:
         folder = "../figures/"
@@ -187,19 +187,32 @@ def savefig(filename=None, folder=None):
     if filename is None:
         filename = "image"
 
-    _, ext = os.path.splitext(filename)
-    if not ext:
-        filename += ".jpg"
+    # Extract just the filename without extension
+    fname, ext = os.path.splitext(filename)
 
-    folder_filename = folder + filename
-    plt.savefig(folder_filename, dpi=600)
+    if not ext:
+        # If no extension given, use some sane defaults
+        extensions = [".jpg", ".svg"]
+    else:
+        extensions = [ext]
+
+    for extension in extensions:
+        try:
+            if not kwargs:
+                # Sane defaults for saving
+                plt.savefig(folder + fname + extension, dpi=600, bbox_inches="tight")
+            else:
+                plt.savefig(folder + fname + extension, **kwargs)
+        except AttributeError:
+            # Happens when using JupyterLab with ipympl, can be safely ignored
+            pass
 
 def channel_to_gauge_names(channel_names):
     """ Replace the channel names with gauge locations. """
-    gauges = {"CH 1": "Main", "CH 2": "Prep", "CH 3": "Backing"} 
+    gauges = {"CH 1": "Main", "CH 2": "Prep", "CH 3": "Backing"}
     return [gauges.get(ch, ch) for ch in channel_names]
-    
-    
+
+
 def read_tpg_data(filename, folder=None):
     """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
     if not filename.endswith(".txt"):
@@ -208,13 +221,12 @@ def read_tpg_data(filename, folder=None):
     # Extract only the header to check which gauges are connected
     file_header = pd.read_csv(folder + filename, sep="\t", skiprows=1, nrows=1)
     header = channel_to_gauge_names(file_header)
-    
+
     # Create DataFrame with new header
     df = pd.read_csv(folder + filename, sep="\t", skiprows=5, names=header)
-    
+
     # Save matplotlib datetimes for plotting
     df["MPL_datetimes"] = convert_tpg_to_mpl_time(df)
-    
     return df
 
 

@@ -36,7 +36,6 @@ from scipy.signal import find_peaks
 
 from .preprocessing import baseline_als
 
-
 # AFM calibration from thermal noise density:
 # Atomic Force Microscopy, Second Edition by Bert Voigtländer
 # Section 11.6.5 Experimental Determination of the Sensitivity and Spring Constant in AFM Without Tip-Sample Contact
@@ -437,3 +436,13 @@ def find_afm_calibration_parameters(data, frequency_range, Q, f_0_guess=44000, T
                           "PSD squared (V**2/Hz)": psd_squared, "PSD squared fit (V**2/Hz)": psd_squared_fit}
 
     return calibration_params
+
+
+def func_linear(x, a, b):
+    """ Simple linear function to use for scipy.curve_fit. """
+    return a + b * x
+
+
+def func_exponential(x, a, b, c):
+    """ Simple exponential function to use for scipy.curve_fit. """
+    return a + b * np.exp(c * x)
