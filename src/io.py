@@ -24,14 +24,15 @@ Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
 top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
+import datetime
 import os
 import pickle
-from datetime import datetime
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from dateutil import parser, tz
 
 """
 Functions for reading and writing into data files.
@@ -207,6 +208,7 @@ def savefig(filename=None, folder=None, **kwargs):
             # Happens when using JupyterLab with ipympl, can be safely ignored
             pass
 
+
 def channel_to_gauge_names(channel_names):
     """ Replace the channel names with gauge locations. """
     gauges = {"CH 1": "Main", "CH 2": "Prep", "CH 3": "Backing"}
@@ -234,6 +236,28 @@ def convert_tpg_to_mpl_time(df):
     """ Read DataFrame extracted using read_tpg_data and add in matplotlib datetimes using "Date" and "Time" cols. """
     datetimes = df["Date"] + " " + df["Time"]
     # Convert raw dates and times to datetime Series, then to an matplotlib Series
-    dt_series_datetime = [datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
+    dt_series_datetime = [datetime.datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
     dt_series_mpl = matplotlib.dates.date2num(dt_series_datetime)
     return dt_series_mpl
+
+
+def read_tm224_data(filename, folder=None):
+    """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
+    if not filename.endswith(".xls"):
+        filename += ".xls"
+
+    # Extract only the timestamp
+    timestamp = pd.read_excel(folder + filename, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+    # Parse datetime object from timestamp
+    timestamp_dt = parser.parse(timestamp, tzinfos={"CET": tz.gettz('Europe/Berlin')})
+
+    # Create DataFrame
+    df = pd.read_excel(folder + filename, skiprows=3)
+
+    # Add matplotlib datetimes to DataFrame
+    time_array = []
+    for milliseconds in df["Time"]:
+        time_array.append(timestamp_dt + datetime.timedelta(milliseconds=milliseconds))
+    df["MPL_datetimes"] = matplotlib.dates.date2num(time_array)
+
+    return df
