@@ -33,8 +33,11 @@ from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWigne
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
+import datetime
 
 from .preprocessing import baseline_als
+import matplotlib
+import pytz
 
 # AFM calibration from thermal noise density:
 # Atomic Force Microscopy, Second Edition by Bert Voigtländer
@@ -446,3 +449,43 @@ def func_linear(x, a, b):
 def func_exponential(x, a, b, c):
     """ Simple exponential function to use for scipy.curve_fit. """
     return a + b * np.exp(c * x)
+
+
+def func_logarithmic(x, a, b, c):
+    """ Simple logarithmic function to use for scipy.curve_fit. """
+    return a + b * np.log(c * x)
+
+
+def time_extrapolation(df, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
+    """
+    Function to perform a extrapolation in time on a DataFrame.
+    Function choices for extrapolation: linear, exponential, logarithmic or custom function (set fit to function)
+    """
+    # Choose a starting point for the fitting
+    dfc = df[start_index:]
+    # Convert matplotlib dates to datetime objects, returns a tz-aware object
+    start = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
+    # Add tz-awareness information to datetime object to prevent tz-naive and tz-aware conflicts
+    end = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
+
+    # Get matplotlib date series
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end - start).days)]
+    dt_series_mpl = matplotlib.dates.date2num(date_generated)
+    # Fit date series with a choice of functions
+    if fit == "linear":
+        popt, pcov = curve_fit(func_linear, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        fit_result = func_linear(dt_series_mpl, *popt)
+    elif fit == "exponentional":
+        popt, pcov = curve_fit(func_exponential, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        fit_result = func_exponential(dt_series_mpl, *popt)
+    elif fit == "logarithmic":
+        popt, pcov = curve_fit(func_logarithmic, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        fit_result = func_logarithmic(dt_series_mpl, *popt)
+    elif hasattr(fit, '__call__'):
+        # Use a custom function
+        func = fit
+        popt, pcov = curve_fit(func, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        fit_result = func(dt_series_mpl, *popt)
+    else:
+        raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
+    return dt_series_mpl, fit_result
