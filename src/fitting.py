@@ -451,12 +451,22 @@ def func_exponential(x, a, b, c):
     return a + b * np.exp(c * x)
 
 
+def func_negexponential(x, a, b, c):
+    """ Simple exponential function to use for scipy.curve_fit. """
+    return a + b * np.exp(-c * x)
+
+
 def func_logarithmic(x, a, b, c):
     """ Simple logarithmic function to use for scipy.curve_fit. """
     return a + b * np.log(c * x)
 
 
-def time_extrapolation(df, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
+def func_neglogarithmic(x, a, b, c):
+    """ Simple logarithmic function to use for scipy.curve_fit. """
+    return a + b * np.log(-c * x)
+
+
+def time_extrapolation(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
     """
     Function to perform a extrapolation in time on a DataFrame.
     Function choices for extrapolation: linear, exponential, logarithmic or custom function (set fit to function)
@@ -473,18 +483,24 @@ def time_extrapolation(df, end_date="25-Dec-20 12:00", start_index=0, fit="linea
     dt_series_mpl = matplotlib.dates.date2num(date_generated)
     # Fit date series with a choice of functions
     if fit == "linear":
-        popt, pcov = curve_fit(func_linear, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        popt, pcov = curve_fit(func_linear, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func_linear(dt_series_mpl, *popt)
     elif fit == "exponentional":
-        popt, pcov = curve_fit(func_exponential, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        popt, pcov = curve_fit(func_exponential, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func_exponential(dt_series_mpl, *popt)
+    elif fit == "negexponentional":
+        popt, pcov = curve_fit(func_negexponential, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
+        fit_result = func_negexponential(dt_series_mpl, *popt)
     elif fit == "logarithmic":
-        popt, pcov = curve_fit(func_logarithmic, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        popt, pcov = curve_fit(func_logarithmic, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func_logarithmic(dt_series_mpl, *popt)
+    elif fit == "neglogarithmic":
+        popt, pcov = curve_fit(func_neglogarithmic, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
+        fit_result = func_neglogarithmic(dt_series_mpl, *popt)
     elif hasattr(fit, '__call__'):
         # Use a custom function
         func = fit
-        popt, pcov = curve_fit(func, xdata=dfc["MPL_datetimes"], ydata=dfc["Baseplate"])
+        popt, pcov = curve_fit(func, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func(dt_series_mpl, *popt)
     else:
         raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
