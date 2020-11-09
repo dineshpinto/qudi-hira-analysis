@@ -28,8 +28,9 @@ import numpy as np
 import peakutils
 import scipy
 import scipy.fftpack
+from lmfit import Model
 from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWignerModel, \
-    StepModel, VoigtModel, GaussianModel
+    StepModel, VoigtModel, GaussianModel, ExponentialModel, PowerLawModel, QuadraticModel, PolynomialModel
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
@@ -468,6 +469,7 @@ def func_neglogarithmic(x, a, b, c):
 
 def time_extrapolation(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
     """
+    DEPRECATED in favor of time_extrapolation_lmfit
     Function to perform a extrapolation in time on a DataFrame.
     Function choices for extrapolation: linear, exponential, logarithmic or custom function (set fit to function)
     """
@@ -498,10 +500,83 @@ def time_extrapolation(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fi
         popt, pcov = curve_fit(func_neglogarithmic, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func_neglogarithmic(dt_series_mpl, *popt)
     elif hasattr(fit, '__call__'):
-        # Use a custom function
+        # Use a custom function for fitting
         func = fit
         popt, pcov = curve_fit(func, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func(dt_series_mpl, *popt)
     else:
         raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
-    return dt_series_mpl, fit_result
+    return dt_series_mpl, func_linear
+
+
+def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
+    """
+    Extrapolate a set of time series data.
+
+    Parameters
+    ----------
+    df : pandas:DataFrame
+        containing column 'MPL_datetimes'
+    ylabel : string
+        Label in DataFame corresponding to y-axis
+    end_date : string, dd-mmm-yy H:M
+        Date to extrapolate to
+    start_index : int
+        DataFrame index to start fitting from
+    fit : function or {"linear", "quadratic", "polynomial<n>" (n=degree), "powerlaw", "exponentional"}
+
+    Returns
+    -------
+    extrapolated_dates_mpl : numpy.ndarray
+        extrapolated matplotlib dates
+
+    extrapolation : numpy.ndarray
+        extrapolated y-data
+
+    result : lmfit.Model
+        use result.best_fit to get optimal fit data
+    """
+
+    # Choose a starting point for the fitting
+    dfc = df[start_index:]
+    # Convert matplotlib dates to datetime objects, returns a tz-aware object
+    start_extrap = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
+    # Add tz-awareness information to datetime object to prevent tz-naive and tz-aware conflicts
+    end_extrap = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
+
+    # Get matplotlib date series
+    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(days=x) for x in range(0, (end_extrap - start_extrap).days)]
+    extrapolated_dates_mpl = matplotlib.dates.date2num(extrapolated_dates_datetime)
+    # Fit date series with a choice of lmfit functions
+    if hasattr(fit, '__call__'):
+        # Use a custom function for fitting
+        mod = Model(fit)
+        result = mod.fit(dfc[ylabel], x=dfc["MPL_datetimes"])
+    elif fit == "linear":
+        mod = QuadraticModel()
+        pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
+        result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+    elif fit == "quadratic":
+        mod = QuadraticModel()
+        pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
+        result = QuadraticModel().fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+    elif fit.startswith("polynomial"):
+        degree = int(fit[-1])
+        mod = PolynomialModel(degree=degree)
+        pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
+        result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+    elif fit == "powerlaw":
+        mod = PowerLawModel()
+        pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
+        result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+    elif fit == "exponentional":
+        mod = ExponentialModel()
+        pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
+        result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+    else:
+        raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
+    # Extrapolate date from best fit parameters
+    extrapolation = mod.eval(result.params, x=extrapolated_dates_mpl)
+
+    return extrapolated_dates_mpl, extrapolation, result
+

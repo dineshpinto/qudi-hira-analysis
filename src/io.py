@@ -158,10 +158,20 @@ def extract_parameters_from_dat(filename, folder=""):
 
 def read_dat(filename, folder=""):
     """
-    Helper function to extract both data and parameters from a Nanonis dat file.
-    :param filename:
-    :param folder:
-    :return: parameters (dict) and data (dict)
+    Convenience function to extract both parameters and data from a DAT file.
+
+    Args:
+        filename: string
+            Name of DAT filename stored on disk
+        folder:
+            Folderpath on disk on disk
+
+
+    Returns:
+        parameters : dict
+            header parameters extracted from DAT file
+        data : dict
+            data columns extracted from DAT file
     """
     parameters = extract_parameters_from_dat(filename, folder=folder)
     data = extract_data_from_dat(filename, folder=folder)
@@ -169,7 +179,17 @@ def read_dat(filename, folder=""):
 
 
 def get_folderpath(folder_name):
-    """ Automatically create absolute folder paths. """
+    """
+    Create absolute folder paths.
+
+    Args:
+        folder_name: string
+            Folder from the "Data" directory on computer
+
+    Returns: string
+        Full filepath of the directory depending on the PC name
+
+    """
     if os.environ['COMPUTERNAME'] == 'NBKK055':
         return r"C:\\Nextcloud\\Data\\{}\\".format(folder_name)
     else:
@@ -177,7 +197,19 @@ def get_folderpath(folder_name):
 
 
 def savefig(filename=None, folder=None, **kwargs):
-    """ General function to save figures, creates a sub-directory "figures/" to save images. """
+    """
+    General function to save figures. Wraps around matplotlib.pyplot.savefig().
+
+    Args:
+        filename: string
+            name of file to save on disk
+                without extension saves ".jpg"  and ".svg"
+                with extension only saves specific extension
+        folder: string
+            name of folder location to save on disk. Creates sub-directory "figures/" if it does not exist.
+        **kwargs: matplotlib.plot(**kwargs)
+    """
+    """  """
     if folder is None:
         folder = "../figures/"
     else:
@@ -215,8 +247,30 @@ def channel_to_gauge_names(channel_names):
     return [gauges.get(ch, ch) for ch in channel_names]
 
 
+def convert_tpg_to_mpl_time(df):
+    """ Read DataFrame extracted using read_tpg_data and add in matplotlib datetimes using "Date" and "Time" cols. """
+    datetimes = df["Date"] + " " + df["Time"]
+    # Convert raw dates and times to datetime Series, then to an matplotlib Series
+    dt_series_datetime = [datetime.datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
+    dt_series_mpl = matplotlib.dates.date2num(dt_series_datetime)
+    return dt_series_mpl
+
+
 def read_tpg_data(filename, folder=None):
-    """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
+    """
+     Read data stored by Pfeiffer vacuum monitoring software.
+
+    Args:
+        filename: string
+            name of ".txt" file on disk
+        folder: string
+            location of file on disk
+
+    Returns:
+        df : pandas.DataFrame
+            DataFrame with all .txt columns and converted matplotlib timestamps
+
+    """
     if not filename.endswith(".txt"):
         filename += ".txt"
 
@@ -232,17 +286,20 @@ def read_tpg_data(filename, folder=None):
     return df
 
 
-def convert_tpg_to_mpl_time(df):
-    """ Read DataFrame extracted using read_tpg_data and add in matplotlib datetimes using "Date" and "Time" cols. """
-    datetimes = df["Date"] + " " + df["Time"]
-    # Convert raw dates and times to datetime Series, then to an matplotlib Series
-    dt_series_datetime = [datetime.datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
-    dt_series_mpl = matplotlib.dates.date2num(dt_series_datetime)
-    return dt_series_mpl
-
-
 def read_tm224_data(filename, folder=None):
-    """ Read data stored from Pfeiffer pressure gauges. Returns a DataFrame. """
+    """
+     Read data stored by Lakeshore TM224 temperature monitor software.
+
+    Args:
+        filename: string
+            name of ".xls" file on disk
+        folder: string
+            location of file on disk
+
+    Returns:
+        df : pandas.DataFrame
+            DataFrame with all .xls columns and converted matplotlib timestamps
+    """
     if not filename.endswith(".xls"):
         filename += ".xls"
 
