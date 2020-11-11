@@ -593,6 +593,6 @@ def find_nearest(array, value):
 
 def setpointy_reach_time(x, y, setpointy):
     closest_val_idx, closest_val = find_nearest(y, setpointy)
-    return matplotlib.dates.num2date(x[closest_val_idx], tz=pytz.timezone('Europe/Berlin'))
+    return matplotlib.dates.num2date(x[closest_val_idx])
 
 
