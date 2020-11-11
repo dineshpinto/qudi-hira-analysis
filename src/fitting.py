@@ -545,7 +545,10 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
     end_extrap = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
 
     # Get matplotlib date series
-    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(days=x) for x in range(0, (end_extrap - start_extrap).days)]
+    duration_in_sec = (end_extrap - start_extrap).total_seconds()
+    duration_in_h = int(divmod(duration_in_sec, 3600)[0])
+
+    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(hours=x) for x in range(0, duration_in_h)]
     extrapolated_dates_mpl = matplotlib.dates.date2num(extrapolated_dates_datetime)
 
     # Fit date series with a choice of lmfit functions
@@ -580,4 +583,16 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
     extrapolation = mod.eval(params=result.params, x=extrapolated_dates_mpl)
 
     return extrapolated_dates_mpl, extrapolation, dfc["MPL_datetimes"], result
+
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx, array[idx]
+
+
+def setpointy_reach_time(x, y, setpointy):
+    closest_val_idx, closest_val = find_nearest(y, setpointy)
+    return matplotlib.dates.num2date(x[closest_val_idx], tz=pytz.timezone('Europe/Berlin'))
+
 
