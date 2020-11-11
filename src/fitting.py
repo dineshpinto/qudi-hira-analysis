@@ -24,8 +24,13 @@ Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
 top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
+import datetime
+import warnings
+
+import matplotlib
 import numpy as np
 import peakutils
+import pytz
 import scipy
 import scipy.fftpack
 from lmfit import Model
@@ -34,11 +39,8 @@ from lmfit.models import LinearModel, LorentzianModel, ConstantModel, BreitWigne
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
-import datetime
 
 from .preprocessing import baseline_als
-import matplotlib
-import pytz
 
 # AFM calibration from thermal noise density:
 # Atomic Force Microscopy, Second Edition by Bert Voigtländer
@@ -467,12 +469,13 @@ def func_neglogarithmic(x, a, b, c):
     return a + b * np.log(-c * x)
 
 
-def time_extrapolation(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
+def time_extrapolation(df, ylabel, end_date=None, start_index=0, fit="linear"):
     """
     DEPRECATED in favor of time_extrapolation_lmfit
     Function to perform a extrapolation in time on a DataFrame.
     Function choices for extrapolation: linear, exponential, logarithmic or custom function (set fit to function)
     """
+    warnings.warn("time_extrapolation() is deprecated; use time_extrapolation_lmfit().", warnings.DeprecationWarning)
     # Choose a starting point for the fitting
     dfc = df[start_index:]
     # Convert matplotlib dates to datetime objects, returns a tz-aware object
@@ -481,8 +484,9 @@ def time_extrapolation(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fi
     end = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
 
     # Get matplotlib date series
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end - start).days)]
+    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end - start).days + 1)]
     dt_series_mpl = matplotlib.dates.date2num(date_generated)
+
     # Fit date series with a choice of functions
     if fit == "linear":
         popt, pcov = curve_fit(func_linear, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
@@ -506,10 +510,10 @@ def time_extrapolation(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fi
         fit_result = func(dt_series_mpl, *popt)
     else:
         raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
-    return dt_series_mpl, func_linear
+    return dt_series_mpl, fit_result
 
 
-def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index=0, fit="linear"):
+def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="linear"):
     """
     Extrapolate a set of time series data.
 
@@ -540,12 +544,12 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
     # Choose a starting point for the fitting
     dfc = df[start_index:]
     # Convert matplotlib dates to datetime objects, returns a tz-aware object
-    start_extrap = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
+    start = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
     # Add tz-awareness information to datetime object to prevent tz-naive and tz-aware conflicts
-    end_extrap = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
+    end = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
 
     # Get matplotlib date series
-    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(days=x) for x in range(0, (end_extrap - start_extrap).days)]
+    extrapolated_dates_datetime = [start + datetime.timedelta(days=x) for x in range(0, (end - start).days + 1)]
     extrapolated_dates_mpl = matplotlib.dates.date2num(extrapolated_dates_datetime)
     # Fit date series with a choice of lmfit functions
     if hasattr(fit, '__call__'):
@@ -553,7 +557,7 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
         mod = Model(fit)
         result = mod.fit(dfc[ylabel], x=dfc["MPL_datetimes"])
     elif fit == "linear":
-        mod = QuadraticModel()
+        mod = LinearModel()
         pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
         result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
     elif fit == "quadratic":
@@ -574,9 +578,9 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
         pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
         result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
     else:
-        raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
+        raise NotImplementedError("Fitting method '{}' not implemented, use a custom "
+                                  "function parameter fit=<func> instead".format(fit))
     # Extrapolate date from best fit parameters
     extrapolation = mod.eval(result.params, x=extrapolated_dates_mpl)
 
     return extrapolated_dates_mpl, extrapolation, result
-
