@@ -547,19 +547,20 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
     # Get matplotlib date series
     extrapolated_dates_datetime = [start_extrap + datetime.timedelta(days=x) for x in range(0, (end_extrap - start_extrap).days)]
     extrapolated_dates_mpl = matplotlib.dates.date2num(extrapolated_dates_datetime)
+
     # Fit date series with a choice of lmfit functions
     if hasattr(fit, '__call__'):
         # Use a custom function for fitting
         mod = Model(fit)
         result = mod.fit(dfc[ylabel], x=dfc["MPL_datetimes"])
     elif fit == "linear":
-        mod = QuadraticModel()
+        mod = LinearModel()
         pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
         result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
     elif fit == "quadratic":
         mod = QuadraticModel()
         pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
-        result = QuadraticModel().fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+        result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
     elif fit.startswith("polynomial"):
         degree = int(fit[-1])
         mod = PolynomialModel(degree=degree)
@@ -576,7 +577,7 @@ def time_extrapolation_lmfit(df, ylabel, end_date="25-Dec-20 12:00", start_index
     else:
         raise NotImplementedError("Fitting method '{}' not implemented".format(fit))
     # Extrapolate date from best fit parameters
-    extrapolation = mod.eval(result.params, x=extrapolated_dates_mpl)
+    extrapolation = mod.eval(params=result.params, x=extrapolated_dates_mpl)
 
-    return extrapolated_dates_mpl, extrapolation, result
+    return extrapolated_dates_mpl, extrapolation, dfc["MPL_datetimes"], result
 
