@@ -544,13 +544,17 @@ def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="line
     # Choose a starting point for the fitting
     dfc = df[start_index:]
     # Convert matplotlib dates to datetime objects, returns a tz-aware object
-    start = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
+    start_extrap = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
     # Add tz-awareness information to datetime object to prevent tz-naive and tz-aware conflicts
-    end = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
+    end_extrap = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
 
     # Get matplotlib date series
-    extrapolated_dates_datetime = [start + datetime.timedelta(days=x) for x in range(0, (end - start).days + 1)]
+    duration_in_sec = (end_extrap - start_extrap).total_seconds()
+    duration_in_h = int(divmod(duration_in_sec, 3600)[0])
+
+    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(hours=x) for x in range(0, duration_in_h)]
     extrapolated_dates_mpl = matplotlib.dates.date2num(extrapolated_dates_datetime)
+
     # Fit date series with a choice of lmfit functions
     if hasattr(fit, '__call__'):
         # Use a custom function for fitting
@@ -563,7 +567,7 @@ def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="line
     elif fit == "quadratic":
         mod = QuadraticModel()
         pars = mod.guess(dfc[ylabel], x=dfc["MPL_datetimes"])
-        result = QuadraticModel().fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
+        result = mod.fit(dfc[ylabel], pars, x=dfc["MPL_datetimes"])
     elif fit.startswith("polynomial"):
         degree = int(fit[-1])
         mod = PolynomialModel(degree=degree)
@@ -581,6 +585,19 @@ def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="line
         raise NotImplementedError("Fitting method '{}' not implemented, use a custom "
                                   "function parameter fit=<func> instead".format(fit))
     # Extrapolate date from best fit parameters
-    extrapolation = mod.eval(result.params, x=extrapolated_dates_mpl)
+    extrapolation = mod.eval(params=result.params, x=extrapolated_dates_mpl)
 
-    return extrapolated_dates_mpl, extrapolation, result
+    return extrapolated_dates_mpl, extrapolation, dfc["MPL_datetimes"], result
+
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx, array[idx]
+
+
+def setpointy_reach_time(x, y, setpointy):
+    closest_val_idx, closest_val = find_nearest(y, setpointy)
+    return matplotlib.dates.num2date(x[closest_val_idx])
+
+
