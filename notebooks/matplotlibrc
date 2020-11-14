@@ -275,7 +275,7 @@ font.sans-serif : Calibri, DejaVu Sans, Bitstream Vera Sans, Computer Modern San
 ## See following links for more information on LaTex properties:
 ## https://matplotlib.org/tutorials/text/usetex.html
 ## https://scipy-cookbook.readthedocs.io/items/idx_matplotlib_typesetting.html
-#text.usetex : False  ## use latex for all text handling. The following fonts
+text.usetex : False  ## use latex for all text handling. The following fonts
                       ## are supported through the usual rc parameter settings:
                       ## new century schoolbook, bookman, times, palatino,
                       ## zapf chancery, charter, serif, sans-serif, helvetica,
@@ -676,7 +676,7 @@ figure.max_open_warning : 100   ## The maximum number of figures to open through
 
 ### SVG backend params
 #svg.image_inline : True  ## Write raster image data directly into the SVG file
-#svg.fonttype : path      ## How to handle SVG fonts:
+svg.fonttype : None      ## How to handle SVG fonts:
                           ##     path: Embed characters as paths -- supported
                           ##           by most SVG renderers
                           ##     None: Assume fonts are installed on the
