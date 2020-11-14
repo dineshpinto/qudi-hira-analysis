@@ -469,22 +469,29 @@ def func_neglogarithmic(x, a, b, c):
     return a + b * np.log(-c * x)
 
 
+def func_offset_exponentional(x, a, b, c, offset):
+    return a + b * np.exp(-c * (x - offset))
+
+
 def time_extrapolation(df, ylabel, end_date=None, start_index=0, fit="linear"):
     """
     DEPRECATED in favor of time_extrapolation_lmfit
     Function to perform a extrapolation in time on a DataFrame.
     Function choices for extrapolation: linear, exponential, logarithmic or custom function (set fit to function)
     """
-    warnings.warn("time_extrapolation() is deprecated; use time_extrapolation_lmfit().", warnings.DeprecationWarning)
+    warnings.warn("time_extrapolation() is deprecated; use time_extrapolation_lmfit().", DeprecationWarning)
     # Choose a starting point for the fitting
     dfc = df[start_index:]
     # Convert matplotlib dates to datetime objects, returns a tz-aware object
-    start = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
+    start_extrap = matplotlib.dates.num2date(dfc["MPL_datetimes"].values[0], tz=pytz.timezone('Europe/Berlin'))
     # Add tz-awareness information to datetime object to prevent tz-naive and tz-aware conflicts
-    end = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
+    end_extrap = datetime.datetime.strptime(end_date, "%d-%b-%y %H:%M").replace(tzinfo=pytz.timezone('Europe/Berlin'))
 
     # Get matplotlib date series
-    date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end - start).days + 1)]
+    duration_in_sec = (end_extrap - start_extrap).total_seconds()
+    duration_in_h = int(divmod(duration_in_sec, 3600)[0])
+
+    date_generated = [start_extrap + datetime.timedelta(hours=x) for x in range(0, duration_in_h)]
     dt_series_mpl = matplotlib.dates.date2num(date_generated)
 
     # Fit date series with a choice of functions
@@ -503,6 +510,10 @@ def time_extrapolation(df, ylabel, end_date=None, start_index=0, fit="linear"):
     elif fit == "neglogarithmic":
         popt, pcov = curve_fit(func_neglogarithmic, xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
         fit_result = func_neglogarithmic(dt_series_mpl, *popt)
+    elif fit == "offset_exponentional":
+        popt, pcov = curve_fit(lambda x, a, b, c: func_offset_exponentional(x, a, b, c, offset=dfc["MPL_datetimes"][0]),
+                               xdata=dfc["MPL_datetimes"], ydata=dfc[ylabel])
+        fit_result = func_offset_exponentional(dt_series_mpl, *popt, offset=dfc["MPL_datetimes"][0])
     elif hasattr(fit, '__call__'):
         # Use a custom function for fitting
         func = fit
