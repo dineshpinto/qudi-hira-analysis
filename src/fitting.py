@@ -548,6 +548,9 @@ def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="line
     extrapolation : numpy.ndarray
         extrapolated y-data
 
+    dfc["MPL_datetimes"]: pandas.DataFrame
+        x data corresponding to model
+
     result : lmfit.Model
         use result.best_fit to get optimal fit data
     """
@@ -602,13 +605,43 @@ def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="line
 
 
 def find_nearest(array, value):
+    """
+    Find nearest value in an array.
+
+    Parameters
+    ----------
+    array : numpy.ndarray
+        array to find value in
+    value : float, int
+        value to find
+    Returns
+    -------
+    object
+    """
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return idx, array[idx]
 
 
 def setpointy_reach_time(x, y, setpointy):
+    """
+    Find time required to reach a y-setpoint.
+    Prints output for convenience.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        x-array of (extrapolated) data
+    y : numpy.ndarray
+        y-array of (extrapolated) data
+    setpointy : float
+        y setpoint to find x value for
+
+    Returns
+    -------
+    object : datetime.datetime
+    """
     closest_val_idx, closest_val = find_nearest(y, setpointy)
-    return matplotlib.dates.num2date(x[closest_val_idx])
-
-
+    date = matplotlib.dates.num2date(x[closest_val_idx])
+    print(f"Expected date: {date}\nClosest value: {closest_val}")
+    return date
