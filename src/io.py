@@ -306,7 +306,7 @@ def read_tm224_data(filename, folder=None):
     # Extract only the timestamp
     timestamp = pd.read_excel(folder + filename, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
     # Parse datetime object from timestamp
-    timestamp_dt = parser.parse(timestamp, tzinfos={"CET": tz.gettz('Europe/Berlin')})
+    timestamp_dt = parser.parse(timestamp, tzinfos={"CET": 0 * 3600})
 
     # Create DataFrame
     df = pd.read_excel(folder + filename, skiprows=3)
