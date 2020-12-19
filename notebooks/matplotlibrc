@@ -676,7 +676,7 @@ figure.max_open_warning : 100   ## The maximum number of figures to open through
 
 ### SVG backend params
 #svg.image_inline : True  ## Write raster image data directly into the SVG file
-svg.fonttype : None      ## How to handle SVG fonts:
+svg.fonttype : none      ## How to handle SVG fonts:
                           ##     path: Embed characters as paths -- supported
                           ##           by most SVG renderers
                           ##     None: Assume fonts are installed on the
