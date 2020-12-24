@@ -466,7 +466,7 @@ def func_logarithmic(x, a, b, c):
 
 def func_neglogarithmic(x, a, b, c):
     """ Simple logarithmic function to use for scipy.curve_fit. """
-    return a + b * np.log(-c * x)
+    return a - b * np.log(c * x)
 
 
 def func_offset_exponentional(x, a, b, c, offset):
@@ -564,9 +564,10 @@ def time_extrapolation_lmfit(df, ylabel, end_date=None, start_index=0, fit="line
 
     # Get matplotlib date series
     duration_in_sec = (end_extrap - start_extrap).total_seconds()
-    duration_in_h = int(divmod(duration_in_sec, 3600)[0])
+    duration_in_mins = int(divmod(duration_in_sec, 60)[0])
 
-    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(hours=x) for x in range(0, duration_in_h)]
+    # Sample every 30 minutes
+    extrapolated_dates_datetime = [start_extrap + datetime.timedelta(minutes=x) for x in range(0, duration_in_mins, 30)]
     extrapolated_dates_mpl = matplotlib.dates.date2num(extrapolated_dates_datetime)
 
     # Fit date series with a choice of lmfit functions

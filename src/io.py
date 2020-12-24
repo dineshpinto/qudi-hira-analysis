@@ -318,3 +318,24 @@ def read_tm224_data(filename, folder=None):
     df["MPL_datetimes"] = matplotlib.dates.date2num(time_array)
 
     return df
+
+
+def get_filenames_matching(text_to_match, folder):
+    """
+    Return all filenames in a folder matching a text string.
+    This is generally to be used with pd.concat in a loop, doing this is very expensive and slow.
+
+    Args:
+        text_to_match: text string to match filenames with
+        folder: folder to search in
+
+    Returns:
+        object: list
+            List of filenames matching text string provided
+    """
+    files_found = []
+    for file in os.listdir(folder):
+        if text_to_match in file:
+            files_found.append(file)
+    print(files_found)
+    return files_found
