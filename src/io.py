@@ -33,10 +33,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dateutil import parser, tz
+import logging
+
 
 """
 Functions for reading and writing into data files.
 """
+
+logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def load_pys(filename, folder=""):
@@ -85,9 +90,11 @@ def save_pkl(obj, filename, folder=""):
 
 def save_figures(filename, folder="", overwrite=True):
     """ Saves figures from matplotlib plot data. """
-    path = "../figures/" + folder
+    path = get_figure_folderpath(folder)
     if not os.path.exists(path):
         os.makedirs(path)
+
+    logger.info(f"Saving '{filename}' to '{path}'")
 
     exts = [".pdf", ".svg", ".png"]
 
@@ -191,9 +198,9 @@ def get_folderpath(folder_name):
 
     """
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return r"C:\\Nextcloud\\Data\\{}\\".format(folder_name)
+        return os.path.join("C:/", "Nextcloud", "Data", folder_name)
     else:
-        return r"Z:\\Data\\{}\\".format(folder_name)
+        return os.path.join("Z:/", "Data", folder_name)
 
 
 def get_qudiamond_folderpath(folder_name):
@@ -209,16 +216,23 @@ def get_qudiamond_folderpath(folder_name):
 
     """
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return r"\\kernix\\qudiamond\Data\\{}\\".format(folder_name)
+        return os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
     else:
-        return r"Z:\\Data\\{}\\".format(folder_name)
+        return os.path.join("Z:/", "Data", folder_name)
+
+
+def get_figure_folderpath(folder_name):
+    if os.environ['COMPUTERNAME'] == 'NBKK055':
+        return os.path.join("C:/", "Nextcloud", "qudiamond-figures", folder_name)
+    else:
+        return os.path.join("Z:/", "qudiamond-figures", folder_name)
 
 
 def get_qudi_data_path(folder_name):
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return os.path.join("C:\\Nextcloud\\QudiHiraData\\", folder_name)
+        return os.path.join("C:/", "Nextcloud", "QudiHiraData", folder_name)
     else:
-        return r"Z:\\Data\\{}\\".format(folder_name)
+        return os.path.join("Z:/", "Data", folder_name)
 
 
 def savefig(filename=None, folder=None, **kwargs):
@@ -234,7 +248,6 @@ def savefig(filename=None, folder=None, **kwargs):
             name of folder location to save on disk. Creates sub-directory "figures/" if it does not exist.
         **kwargs: matplotlib.plot(**kwargs)
     """
-    """  """
     if folder is None:
         folder = "../figures/"
     else:
