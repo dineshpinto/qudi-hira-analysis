@@ -105,7 +105,7 @@ def save_figures(filename, folder="", overwrite=True):
         else:
             dpi = 1000
         plt.savefig(path + filename + ext, dpi=dpi, bbox_inches="tight",
-                    metadata={"Title": "{}".format(filename), "Author": "Dinesh Pinto"})
+                    metadata={"Title": "{}".format(filename)})
 
 
 """
@@ -192,6 +192,31 @@ def get_folderpath(folder_name):
     """
     if os.environ['COMPUTERNAME'] == 'NBKK055':
         return r"C:\\Nextcloud\\Data\\{}\\".format(folder_name)
+    else:
+        return r"Z:\\Data\\{}\\".format(folder_name)
+
+
+def get_qudiamond_folderpath(folder_name):
+    """
+    Create absolute folder paths.
+
+    Args:
+        folder_name: string
+            Folder from the "Data" directory on computer
+
+    Returns: string
+        Full filepath of the directory depending on the PC name
+
+    """
+    if os.environ['COMPUTERNAME'] == 'NBKK055':
+        return r"\\kernix\\qudiamond\Data\\{}\\".format(folder_name)
+    else:
+        return r"Z:\\Data\\{}\\".format(folder_name)
+
+
+def get_qudi_data_path(folder_name):
+    if os.environ['COMPUTERNAME'] == 'NBKK055':
+        return os.path.join("C:\\Nextcloud\\QudiHiraData\\", folder_name)
     else:
         return r"Z:\\Data\\{}\\".format(folder_name)
 
@@ -339,3 +364,26 @@ def get_filenames_matching(text_to_match, folder):
             files_found.append(file)
     print(files_found)
     return files_found
+
+
+def read_spectrometer_data(filename, folder=None):
+    """
+    Read spectrometer data from OceanOptics spectrometer.
+
+    Args:
+        filename: string
+            name of ".txt" file on disk
+        folder: string
+            location of file on disk
+
+    Returns:
+        df : pandas.DataFrame
+            DataFrame with all .xls columns and converted matplotlib timestamps
+    """
+
+    if not filename.endswith(".txt"):
+        filename += ".txt"
+
+    df = pd.read_csv(folder + filename, sep="\t", skiprows=14, names=["wavelength", "intensity"])
+
+    return df
