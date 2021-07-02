@@ -103,15 +103,17 @@ def save_figures(filename, folder="", overwrite=True):
 
     if not overwrite:
         for ext in exts:
-            if os.path.isfile(path + filename + ext):
-                raise IOError(filename + ext + " already exists.")
+            figure_path = os.path.join(path, filename + ext)
+            if os.path.isfile(figure_path):
+                raise IOError(f"{figure_path} already exists")
 
     for ext in exts:
         if ext == ".png":
             dpi = 600
         else:
             dpi = 1000
-        plt.savefig(path + filename + ext, dpi=dpi, bbox_inches="tight",
+        figure_path = os.path.join(path, filename + ext)
+        plt.savefig(figure_path, dpi=dpi, bbox_inches="tight",
                     metadata={"Title": "{}".format(filename)})
 
 
@@ -215,6 +217,7 @@ def get_qudiamond_folderpath(folder_name):
         Full filepath of the directory depending on the PC name
 
     """
+    folder_name += "\\"
     if os.environ['COMPUTERNAME'] == 'NBKK055':
         return os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
     else:
@@ -229,8 +232,9 @@ def get_figure_folderpath(folder_name):
 
 
 def get_qudi_data_path(folder_name):
+    folder_name += "\\"
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return os.path.join("C:/", "Nextcloud", "QudiHiraData", folder_name)
+        return os.path.join("\\\\kernix", "qudiamond", "QudiHiraData", folder_name)
     else:
         return os.path.join("Z:/", "Data", folder_name)
 
@@ -400,3 +404,24 @@ def read_spectrometer_data(filename, folder=None):
     df = pd.read_csv(folder + filename, sep="\t", skiprows=14, names=["wavelength", "intensity"])
 
     return df
+
+
+def read_qudi_parameters(filename, folder=None):
+    """ Extract parameters from a qudi dat file. """
+    if not filename.endswith(".dat"):
+        filename += ".dat"
+
+    params = {}
+    with open(folder + filename) as dat_file:
+        for line in dat_file:
+            if line == '#=====\n':
+                break
+            else:
+                # Remove # from beginning of lines
+                line = line[1:]
+                if ":" in line:
+                    label, value = line.split(":")
+                    if value != "\n":
+                        params[label] = float(value)
+
+    return params
