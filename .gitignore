@@ -18,6 +18,8 @@ __pycache__/
 
 # Images
 *.jpg
+*.pdf
+*.svg
 *.jpeg
 *.png
 *.bmp

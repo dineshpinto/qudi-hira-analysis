@@ -52,7 +52,19 @@ Old fitting methods.
 """
 
 
-def antibunching_init(x, y):
+def antibunching_init(x: np.ndarray, y: np.ndarray) -> list:
+    """
+    Initial guesses for autocorrelation fit.
+    Args:
+        x: np.ndarray
+            Time series data
+
+        y: np.ndarray
+            Count data
+
+    Returns:
+
+    """
     N = 1
     A = 1
     a = np.max(y) - np.min(y)
@@ -62,14 +74,32 @@ def antibunching_init(x, y):
     return [N, A, a, tau0, tau1, tau2]
 
 
-def antibunching(x, N, A, a, tau0, tau1, tau2):
+def antibunching_function(x, N, A, a, tau0, tau1, tau2):
+    """
+    Fit to function
+        f(x; N, A, a, tau0, tau1, tau2) =
+            A * ((1 - (1+a) * exp(-|x-tau0|/tau1) + a * exp(-|x-tau0|/tau2)) * 1/N + 1 - 1/N)
+    Args:
+        x:
+        N:
+        A:
+        a:
+        tau0:
+        tau1:
+        tau2:
+
+    Returns:
+
+    """
     return A * ((1 - (1 + a) * np.exp(-abs(x - tau0) / tau1) + a * np.exp(-abs(x - tau0) / tau2)) * 1 / N + 1 - 1 / N)
 
 
-def autocorrelation(x, y):
-    popt, pcov = curve_fit(antibunching, x, y, p0=antibunching_init(x, y))
-    fit = antibunching(x, *popt)
-    d = {"x": x, "y": y, "fit": fit, "popt": popt}
+def autocorrelation_fit(x: np.ndarray, y: np.ndarray) -> dict:
+    popt, pcov = curve_fit(antibunching_function, x, y, p0=antibunching_init(x, y))
+    fit = antibunching_function(x, *popt)
+    # Anti-bunching at zero delay
+    g2_0 = antibunching_function(0, *popt)
+    d = {"x": x, "y": y, "fit": fit, "popt": popt, "g2_0": g2_0}
     return d
 
 
