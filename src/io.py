@@ -118,10 +118,14 @@ def extract_data_from_dat(filename, folder=""):
     if not filename.endswith(".dat"):
         filename += ".dat"
 
+    skiprows = 0
     with open(folder + filename) as dat_file:
         for num, line in enumerate(dat_file, 1):
             if "[DATA]" in line:
                 # Find number of rows to skip when extracting data
+                skiprows = num
+                break
+            if "#=====" in line:
                 skiprows = num
                 break
 
