@@ -23,11 +23,11 @@ SOFTWARE.
 Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
 top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
 """
-
 import datetime
 import logging
 import os
 import pickle
+import warnings
 from typing import Tuple
 
 import matplotlib
@@ -86,15 +86,15 @@ def get_qudiamond_folderpath(folder_name: str) -> str:
 
 def get_figure_folderpath(folder_name: str) -> str:
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return os.path.join("C:/", "Nextcloud", "qudiamond-figures", folder_name)
+        return os.path.join("C:/", "Nextcloud", "Data_Analysis", folder_name)
     else:
-        return os.path.join("Z:/", "qudiamond-figures", folder_name)
+        return os.path.join("Z:/", "Data_Analysis", folder_name)
 
 
 def get_qudi_data_path(folder_name: str) -> str:
     folder_name += "\\"
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        path = os.path.join("\\\\kernix", "qudiamond", "QudiHiraData", folder_name)
+        path = os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
         if os.path.exists(path):
             return path
         else:
@@ -199,6 +199,8 @@ def savefig(filename: str = None, folder: str = None, **kwargs):
             name of folder location to save on disk. Creates sub-directory "figures/" if it does not exist.
         **kwargs: matplotlib.plot(**kwargs)
     """
+    warnings.warn("time_extrapolation() is deprecated; use time_extrapolation_lmfit().", DeprecationWarning)
+
     if folder is None:
         folder = "../figures/"
     else:
@@ -228,7 +230,6 @@ def savefig(filename: str = None, folder: str = None, **kwargs):
         except AttributeError:
             # Happens when using JupyterLab with ipympl, can be safely ignored
             pass
-    raise DeprecationWarning
 
 
 #
@@ -241,10 +242,14 @@ def extract_data_from_dat(filename: str, folder: str = "") -> pandas.DataFrame:
     if not filename.endswith(".dat"):
         filename += ".dat"
 
+    skiprows = 0
     with open(folder + filename) as dat_file:
         for num, line in enumerate(dat_file, 1):
             if "[DATA]" in line:
                 # Find number of rows to skip when extracting data
+                skiprows = num
+                break
+            if "#=====" in line:
                 skiprows = num
                 break
 
