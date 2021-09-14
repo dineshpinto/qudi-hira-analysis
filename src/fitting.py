@@ -20,8 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
-top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
+Copyright (c) 2021 Dinesh Pinto. See the LICENSE file at the
+top-level directory of this distribution and at
+<https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
 import datetime

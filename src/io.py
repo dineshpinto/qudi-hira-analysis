@@ -20,8 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Copyright (c) 2020 Dinesh Pinto. See the LICENSE file at the
-top-level directory of this distribution and at <https://github.com/dineshpinto/qudiamond-analysis/>
+Copyright (c) 2021 Dinesh Pinto. See the LICENSE file at the
+top-level directory of this distribution and at
+<https://github.com/dineshpinto/qudiamond-analysis/>
 """
 import datetime
 import logging
@@ -110,6 +111,7 @@ def get_qudi_data_path(folder_name: str) -> str:
 
 def load_pys(filename: str, folder: str = "") -> np.ndarray:
     """ Loads raw pys data files. Wraps around numpy.load. """
+    # TODO: replace paths with os.join()
     path = "../raw_data/" + folder
     if filename.endswith('.pys'):
         return np.load(path + filename, encoding="bytes", allow_pickle=True)
@@ -119,6 +121,7 @@ def load_pys(filename: str, folder: str = "") -> np.ndarray:
 
 def save_pys(dictionary: dict, filename: str, folder: str = ""):
     """ Saves processed pickle files for plotting/further analysis. """
+    # TODO: replace paths with os.join()
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
@@ -129,6 +132,7 @@ def save_pys(dictionary: dict, filename: str, folder: str = ""):
 
 def save_df(df: pandas.DataFrame, filename: str, folder: str = ""):
     """ Save Dataframe as csv. """
+    # TODO: replace paths with os.join()
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
@@ -137,6 +141,7 @@ def save_df(df: pandas.DataFrame, filename: str, folder: str = ""):
 
 def load_pkl(filename: str, folder: str = ""):
     """ Loads processed pickle files for plotting/further analysis. """
+    # TODO: replace paths with os.join()
     path = "../data/" + folder
     with open(path + filename + '.pkl', 'rb') as f:
         return pickle.load(f)
@@ -144,6 +149,7 @@ def load_pkl(filename: str, folder: str = ""):
 
 def save_pkl(obj: object, filename: str, folder: str = ""):
     """ Saves processed pickle files for plotting/further analysis. """
+    # TODO: replace paths with os.join()
     path = "../data/" + folder
     if not os.path.exists(path):
         os.makedirs(path)
@@ -199,7 +205,7 @@ def savefig(filename: str = None, folder: str = None, **kwargs):
             name of folder location to save on disk. Creates sub-directory "figures/" if it does not exist.
         **kwargs: matplotlib.plot(**kwargs)
     """
-    warnings.warn("time_extrapolation() is deprecated; use time_extrapolation_lmfit().", DeprecationWarning)
+    warnings.warn("savefig() is deprecated; use save_figures().", DeprecationWarning)
 
     if folder is None:
         folder = "../figures/"
