@@ -171,7 +171,7 @@ def save_figures(filename: str, folder: str = "", overwrite: bool = True):
 
     logger.info(f"Saving '{filename}' to '{path}'")
 
-    exts = [".pdf", ".svg", ".png"]
+    exts = [".pdf", ".svg", ".png", ".jpg"]
 
     if filename.endswith(".pys"):
         filename, _ = os.path.splitext(filename)
@@ -188,8 +188,7 @@ def save_figures(filename: str, folder: str = "", overwrite: bool = True):
         else:
             dpi = 1000
         figure_path = os.path.join(path, filename + ext)
-        plt.savefig(figure_path, dpi=dpi, bbox_inches="tight",
-                    metadata={"Title": "{}".format(filename)})
+        plt.savefig(figure_path, dpi=dpi, bbox_inches="tight")
 
 
 def savefig(filename: str = None, folder: str = None, **kwargs):
