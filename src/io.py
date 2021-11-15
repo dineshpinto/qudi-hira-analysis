@@ -80,26 +80,36 @@ def get_qudiamond_folderpath(folder_name: str) -> str:
     """
     folder_name += "\\"
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
+        path = os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
     else:
-        return os.path.join("Z:/", "Data", folder_name)
+        path = os.path.join("Z:/", "Data", folder_name)
+
+    logger.info(f"qudiamond folderpath is {path}")
+    return path
 
 
 def get_figure_folderpath(folder_name: str) -> str:
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        return os.path.join("C:/", "Nextcloud", "Data_Analysis", folder_name)
+        path = os.path.join("C:/", "Nextcloud", "Data_Analysis", folder_name)
     else:
-        return os.path.join("Z:/", "Data_Analysis", folder_name)
+        path = os.path.join("Z:/", "Data_Analysis", folder_name)
+
+    logger.info(f"Figure folderpath is {path}")
+    return path
 
 
 def get_qudi_data_path(folder_name: str) -> str:
     folder_name += "\\"
     if os.environ['COMPUTERNAME'] == 'NBKK055':
-        path = os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
+        basepath = os.path.join("\\\\kernix", "qudiamond", "Data")
+        path = os.path.join(basepath, folder_name)
         if os.path.exists(path):
             return path
         else:
-            raise IOError("Connect to kernix")
+            if os.path.exists(basepath):
+                raise IOError("Check measurement folder path")
+            else:
+                raise ConnectionError("Not connected to kernix")
     else:
         return os.path.join("Z:/", "Data", folder_name)
 
@@ -166,15 +176,19 @@ def save_pkl(obj: object, filename: str, folder: str = ""):
 def save_figures(filename: str, folder: str = "", overwrite: bool = True):
     """ Saves figures from matplotlib plot data. """
     path = get_figure_folderpath(folder)
+
+    if path.startswith("\\\\kernix"):
+        raise IOError("Do not save to kernix!")
+
     if not os.path.exists(path):
         os.makedirs(path)
+
+    if "." in filename:
+        filename, _ = os.path.splitext(filename)
 
     logger.info(f"Saving '{filename}' to '{path}'")
 
     exts = [".pdf", ".svg", ".png", ".jpg"]
-
-    if filename.endswith(".pys"):
-        filename, _ = os.path.splitext(filename)
 
     if not overwrite:
         for ext in exts:
@@ -449,10 +463,12 @@ def read_qudi_parameters(filename: str, folder: str = "") -> dict:
                 # Remove # from beginning of lines
                 line = line[1:]
                 if ":" in line:
-                    label, value = line.split(":")
-                    if value != "\n":
-                        params[label] = float(value)
-
+                    try:
+                        label, value = line.split(":")
+                        if value != "\n":
+                            params[label] = float(value)
+                    except ValueError:
+                        pass
     return params
 
 
