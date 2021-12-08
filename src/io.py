@@ -25,6 +25,7 @@ top-level directory of this distribution and at
 <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 import datetime
+import itertools
 import logging
 import os
 import pickle
@@ -92,7 +93,38 @@ def get_figure_folderpath(folder_name: str) -> str:
         return os.path.join("Z:/", "Data_Analysis", folder_name)
 
 
+def get_data_and_figure_paths(folder_name: str) -> Tuple[str, str]:
+    """ Helper function to simplify usage. """
+    return get_qudiamond_folderpath(folder_name), get_figure_folderpath(folder_name)
+
+
+def get_measurement_file_list(folder_path: str, measurement: str, only_data: bool = True) -> Tuple[list, list]:
+    file_list, file_names = [], []
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            # Check if measurement string is in the root of the folder walk
+            if measurement in root:
+                if only_data:
+                    if file.endswith(".dat"):
+                        file_list.append(os.path.join(root, file))
+                        file_names.append(os.path.splitext(file)[0])
+                else:
+                    file_list.append(os.path.join(root, file))
+                    file_names.append(os.path.splitext(file)[0])
+    return file_list, file_names
+
+
+def read_into_df(path: str) -> pd.DataFrame:
+    with open(path) as handle:
+        *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
+        names = names[1:].strip().split("\t")
+
+    return pd.read_csv(path, names=names, comment="#", sep="\t")
+
+
 def get_qudi_data_path(folder_name: str) -> str:
+    warnings.warn("get_qudi_data_path() is deprecated; use get_qudiamond_folderpath().", DeprecationWarning)
+
     folder_name += "\\"
     if os.environ['COMPUTERNAME'] == 'NBKK055':
         path = os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
