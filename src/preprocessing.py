@@ -136,10 +136,12 @@ def range_bin_and_normalize(x, c, sn, data_range, num_bins, normalize):
 
     # Normalization    
     if normalize:
-        base = baseline_als(c)
-        c = c / base
-        # Under the assumption that d(base)=0
-        sn = sn / base
+        # base = baseline_als(c)
+        # c = c / base
+        # # Under the assumption that d(base)=0
+        # sn = sn / base
+        c = c / max(c)
+        sn = sn / max(sn)
 
     # Perform binning
     if num_bins != -1:
@@ -217,6 +219,16 @@ def raw_counting_measurements(raw_data, dtype=None, data_range=[0, -1], num_bins
         x /= 1e6  # Frequency in MHz
         sn = np.sqrt(c)
         x, c, sn = range_bin_and_normalize(x, c, sn, data_range, num_bins, normalize)
+    else:
+        raise KeyError('Invalid dtype, dtype=["odmr", "autocorrelation"]')
+    return x, c, sn
+
+
+def odmr_preprocessing(x, y, dtype=None, data_range=[0, -1], num_bins=-1, normalize=False):
+    if dtype == "odmr":
+        x /= 1e9
+        sn = np.sqrt(y)
+        x, c, sn = range_bin_and_normalize(x, y, sn, data_range, num_bins, normalize)
     else:
         raise KeyError('Invalid dtype, dtype=["odmr", "autocorrelation"]')
     return x, c, sn
