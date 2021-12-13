@@ -61,7 +61,9 @@ def get_folderpath(folder_name: str) -> str:
         Full filepath of the directory depending on the PC name
 
     """
-    if os.environ['COMPUTERNAME'] == 'NBKK055':
+    warnings.warn("get_folderpath() is deprecated; use get_qudiamond_folderpath().", DeprecationWarning)
+
+    if not os.environ['COMPUTERNAME'] == 'PCKK022':
         return os.path.join("C:/", "Nextcloud", "Data", folder_name)
     else:
         return os.path.join("Z:/", "Data", folder_name)
@@ -80,7 +82,7 @@ def get_qudiamond_folderpath(folder_name: str) -> str:
 
     """
     folder_name += "\\"
-    if os.environ['COMPUTERNAME'] == 'NBKK055':
+    if not os.environ['COMPUTERNAME'] == 'PCKK022':
         path = os.path.join("\\\\kernix", "qudiamond", "Data", folder_name)
     else:
         path = os.path.join("Z:/", "Data", folder_name)
@@ -90,7 +92,7 @@ def get_qudiamond_folderpath(folder_name: str) -> str:
 
 
 def get_figure_folderpath(folder_name: str) -> str:
-    if os.environ['COMPUTERNAME'] == 'NBKK055':
+    if not os.environ['COMPUTERNAME'] == 'PCKK022':
         path = os.path.join("C:/", "Nextcloud", "Data_Analysis", folder_name)
     else:
         path = os.path.join("Z:/", "Data_Analysis", folder_name)
@@ -100,17 +102,19 @@ def get_figure_folderpath(folder_name: str) -> str:
 
 
 def get_data_and_figure_paths(folder_name: str) -> Tuple[str, str]:
-    """ Helper function to simplify usage. """
+    """ Helper function to generate full data path and output figure path. """
     return get_qudiamond_folderpath(folder_name), get_figure_folderpath(folder_name)
 
 
-def get_measurement_file_list(folder_path: str, measurement: str, only_data: bool = True) -> Tuple[list, list]:
+def get_measurement_file_list(folder_path: str, measurement: str, only_data_files: bool = True) -> Tuple[list, list]:
+    """ List all measurement files for a single measurement type, regardless of date
+    within a similar set (i.e. top level folder). """
     file_list, file_names = [], []
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             # Check if measurement string is in the root of the folder walk
             if measurement in root:
-                if only_data:
+                if only_data_files:
                     if file.endswith(".dat"):
                         file_list.append(os.path.join(root, file))
                         file_names.append(os.path.splitext(file)[0])
@@ -121,6 +125,7 @@ def get_measurement_file_list(folder_path: str, measurement: str, only_data: boo
 
 
 def read_into_df(path: str) -> pd.DataFrame:
+    """ Read a qudi data file into a pandas DatFrame for analysis. """
     with open(path) as handle:
         *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
         names = names[1:].strip().split("\t")
@@ -132,7 +137,7 @@ def get_qudi_data_path(folder_name: str) -> str:
     warnings.warn("get_qudi_data_path() is deprecated; use get_qudiamond_folderpath().", DeprecationWarning)
 
     folder_name += "\\"
-    if os.environ['COMPUTERNAME'] == 'NBKK055':
+    if not os.environ['COMPUTERNAME'] == 'PCKK022':
         basepath = os.path.join("\\\\kernix", "qudiamond", "Data")
         path = os.path.join(basepath, folder_name)
         if os.path.exists(path):
