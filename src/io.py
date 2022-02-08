@@ -38,6 +38,8 @@ import numpy as np
 import pandas
 import pandas as pd
 from dateutil import parser
+import inspect
+import ast
 
 # Start module level logger
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
@@ -503,7 +505,7 @@ def read_qudi_parameters(filename: str, folder: str = "") -> dict:
                     try:
                         label, value = line.split(":")
                         if value != "\n":
-                            params[label] = float(value)
+                            params[label] = ast.literal_eval(inspect.cleandoc(value))
                     except ValueError:
                         pass
     return params
@@ -532,3 +534,41 @@ def get_filenames_matching(text_to_match: str, folder: str) -> list:
             files_found.append(file)
     print(files_found)
     return files_found
+
+
+def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> dict:
+    pulsed_filepaths, pulsed_filenames = get_measurement_file_list(data_folderpath, measurement="PulsedMeasurement")
+
+    pulsed_measurement_data = dict()
+
+    for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
+        if measurement_str in filepath:
+            timestamp = filename[:16]
+            pulsed_measurement_data[timestamp] = {}
+
+    for timestamp in pulsed_measurement_data.keys():
+        for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
+            if filename.startswith(timestamp):
+                if "laser_pulses" in filename:
+                    pulsed_measurement_data[timestamp]["laser_pulses"] = {
+                        "filepath": filepath,
+                        "filename": filename,
+                        "data": np.genfromtxt(filepath).T,
+                        "params": read_qudi_parameters(filepath)
+                    }
+                elif "pulsed_measurement" in filename:
+                    pulsed_measurement_data[timestamp]["pulsed_measurement"] = {
+                        "filepath": filepath,
+                        "filename": filename,
+                        "data": read_into_df(filepath),
+                        "params": read_qudi_parameters(filepath)
+                    }
+                elif "raw_timetrace" in filename:
+                    pulsed_measurement_data[timestamp]["raw_timetrace"] = {
+                        "filepath": filepath,
+                        "filename": filename,
+                        "data": np.genfromtxt(filepath).T,
+                        "params": read_qudi_parameters(filepath)
+                    }
+
+    return pulsed_measurement_data
