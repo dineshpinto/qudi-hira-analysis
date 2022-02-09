@@ -20,11 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Copyright (c) 2021 Dinesh Pinto. See the LICENSE file at the
+Copyright (c) 2022 Dinesh Pinto. See the LICENSE file at the
 top-level directory of this distribution and at
 <https://github.com/dineshpinto/qudiamond-analysis/>
 """
+import ast
 import datetime
+import inspect
 import itertools
 import logging
 import os
@@ -38,8 +40,7 @@ import numpy as np
 import pandas
 import pandas as pd
 from dateutil import parser
-import inspect
-import ast
+from tqdm import tqdm
 
 # Start module level logger
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
@@ -112,7 +113,9 @@ def get_measurement_file_list(folder_path: str, measurement: str, only_data_file
     """ List all measurement files for a single measurement type, regardless of date
     within a similar set (i.e. top level folder). """
     file_list, file_names = [], []
-    for root, dirs, files in os.walk(folder_path):
+    pbar = tqdm(os.walk(folder_path))
+    for root, dirs, files in pbar:
+        pbar.set_description(root)
         for file in files:
             # Check if measurement string is in the root of the folder walk
             if measurement in root:
@@ -546,7 +549,9 @@ def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> 
             timestamp = filename[:16]
             pulsed_measurement_data[timestamp] = {}
 
-    for timestamp in pulsed_measurement_data.keys():
+    pbar = tqdm(pulsed_measurement_data.keys())
+    for timestamp in pbar:
+        pbar.set_description(timestamp)
         for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
             if filename.startswith(timestamp):
                 if "laser_pulses" in filename:
