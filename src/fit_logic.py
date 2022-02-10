@@ -22,15 +22,14 @@ top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi
 
 import importlib
 import inspect
-import lmfit
-from qtpy import QtCore
-import numpy as np
+import logging
 import os
 import sys
 from collections import OrderedDict
 from distutils.version import LooseVersion
 
-import logging
+import lmfit
+import numpy as np
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
@@ -257,7 +256,7 @@ class FitLogic:
         This is a convenience function so you do not have to mess with an extra import in modules
         using FitLogic.
         """
-      
+
         return FitContainer(self, container_name, dimension)
 
 
@@ -292,7 +291,7 @@ class FitContainer():
         self.current_fit_param = lmfit.parameter.Parameters()
         self.current_fit_result = None
         self.use_settings = None
-        self.units = ['independent variable {0}'.format(i+1) for i in range(self.dim)]
+        self.units = ['independent variable {0}'.format(i + 1) for i in range(self.dim)]
         self.units.append('dependent variable')
 
     def set_units(self, units):
@@ -353,9 +352,9 @@ class FitContainer():
                 # Update the use parameter dictionary
                 for para in use_settings:
                     if use_settings[para]:
-                        self.use_settings[para]=self.fit_list[self.current_fit]['parameters'][para]
+                        self.use_settings[para] = self.fit_list[self.current_fit]['parameters'][para]
             else:
-                self.use_settings=None
+                self.use_settings = None
         self.clear_result()
         return self.current_fit, self.use_settings
 
