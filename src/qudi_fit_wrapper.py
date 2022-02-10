@@ -36,23 +36,28 @@ import src.fit_logic as fitlogic
 f = fitlogic.FitLogic()
 
 
-def perform_fit(x, y, fit_function: str, estimator: str = "generic") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
+def perform_fit(
+        x: pd.Series,
+        y: pd.Series,
+        fit_function: str,
+        estimator: str = "generic",
+        dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
     if isinstance(x, pd.Series):
         x = x.to_numpy()
     if isinstance(y, pd.Series):
         y = y.to_numpy()
 
-    fit = {'1d': {'default': {'fit_function': fit_function, 'estimator': estimator}}}
+    fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
 
     user_fit = f.validate_load_fits(fit)
 
     use_settings = {}
-    for key in user_fit["1d"]["default"]["parameters"].keys():
+    for key in user_fit[dims]["default"]["parameters"].keys():
         use_settings[key] = False
-    user_fit["1d"]["default"]["use_settings"] = use_settings
+    user_fit[dims]["default"]["use_settings"] = use_settings
 
-    fc = f.make_fit_container("test", "1d")
-    fc.set_fit_functions(user_fit["1d"])
+    fc = f.make_fit_container("test", dims)
+    fc.set_fit_functions(user_fit[dims])
     fc.set_current_fit("default")
     fit_x, fit_y, result = fc.do_fit(x, y)
     return fit_x, fit_y, result

@@ -588,7 +588,7 @@ def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> 
     return pulsed_measurement_data
 
 
-def read_pulsed_odmr_data(data_folderpath: str):
+def read_pulsed_odmr_data(data_folderpath: str) -> dict:
     podmr_filepaths, podmr_filenames = get_measurement_file_list(data_folderpath, measurement="pulsedODMR")
 
     pulsed_odmr_data = dict()
