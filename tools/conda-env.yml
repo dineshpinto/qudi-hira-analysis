@@ -6,6 +6,7 @@ dependencies:
   - anyio=3.5.0
   - argon2-cffi=21.3.0
   - argon2-cffi-bindings=21.2.0
+  - asteval=0.9.23
   - asttokens=2.0.5
   - attrs=21.4.0
   - babel=2.9.1
@@ -36,6 +37,7 @@ dependencies:
   - fonttools=4.29.1
   - freetype=2.10.4
   - fribidi=1.0.10
+  - future=0.18.2
   - icu=68.2
   - idna=3.3
   - importlib-metadata=4.10.1
@@ -78,6 +80,7 @@ dependencies:
   - libwebp-base=1.2.2
   - libxcb=1.13
   - libzlib=1.2.11
+  - lmfit=1.0.3
   - lz4-c=1.9.3
   - m2w64-gcc-libgfortran=5.3.0
   - m2w64-gcc-libs=5.3.0
@@ -108,6 +111,8 @@ dependencies:
   - pandocfilters=1.5.0
   - parso=0.8.3
   - pathspec=0.9.0
+  - patsy=0.5.2
+  - peakutils=1.3.3
   - pickleshare=0.7.5
   - pillow=9.0.1
   - pip=22.0.3
@@ -137,12 +142,16 @@ dependencies:
   - qt=5.12.9
   - requests=2.27.1
   - scipy=1.8.0
+  - seaborn=0.11.2
+  - seaborn-base=0.11.2
   - send2trash=1.8.0
   - setuptools=60.8.1
+  - setuptools-scm=6.4.2
   - six=1.16.0
   - sniffio=1.2.0
   - sqlite=3.37.0
   - stack_data=0.1.4
+  - statsmodels=0.13.1
   - tbb=2021.5.0
   - terminado=0.13.1
   - testpath=0.5.0
@@ -155,6 +164,7 @@ dependencies:
   - typing_extensions=4.0.1
   - tzdata=2021e
   - ucrt=10.0.20348.0
+  - uncertainties=3.1.6
   - unicodedata2=14.0.0
   - urllib3=1.26.8
   - vc=14.2
