@@ -100,7 +100,7 @@ def get_figure_folderpath(folder_name: str) -> str:
     else:
         path = os.path.join("Z:/", "Data_Analysis", folder_name)
 
-    logger.info(f"Figure folderpath is {path}")
+    # logger.info(f"Figure folderpath is {path}")
     return path
 
 
@@ -143,7 +143,7 @@ def get_qudi_data_path(folder_name: str) -> str:
 
     folder_name += "\\"
     if not os.environ['COMPUTERNAME'] == 'PCKK022':
-        basepath = os.path.join("\\\\kernix", "qudiamond", "Data")
+        basepath = os.path.join("\\\\kernix", "qudiamond", "QudiHiraData")
         path = os.path.join(basepath, folder_name)
         if os.path.exists(path):
             return path
@@ -215,7 +215,7 @@ def save_pkl(obj: object, filename: str, folder: str = ""):
 #
 
 
-def save_figures(filename: str, folder: str = "", overwrite: bool = True):
+def save_figures(filename: str, folder: str = "", overwrite: bool = True, only_jpg: bool = False):
     """ Saves figures from matplotlib plot data. """
     path = get_figure_folderpath(folder)
 
@@ -230,7 +230,10 @@ def save_figures(filename: str, folder: str = "", overwrite: bool = True):
 
     logger.info(f"Saving '{filename}' to '{path}'")
 
-    exts = [".pdf", ".svg", ".png", ".jpg"]
+    if only_jpg:
+        exts = [".jpg"]
+    else:
+        exts = [".jpg", ".pdf", ".svg", ".png"]
 
     if not overwrite:
         for ext in exts:
@@ -509,7 +512,7 @@ def read_qudi_parameters(filename: str, folder: str = "") -> dict:
                         label, value = line.split(":")
                         if value != "\n":
                             params[label] = ast.literal_eval(inspect.cleandoc(value))
-                    except ValueError:
+                    except Exception as exc:
                         pass
     return params
 
@@ -540,19 +543,25 @@ def get_filenames_matching(text_to_match: str, folder: str) -> list:
 
 
 def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> dict:
+    if not os.path.exists(data_folderpath):
+        raise IOError("Check measurement folder path")
+
     pulsed_filepaths, pulsed_filenames = get_measurement_file_list(data_folderpath, measurement="PulsedMeasurement")
 
     pulsed_measurement_data = dict()
 
+    measurement_filepaths, measurement_filenames = [], []
     for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
         if measurement_str in filepath:
             timestamp = filename[:16]
+            measurement_filepaths.append(filepath)
+            measurement_filenames.append(filename)
             pulsed_measurement_data[timestamp] = {}
 
     pbar = tqdm(pulsed_measurement_data.keys())
     for timestamp in pbar:
         pbar.set_description(timestamp)
-        for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
+        for filepath, filename in zip(measurement_filepaths, measurement_filenames):
             if filename.startswith(timestamp):
                 if "laser_pulses" in filename:
                     pulsed_measurement_data[timestamp]["laser_pulses"] = {
@@ -577,3 +586,32 @@ def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> 
                     }
 
     return pulsed_measurement_data
+
+
+def read_pulsed_odmr_data(data_folderpath: str):
+    podmr_filepaths, podmr_filenames = get_measurement_file_list(data_folderpath, measurement="pulsedODMR")
+
+    pulsed_odmr_data = dict()
+
+    for filepath, filename in zip(podmr_filepaths, podmr_filenames):
+        timestamp = filename[:16]
+        pulsed_odmr_data[timestamp] = {}
+
+    for filepath, filename in zip(podmr_filepaths, podmr_filenames):
+        timestamp = filename[:16]
+        if "raw" in filename:
+            pulsed_odmr_data[timestamp]["raw"] = {
+                "filepath": filepath,
+                "filename": filename,
+                "data": np.genfromtxt(filepath).T,
+                "params": read_qudi_parameters(filepath)
+            }
+        else:
+            pulsed_odmr_data[timestamp]["measurement"] = {
+                "filepath": filepath,
+                "filename": filename,
+                "data": read_into_df(filepath),
+                "params": read_qudi_parameters(filepath)
+            }
+
+    return pulsed_odmr_data
