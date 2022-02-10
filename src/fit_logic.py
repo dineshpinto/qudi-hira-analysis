@@ -57,7 +57,6 @@ class FitLogic:
         filenames = []
         # for path in directories:
         path_list = [os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fitmethods')]
-        print(path_list)
         # adding additional path, to be defined in the config
         self.log = logging.getLogger(__name__)
 
