@@ -39,8 +39,9 @@ gh repo clone dineshpinto/qudiamond-analysis
 
 #### Creating the conda environment
 ```shell
-conda env create -f tools/conda-environment.yml
+conda env create -f tools/conda-env-xx.yml
 ```
+where `xx` is either `win10` or `macm1`.
 
 #### Activate environment
 ```shell
