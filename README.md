@@ -24,15 +24,16 @@ This license of this project is located in the top level folder under `LICENSE`.
 conda env create -f tools/conda-environment.yml
 ```
 
-### 2. Add conda env to jupyter kernel
+### 2. Activate environment
+```
+conda activate analysis
+```
+
+### 3. Add conda env to jupyter kernel
 ```
 python -m ipykernel install --user --name=analysis
 ```
 
-### 3. Enter environment
-```
-conda activate analysis
-```
 
 ### Notes
 - If exporting environments: ```conda env export --no-builds > tools/conda-env.yml```
