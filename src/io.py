@@ -138,12 +138,15 @@ def read_into_df(path: str) -> pd.DataFrame:
     return pd.read_csv(path, names=names, comment="#", sep="\t")
 
 
-def get_qudi_data_path(folder_name: str) -> str:
+def get_qudi_data_path(folder_name: str, old_base: bool = False) -> str:
     warnings.warn("get_qudi_data_path() is deprecated; use get_qudiamond_folderpath().", DeprecationWarning)
 
     folder_name += "\\"
     if not os.environ['COMPUTERNAME'] == 'PCKK022':
-        basepath = os.path.join("\\\\kernix", "qudiamond", "QudiHiraData")
+        if old_base:
+            basepath = os.path.join("\\\\kernix", "qudiamond", "QudiHiraData")
+        else:
+            basepath = os.path.join("\\\\kernix", "qudiamond", "Data")
         path = os.path.join(basepath, folder_name)
         if os.path.exists(path):
             return path
@@ -544,7 +547,7 @@ def get_filenames_matching(text_to_match: str, folder: str) -> list:
 
 def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> dict:
     if not os.path.exists(data_folderpath):
-        raise IOError("Check measurement folder path")
+        raise IOError(f"Check measurement folder path {data_folderpath}")
 
     pulsed_filepaths, pulsed_filenames = get_measurement_file_list(data_folderpath, measurement="PulsedMeasurement")
 
