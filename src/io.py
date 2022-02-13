@@ -42,6 +42,8 @@ import pandas as pd
 from dateutil import parser
 from tqdm import tqdm
 
+from .pulsed_dataclass import PulsedMeasurement, LaserPulses, RawTimetrace, PulsedData
+
 # Start module level logger
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -591,8 +593,56 @@ def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> 
     return pulsed_measurement_data
 
 
+def read_pulsed_measurement_dataclass(data_folderpath: str, measurement_str: str):
+    if not os.path.exists(data_folderpath):
+        raise IOError(f"Check measurement folder path {data_folderpath}")
+
+    pulsed_filepaths, pulsed_filenames = get_measurement_file_list(
+        data_folderpath, measurement="PulsedMeasurement")
+
+    measurement_filepaths, measurement_filenames, timestamps = [], [], []
+    for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
+        if measurement_str in filepath:
+            timestamps.append(filename[:16])
+            measurement_filepaths.append(filepath)
+            measurement_filenames.append(filename)
+
+    pulsed_measurement_data = dict()
+
+    for timestamp in tqdm(timestamps):
+        pm, lp, rt = None, None, None
+        for filepath, filename in zip(measurement_filepaths, measurement_filenames):
+            if filename.startswith(timestamp):
+                if "laser_pulses" in filename:
+                    lp = LaserPulses(
+                        filepath=filepath,
+                        data=np.genfromtxt(filepath).T,
+                        params=read_qudi_parameters(filepath)
+                    )
+                elif "pulsed_measurement" in filename:
+                    pm = PulsedMeasurement(
+                        filepath=filepath,
+                        data=read_into_df(filepath),
+                        params=read_qudi_parameters(filepath)
+                    )
+                elif "raw_timetrace" in filename:
+                    rt = RawTimetrace(
+                        filepath=filepath,
+                        data=np.genfromtxt(filepath).T,
+                        params=read_qudi_parameters(filepath)
+                    )
+        pulsed_measurement_data[timestamp] = PulsedData(
+            datetime.datetime.strptime(timestamp, "%Y%m%d-%H%M-%S"),
+            pulsed_measurement=pm,
+            laser_pulses=lp,
+            raw_timetrace=rt
+        )
+    return pulsed_measurement_data
+
+
 def read_pulsed_odmr_data(data_folderpath: str) -> dict:
-    podmr_filepaths, podmr_filenames = get_measurement_file_list(data_folderpath, measurement="pulsedODMR")
+    podmr_filepaths, podmr_filenames = get_measurement_file_list(data_folderpath,
+                                                                 measurement="pulsedODMR")
 
     pulsed_odmr_data = dict()
 
