@@ -11,29 +11,51 @@ This license of this project is located in the top level folder under `LICENSE`.
 ## Layout
 + JupyterLab notebooks are stored in `notebooks/`
 + Reusable code is stored in `src/`
-  1. `io.py` Reading and writing data and figures
-  2. `preprocessing.py` Processing raw counts into usable data
-  3. `fitting.py` Set of (semi)-automated fitting routines
-  4. `qudi_fit_wrapper.py` Set of fitting routines from the [`qudi`](https://github.com/Ulm-IQO/qudi) project
+  + `io.py` Reading and writing data and figures
+  + `preprocessing.py` Processing raw counts into usable data
+  + `fitting.py` Set of (semi)-automated fitting routines
+  + `qudi_fit_wrapper.py` Wrapper around fitting methods from the [`qudi`](https://github.com/Ulm-IQO/qudi) project
 + Utilities such as automated copy scripts, conda envs etc. are stored in `tools/`
 
-## Setup 
+## Prerequisites
+- Python 3.10 or higher
+- Conda 4.11 or higher
 
-### 1. Creating the conda environment
+## Getting Started 
+
+### Clone the repository
+
+#### With Git
+```shell
+git clone https://github.com/dineshpinto/qudiamond-analysis.git
 ```
+
+#### With Github CLI
+```shell
+gh repo clone dineshpinto/qudiamond-analysis
+```
+
+### Installing dependencies
+
+#### Creating the conda environment
+```shell
 conda env create -f tools/conda-environment.yml
 ```
 
-### 2. Activate environment
-```
+#### Activate environment
+```shell
 conda activate analysis
 ```
 
-### 3. Add conda env to jupyter kernel
-```
+#### Add conda environment to jupyter kernel
+```shell
 python -m ipykernel install --user --name=analysis
 ```
 
+### Start the analysis
+```shell
+jupyter lab
+```
 
 ### Notes
 - If exporting environments: ```conda env export --no-builds > tools/conda-env.yml```
@@ -42,7 +64,7 @@ python -m ipykernel install --user --name=analysis
 ## Makefile options
 The Makefile is configured to generate a variety of outputs:
 
-1. `make pdf` : Converts notebooks to PDF using LaTeX
-2. `make html`: Converts notebooks to HTML files
-3. `make py`  : Converts notebooks to Python files (useful for VCS)
-4. `make all` : Sequentially runs all the notebooks in folder
++ `make pdf` : Converts notebooks to PDF using LaTeX
++ `make html`: Converts notebooks to HTML files
++ `make py`  : Converts notebooks to Python files (useful for VCS)
++ `make all` : Sequentially runs all the notebooks in folder
