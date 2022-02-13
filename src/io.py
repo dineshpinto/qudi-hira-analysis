@@ -42,7 +42,7 @@ import pandas as pd
 from dateutil import parser
 from tqdm import tqdm
 
-from pulsed_dataclass import PulsedMeasurement, LaserPulses, RawTimetrace, PulsedData
+from .pulsed_dataclass import PulsedMeasurement, LaserPulses, RawTimetrace, PulsedData
 
 # Start module level logger
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
