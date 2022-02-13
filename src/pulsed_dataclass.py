@@ -1,10 +1,12 @@
 import datetime
 import os
+import re
 from dataclasses import dataclass, field
 from typing import Union, Tuple
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 
 @dataclass
@@ -25,7 +27,7 @@ class PulsedMeasurement:
                     self.data["Signal"].to_numpy(),
                     self.data["Signal2"].to_numpy())
         else:
-            raise ValueError("Too many columns in DataFrame")
+            raise ValueError(f"Invalid number of columns in DataFrame ({len(self.data.columns)})")
 
 
 @dataclass
@@ -56,7 +58,13 @@ class PulsedData:
     raw_timetrace: RawTimetrace = field(default=None)
 
     def __post_init__(self):
-        self.base_filename = self.pulsed_measurement.filename.replace("pulsed_measurement.dat", "")
+        self.base_filename = self.pulsed_measurement.filename.replace("_pulsed_measurement.dat", "")
 
     def __repr__(self) -> str:
         return f"PulsedData(timestamp='{self.timestamp}', base_filename='{self.base_filename}')"
+
+    def get_param_from_filename(self, unit: str = "dBm") -> float:
+        return float(re.findall("([0-9]+)" + f"{unit}", self.pulsed_measurement.filename)[0])
+
+    def show_image(self) -> Image:
+        return Image.open(self.pulsed_measurement.filepath.replace(".dat", "_fig.png"))

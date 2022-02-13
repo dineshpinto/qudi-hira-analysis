@@ -33,8 +33,6 @@ from lmfit.model import ModelResult
 
 import src.fit_logic as fitlogic
 
-f = fitlogic.FitLogic()
-
 
 def perform_fit(
         x: pd.Series,
@@ -47,8 +45,8 @@ def perform_fit(
     if isinstance(y, pd.Series):
         y = y.to_numpy()
 
+    f = fitlogic.FitLogic()
     fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
-
     user_fit = f.validate_load_fits(fit)
 
     use_settings = {}
@@ -64,7 +62,7 @@ def perform_fit(
 
 
 def get_fits(dim: str = "1d") -> list:
-    return f.fit_list[dim].keys()
+    return fitlogic.FitLogic().fit_list[dim].keys()
 
 
 def analyse_mean(

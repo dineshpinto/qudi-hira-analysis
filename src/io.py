@@ -32,6 +32,7 @@ import logging
 import os
 import pickle
 import warnings
+from collections import OrderedDict
 from typing import Tuple
 
 import matplotlib
@@ -607,7 +608,7 @@ def read_pulsed_measurement_dataclass(data_folderpath: str, measurement_str: str
             measurement_filepaths.append(filepath)
             measurement_filenames.append(filename)
 
-    pulsed_measurement_data = dict()
+    pulsed_measurement_data = OrderedDict()
 
     for timestamp in tqdm(timestamps):
         pm, lp, rt = None, None, None
@@ -631,6 +632,8 @@ def read_pulsed_measurement_dataclass(data_folderpath: str, measurement_str: str
                         data=np.genfromtxt(filepath).T,
                         params=read_qudi_parameters(filepath)
                     )
+                if lp and pm and rt:
+                    break
         pulsed_measurement_data[timestamp] = PulsedData(
             datetime.datetime.strptime(timestamp, "%Y%m%d-%H%M-%S"),
             pulsed_measurement=pm,
