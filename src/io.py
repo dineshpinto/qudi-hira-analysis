@@ -20,16 +20,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Copyright (c) 2021 Dinesh Pinto. See the LICENSE file at the
+Copyright (c) 2022 Dinesh Pinto. See the LICENSE file at the
 top-level directory of this distribution and at
 <https://github.com/dineshpinto/qudiamond-analysis/>
 """
+import ast
 import datetime
+import inspect
 import itertools
 import logging
 import os
 import pickle
 import warnings
+from collections import OrderedDict
 from typing import Tuple
 
 import matplotlib
@@ -38,6 +41,9 @@ import numpy as np
 import pandas
 import pandas as pd
 from dateutil import parser
+from tqdm import tqdm
+
+from .pulsed_dataclass import PulsedMeasurement, LaserPulses, RawTimetrace, PulsedData
 
 # Start module level logger
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
@@ -97,7 +103,7 @@ def get_figure_folderpath(folder_name: str) -> str:
     else:
         path = os.path.join("Z:/", "Data_Analysis", folder_name)
 
-    logger.info(f"Figure folderpath is {path}")
+    # logger.info(f"Figure folderpath is {path}")
     return path
 
 
@@ -110,7 +116,9 @@ def get_measurement_file_list(folder_path: str, measurement: str, only_data_file
     """ List all measurement files for a single measurement type, regardless of date
     within a similar set (i.e. top level folder). """
     file_list, file_names = [], []
-    for root, dirs, files in os.walk(folder_path):
+    pbar = tqdm(os.walk(folder_path))
+    for root, dirs, files in pbar:
+        pbar.set_description(root)
         for file in files:
             # Check if measurement string is in the root of the folder walk
             if measurement in root:
@@ -133,12 +141,15 @@ def read_into_df(path: str) -> pd.DataFrame:
     return pd.read_csv(path, names=names, comment="#", sep="\t")
 
 
-def get_qudi_data_path(folder_name: str) -> str:
+def get_qudi_data_path(folder_name: str, old_base: bool = False) -> str:
     warnings.warn("get_qudi_data_path() is deprecated; use get_qudiamond_folderpath().", DeprecationWarning)
 
     folder_name += "\\"
     if not os.environ['COMPUTERNAME'] == 'PCKK022':
-        basepath = os.path.join("\\\\kernix", "qudiamond", "Data")
+        if old_base:
+            basepath = os.path.join("\\\\kernix", "qudiamond", "QudiHiraData")
+        else:
+            basepath = os.path.join("\\\\kernix", "qudiamond", "Data")
         path = os.path.join(basepath, folder_name)
         if os.path.exists(path):
             return path
@@ -210,7 +221,7 @@ def save_pkl(obj: object, filename: str, folder: str = ""):
 #
 
 
-def save_figures(filename: str, folder: str = "", overwrite: bool = True):
+def save_figures(filename: str, folder: str = "", overwrite: bool = True, only_jpg: bool = False):
     """ Saves figures from matplotlib plot data. """
     path = get_figure_folderpath(folder)
 
@@ -225,7 +236,10 @@ def save_figures(filename: str, folder: str = "", overwrite: bool = True):
 
     logger.info(f"Saving '{filename}' to '{path}'")
 
-    exts = [".pdf", ".svg", ".png", ".jpg"]
+    if only_jpg:
+        exts = [".jpg"]
+    else:
+        exts = [".jpg", ".pdf", ".svg", ".png"]
 
     if not overwrite:
         for ext in exts:
@@ -503,8 +517,8 @@ def read_qudi_parameters(filename: str, folder: str = "") -> dict:
                     try:
                         label, value = line.split(":")
                         if value != "\n":
-                            params[label] = float(value)
-                    except ValueError:
+                            params[label] = ast.literal_eval(inspect.cleandoc(value))
+                    except Exception as exc:
                         pass
     return params
 
@@ -532,3 +546,128 @@ def get_filenames_matching(text_to_match: str, folder: str) -> list:
             files_found.append(file)
     print(files_found)
     return files_found
+
+
+def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> dict:
+    if not os.path.exists(data_folderpath):
+        raise IOError(f"Check measurement folder path {data_folderpath}")
+
+    pulsed_filepaths, pulsed_filenames = get_measurement_file_list(data_folderpath, measurement="PulsedMeasurement")
+
+    pulsed_measurement_data = dict()
+
+    measurement_filepaths, measurement_filenames = [], []
+    for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
+        if measurement_str in filepath:
+            timestamp = filename[:16]
+            measurement_filepaths.append(filepath)
+            measurement_filenames.append(filename)
+            pulsed_measurement_data[timestamp] = {}
+
+    pbar = tqdm(pulsed_measurement_data.keys())
+    for timestamp in pbar:
+        pbar.set_description(timestamp)
+        for filepath, filename in zip(measurement_filepaths, measurement_filenames):
+            if filename.startswith(timestamp):
+                if "laser_pulses" in filename:
+                    pulsed_measurement_data[timestamp]["laser_pulses"] = {
+                        "filepath": filepath,
+                        "filename": filename,
+                        "data": np.genfromtxt(filepath).T,
+                        "params": read_qudi_parameters(filepath)
+                    }
+                elif "pulsed_measurement" in filename:
+                    pulsed_measurement_data[timestamp]["pulsed_measurement"] = {
+                        "filepath": filepath,
+                        "filename": filename,
+                        "data": read_into_df(filepath),
+                        "params": read_qudi_parameters(filepath)
+                    }
+                elif "raw_timetrace" in filename:
+                    pulsed_measurement_data[timestamp]["raw_timetrace"] = {
+                        "filepath": filepath,
+                        "filename": filename,
+                        "data": np.genfromtxt(filepath).T,
+                        "params": read_qudi_parameters(filepath)
+                    }
+
+    return pulsed_measurement_data
+
+
+def read_pulsed_measurement_dataclass(data_folderpath: str, measurement_str: str):
+    if not os.path.exists(data_folderpath):
+        raise IOError(f"Check measurement folder path {data_folderpath}")
+
+    pulsed_filepaths, pulsed_filenames = get_measurement_file_list(
+        data_folderpath, measurement="PulsedMeasurement")
+
+    measurement_filepaths, measurement_filenames, timestamps = [], [], []
+    for filepath, filename in zip(pulsed_filepaths, pulsed_filenames):
+        if measurement_str in filepath:
+            timestamps.append(filename[:16])
+            measurement_filepaths.append(filepath)
+            measurement_filenames.append(filename)
+
+    pulsed_measurement_data = OrderedDict()
+
+    for timestamp in tqdm(timestamps):
+        pm, lp, rt = None, None, None
+        for filepath, filename in zip(measurement_filepaths, measurement_filenames):
+            if filename.startswith(timestamp):
+                if "laser_pulses" in filename:
+                    lp = LaserPulses(
+                        filepath=filepath,
+                        data=np.genfromtxt(filepath).T,
+                        params=read_qudi_parameters(filepath)
+                    )
+                elif "pulsed_measurement" in filename:
+                    pm = PulsedMeasurement(
+                        filepath=filepath,
+                        data=read_into_df(filepath),
+                        params=read_qudi_parameters(filepath)
+                    )
+                elif "raw_timetrace" in filename:
+                    rt = RawTimetrace(
+                        filepath=filepath,
+                        data=np.genfromtxt(filepath).T,
+                        params=read_qudi_parameters(filepath)
+                    )
+                if lp and pm and rt:
+                    break
+        pulsed_measurement_data[timestamp] = PulsedData(
+            datetime.datetime.strptime(timestamp, "%Y%m%d-%H%M-%S"),
+            pulsed_measurement=pm,
+            laser_pulses=lp,
+            raw_timetrace=rt
+        )
+    return pulsed_measurement_data
+
+
+def read_pulsed_odmr_data(data_folderpath: str) -> dict:
+    podmr_filepaths, podmr_filenames = get_measurement_file_list(data_folderpath,
+                                                                 measurement="pulsedODMR")
+
+    pulsed_odmr_data = dict()
+
+    for filepath, filename in zip(podmr_filepaths, podmr_filenames):
+        timestamp = filename[:16]
+        pulsed_odmr_data[timestamp] = {}
+
+    for filepath, filename in zip(podmr_filepaths, podmr_filenames):
+        timestamp = filename[:16]
+        if "raw" in filename:
+            pulsed_odmr_data[timestamp]["raw"] = {
+                "filepath": filepath,
+                "filename": filename,
+                "data": np.genfromtxt(filepath).T,
+                "params": read_qudi_parameters(filepath)
+            }
+        else:
+            pulsed_odmr_data[timestamp]["measurement"] = {
+                "filepath": filepath,
+                "filename": filename,
+                "data": read_into_df(filepath),
+                "params": read_qudi_parameters(filepath)
+            }
+
+    return pulsed_odmr_data

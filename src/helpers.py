@@ -1,6 +1,6 @@
-MIT License
-
-Copyright (c) 2022 Dinesh Pinto
+# -*- coding: utf-8 -*-
+"""
+The following code is part of qudiamond-analysis under the MIT License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Copyright (c) 2022 Dinesh Pinto. See the LICENSE file at the
+top-level directory of this distribution and at
+<https://github.com/dineshpinto/qudiamond-analysis/>
+"""
+
+
+def decibelm_to_watts(dbm_value: float) -> float:
+    return 10 ** ((dbm_value - 30) / 10)
