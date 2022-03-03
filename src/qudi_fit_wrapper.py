@@ -71,7 +71,6 @@ def analyse_mean(
         signal_start: float = 0.0,
         signal_end: float = 200e-9,
         bin_width: float = 1e-9) -> Tuple[np.ndarray, np.ndarray]:
-
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
 
