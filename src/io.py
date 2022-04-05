@@ -31,19 +31,19 @@ import itertools
 import logging
 import os
 import pickle
+import re
 import warnings
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from typing import Tuple
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas
 import pandas as pd
+from PIL import Image
 from dateutil import parser
 from tqdm import tqdm
-
-from .pulsed_dataclass import PulsedMeasurement, LaserPulses, RawTimetrace, PulsedData
 
 # Start module level logger
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
@@ -133,7 +133,7 @@ def get_measurement_file_list(folder_path: str, measurement: str, only_data_file
 
 
 def read_into_df(path: str) -> pd.DataFrame:
-    """ Read a qudi data file into a pandas DatFrame for analysis. """
+    """ Read a qudi data file into a pd DataFrame for analysis. """
     with open(path) as handle:
         *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
         names = names[1:].strip().split("\t")
@@ -188,7 +188,7 @@ def save_pys(dictionary: dict, filename: str, folder: str = ""):
         pickle.dump(dictionary, f, 1)
 
 
-def save_df(df: pandas.DataFrame, filename: str, folder: str = ""):
+def save_df(df: pd.DataFrame, filename: str, folder: str = ""):
     """ Save Dataframe as csv. """
     # TODO: replace paths with os.join()
     path = "../data/" + folder
@@ -307,7 +307,7 @@ def savefig(filename: str = None, folder: str = None, **kwargs):
 #
 
 
-def extract_data_from_dat(filename: str, folder: str = "") -> pandas.DataFrame:
+def extract_data_from_dat(filename: str, folder: str = "") -> pd.DataFrame:
     """ Extract data from a Nanonis dat file. """
     if not filename.endswith(".dat"):
         filename += ".dat"
@@ -354,7 +354,7 @@ def extract_parameters_from_dat(filename: str, folder: str = "") -> dict:
     return d
 
 
-def read_dat(filename: str, folder: str = "") -> Tuple[dict, pandas.DataFrame]:
+def read_dat(filename: str, folder: str = "") -> Tuple[dict, pd.DataFrame]:
     """
     Convenience function to extract both parameters and data from a DAT file.
 
@@ -387,7 +387,7 @@ def channel_to_gauge_names(channel_names: list) -> list:
     return [gauges.get(ch, ch) for ch in channel_names]
 
 
-def convert_tpg_to_mpl_time(df: pandas.DataFrame) -> np.ndarray:
+def convert_tpg_to_mpl_time(df: pd.DataFrame) -> np.ndarray:
     """ Read DataFrame extracted using read_tpg_data and add in matplotlib datetimes using "Date" and "Time" cols. """
     datetimes = df["Date"] + " " + df["Time"]
     # Convert raw dates and times to datetime Series, then to an matplotlib Series
@@ -397,7 +397,7 @@ def convert_tpg_to_mpl_time(df: pandas.DataFrame) -> np.ndarray:
     return dt_series_mpl
 
 
-def read_tpg_data(filename: str, folder: str = None) -> pandas.DataFrame:
+def read_tpg_data(filename: str, folder: str = None) -> pd.DataFrame:
     """
      Read data stored by Pfeiffer vacuum monitoring software.
 
@@ -408,7 +408,7 @@ def read_tpg_data(filename: str, folder: str = None) -> pandas.DataFrame:
             location of file on disk
 
     Returns:
-        df : pandas.DataFrame
+        df : pd.DataFrame
             DataFrame with all .txt columns and converted matplotlib timestamps
 
     """
@@ -432,7 +432,7 @@ def read_tpg_data(filename: str, folder: str = None) -> pandas.DataFrame:
 #
 
 
-def read_tm224_data(filename: str, folder: str = None) -> pandas.DataFrame:
+def read_tm224_data(filename: str, folder: str = None) -> pd.DataFrame:
     """
      Read data stored by Lakeshore TM224 temperature monitor software.
 
@@ -443,7 +443,7 @@ def read_tm224_data(filename: str, folder: str = None) -> pandas.DataFrame:
             location of file on disk
 
     Returns:
-        df : pandas.DataFrame
+        df : pd.DataFrame
             DataFrame with all .xls columns and converted matplotlib timestamps
     """
     if not filename.endswith(".xls"):
@@ -472,7 +472,7 @@ def read_tm224_data(filename: str, folder: str = None) -> pandas.DataFrame:
 #
 
 
-def read_spectrometer_data(filename: str, folder: str = "") -> pandas.DataFrame:
+def read_spectrometer_data(filename: str, folder: str = "") -> pd.DataFrame:
     """
     Read spectrometer data from OceanOptics spectrometer.
 
@@ -483,7 +483,7 @@ def read_spectrometer_data(filename: str, folder: str = "") -> pandas.DataFrame:
             location of file on disk
 
     Returns:
-        df : pandas.DataFrame
+        df : pd.DataFrame
             DataFrame with all .xls columns and converted matplotlib timestamps
     """
 
@@ -610,28 +610,16 @@ def read_pulsed_measurement_dataclass(data_folderpath: str, measurement_str: str
 
     pulsed_measurement_data = OrderedDict()
 
-    for timestamp in tqdm(timestamps):
+    for timestamp in timestamps:
         pm, lp, rt = None, None, None
         for filepath, filename in zip(measurement_filepaths, measurement_filenames):
             if filename.startswith(timestamp):
                 if "laser_pulses" in filename:
-                    lp = LaserPulses(
-                        filepath=filepath,
-                        data=np.genfromtxt(filepath).T,
-                        params=read_qudi_parameters(filepath)
-                    )
+                    lp = LaserPulses(filepath=filepath)
                 elif "pulsed_measurement" in filename:
-                    pm = PulsedMeasurement(
-                        filepath=filepath,
-                        data=read_into_df(filepath),
-                        params=read_qudi_parameters(filepath)
-                    )
+                    pm = PulsedMeasurement(filepath=filepath)
                 elif "raw_timetrace" in filename:
-                    rt = RawTimetrace(
-                        filepath=filepath,
-                        data=np.genfromtxt(filepath).T,
-                        params=read_qudi_parameters(filepath)
-                    )
+                    rt = RawTimetrace(filepath=filepath)
                 if lp and pm and rt:
                     break
         pulsed_measurement_data[timestamp] = PulsedData(
@@ -671,3 +659,74 @@ def read_pulsed_odmr_data(data_folderpath: str) -> dict:
             }
 
     return pulsed_odmr_data
+
+
+@dataclass
+class PulsedMeasurement:
+    filepath: str
+    data: pd.DataFrame = field(default=pd.DataFrame)
+
+    def __post_init__(self):
+        self.filename = os.path.basename(self.filepath)
+
+    def get_data(self) -> pd.DataFrame:
+        if self.data.empty:
+            self.data = read_into_df(self.filepath)
+        return self.data
+
+    def get_params(self) -> dict:
+        return read_qudi_parameters(self.filepath)
+
+
+@dataclass
+class LaserPulses:
+    filepath: str
+    data: np.ndarray = field(default=np.array([]))
+
+    def __post_init__(self):
+        self.filename = os.path.basename(self.filepath)
+
+    def get_data(self) -> np.ndarray:
+        if self.data.size == 0:
+            self.data = np.genfromtxt(self.filepath).T
+        return self.data
+
+    def get_params(self) -> dict:
+        return read_qudi_parameters(self.filepath)
+
+
+@dataclass
+class RawTimetrace:
+    filepath: str
+    data: np.ndarray = field(default=np.array([]))
+
+    def __post_init__(self):
+        self.filename = os.path.basename(self.filepath)
+
+    def get_data(self) -> np.ndarray:
+        if self.data.size == 0:
+            self.data = np.genfromtxt(self.filepath).T
+        return self.data
+
+    def get_params(self) -> dict:
+        return read_qudi_parameters(self.filepath)
+
+
+@dataclass()
+class PulsedData:
+    timestamp: datetime.datetime
+    pulsed_measurement: PulsedMeasurement
+    laser_pulses: LaserPulses = field(default=None)
+    raw_timetrace: RawTimetrace = field(default=None)
+
+    def __post_init__(self):
+        self.base_filename = self.pulsed_measurement.filename.replace("_pulsed_measurement.dat", "")
+
+    def __repr__(self) -> str:
+        return f"PulsedData(timestamp='{self.timestamp}', base_filename='{self.base_filename}')"
+
+    def get_param_from_filename(self, unit: str = "dBm") -> float:
+        return float(re.findall("(-?\d+\.?\d*)" + f"{unit}", self.pulsed_measurement.filename)[0])
+
+    def show_image(self) -> Image:
+        return Image.open(self.pulsed_measurement.filepath.replace(".dat", "_fig.png"))
