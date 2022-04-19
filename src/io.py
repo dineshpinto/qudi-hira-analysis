@@ -670,11 +670,13 @@ class PulsedMeasurement:
         self.filename = os.path.basename(self.filepath)
 
     def get_data(self) -> pd.DataFrame:
+        """ Read measurement data from file into pandas DataFrame """
         if self.data.empty:
             self.data = read_into_df(self.filepath)
         return self.data
 
     def get_params(self) -> dict:
+        """ Read measurement params from file into dict """
         return read_qudi_parameters(self.filepath)
 
 
@@ -687,11 +689,13 @@ class LaserPulses:
         self.filename = os.path.basename(self.filepath)
 
     def get_data(self) -> np.ndarray:
+        """ Read measurement data from file into pandas DataFrame """
         if self.data.size == 0:
             self.data = np.genfromtxt(self.filepath).T
         return self.data
 
     def get_params(self) -> dict:
+        """ Read measurement params from file into dict """
         return read_qudi_parameters(self.filepath)
 
 
@@ -704,11 +708,13 @@ class RawTimetrace:
         self.filename = os.path.basename(self.filepath)
 
     def get_data(self) -> np.ndarray:
+        """ Read measurement data from file into pandas DataFrame """
         if self.data.size == 0:
             self.data = np.genfromtxt(self.filepath).T
         return self.data
 
     def get_params(self) -> dict:
+        """ Read measurement params from file into dict """
         return read_qudi_parameters(self.filepath)
 
 
@@ -726,7 +732,9 @@ class PulsedData:
         return f"PulsedData(timestamp='{self.timestamp}', base_filename='{self.base_filename}')"
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
+        """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
         return float(re.findall("(-?\d+\.?\d*)" + f"{unit}", self.pulsed_measurement.filename)[0])
 
     def show_image(self) -> Image:
+        """ Use PIL to open the measurement image saved on the disk """
         return Image.open(self.pulsed_measurement.filepath.replace(".dat", "_fig.png"))

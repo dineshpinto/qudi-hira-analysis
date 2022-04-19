@@ -44,7 +44,7 @@ def perform_fit(
     Args:
         x: x-data
         y: y-data
-        fit_function: Any one of the following
+        fit_function:
             - decayexponential
             - decayexponentialstretched
             - sineexponentialdecay
@@ -52,12 +52,13 @@ def perform_fit(
             - sinedoublewithexpdecay
             - sinedoublewithtwoexpdecay
         estimator:
+            - generic
             - dip
         dims:
             - 1d
             - 2d
     Returns:
-
+        fit_x, fit_y, result
     """
 
 
