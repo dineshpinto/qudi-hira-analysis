@@ -40,6 +40,27 @@ def perform_fit(
         fit_function: str,
         estimator: str = "generic",
         dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
+    """
+    Args:
+        x: x-data
+        y: y-data
+        fit_function: Any one of the following
+            - decayexponential
+            - decayexponentialstretched
+            - sineexponentialdecay
+            - sinedouble
+            - sinedoublewithexpdecay
+            - sinedoublewithtwoexpdecay
+        estimator:
+            - dip
+        dims:
+            - 1d
+            - 2d
+    Returns:
+
+    """
+
+
     if isinstance(x, pd.Series):
         x = x.to_numpy()
     if isinstance(y, pd.Series):
