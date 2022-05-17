@@ -248,12 +248,8 @@ def save_figures(filename: str, folder: str = "", overwrite: bool = True, only_j
                 raise IOError(f"{figure_path} already exists")
 
     for ext in exts:
-        if ext == ".png":
-            dpi = 600
-        else:
-            dpi = 1000
         figure_path = os.path.join(path, filename + ext)
-        plt.savefig(figure_path, dpi=dpi, bbox_inches="tight")
+        plt.savefig(figure_path, dpi=300, bbox_inches="tight")
 
 
 def savefig(filename: str = None, folder: str = None, **kwargs):

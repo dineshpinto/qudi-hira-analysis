@@ -27,4 +27,41 @@ top-level directory of this distribution and at
 
 
 def decibelm_to_watts(dbm_value: float) -> float:
+    """ 
+    Convert dBm to Watts. 
+    
+     1 W = 10^((1 dBm - 30) / 10)
+
+    Args:
+        dbm_value: value in dBm
+    
+    """
+    
     return 10 ** ((dbm_value - 30) / 10)
+
+
+def format_exponent_as_str(num: float, decimals: int = 2) -> str:
+    """
+    Format an exponent as a LaTeX string
+    e.g. 0.0001 will be formatted as $1.0 \times 10^{-4}$
+
+    Args:
+        num: number to format
+        decimals: number of decimals to keep
+
+    Returns:
+        formatted_str: LaTeX formatted string
+    """
+    count = 0
+
+    if num > 1:
+        while num >= 10:
+            num /= 10
+            count += 1
+    else:
+        while num < 1:
+            num *= 10
+            count -= 1
+
+    formatted_str = r"${{ {} }} \times 10^{{ {} }}$".format(round(num, decimals), count)
+    return formatted_str
