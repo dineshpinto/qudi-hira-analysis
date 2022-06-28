@@ -28,6 +28,7 @@ Example code to plot and fit all autocorrelation measurements for a particular e
 ```python
 import src.io as sio
 import src.fitting as sft
+import matplotlib.pyplot as plt
 
 # Measurement folder on kernix, to ensure reproducibility DO NOT copy raw data elsewhere 
 DATA_FOLDERPATH, FIGURE_FOLDERPATH = sio.get_data_and_figure_paths("20220112_SingleNV_Membrane_RT")
