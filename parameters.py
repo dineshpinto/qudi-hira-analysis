@@ -24,27 +24,17 @@ top-level directory of this distribution and at
 <https://github.com/dineshpinto/qudiamond-analysis/>
 """
 
-
-def decibelm_to_watts(dbm_value: float) -> float:
-    """ Convert dBm to Watts.  1 W = 10^((1 dBm - 30) / 10) """
-    return 10 ** ((dbm_value - 30) / 10)
+import os
+from dataclasses import dataclass
 
 
-def format_exponent_as_str(number_to_format: float, decimals: int = 2) -> str:
-    """
-    Format an exponent as a LaTeX string
-    e.g. 0.0001 will be formatted as $1.0 \times 10^{-4}$
-    """
-    count = 0
-
-    if number_to_format > 1:
-        while number_to_format >= 10:
-            number_to_format /= 10
-            count += 1
-    else:
-        while number_to_format < 1:
-            number_to_format *= 10
-            count -= 1
-
-    formatted_str = r"${{ {} }} \times 10^{{ {} }}$".format(round(number_to_format, decimals), count)
-    return formatted_str
+@dataclass(frozen=True)
+class Parameters:
+    remote_computer_name: str = "LABKK"
+    # The code automatically detects whether kernix is connected remotely or not
+    # Use when connected remotely
+    kernix_remote_datafolder: str = os.path.join("\\\\kernix", "qudiamond", "Data")
+    output_figure_remote_folder: str = ("C:/", "Nextcloud", "Data_Analysis")
+    # Use when connected directly
+    kernix_local_datafolder: str = os.path.join("Z:/", "Data")
+    output_figure_local_folder: str = os.path.join("Z:/", "Data_Analysis")

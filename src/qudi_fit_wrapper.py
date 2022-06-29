@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The following code is part of qudiamond-analysis under the MIT License.
 
@@ -60,7 +59,6 @@ def perform_fit(
     Returns:
         fit_x, fit_y, result
     """
-
 
     if isinstance(x, pd.Series):
         x = x.to_numpy()

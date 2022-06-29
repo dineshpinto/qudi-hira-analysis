@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This file contains the Qudi FitLogic class, which provides all
 fitting methods imported from the files in logic/fitmethods.
