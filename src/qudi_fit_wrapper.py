@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 from lmfit.model import ModelResult
 
-import src.fit_logic as fitlogic
+from src.fit_logic import FitLogic
 
 
 def perform_fit(
@@ -40,12 +40,34 @@ def perform_fit(
         fit_function: str,
         estimator: str = "generic",
         dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
+    """
+    Args:
+        x: x-data
+        y: y-data
+        fit_function:
+            - decayexponential
+            - decayexponentialstretched
+            - sineexponentialdecay
+            - sinedouble
+            - sinedoublewithexpdecay
+            - sinedoublewithtwoexpdecay
+        estimator:
+            - generic
+            - dip
+        dims:
+            - 1d
+            - 2d
+    Returns:
+        fit_x, fit_y, result
+    """
+
+
     if isinstance(x, pd.Series):
         x = x.to_numpy()
     if isinstance(y, pd.Series):
         y = y.to_numpy()
 
-    f = fitlogic.FitLogic()
+    f = FitLogic()
     fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
     user_fit = f.validate_load_fits(fit)
 
@@ -57,12 +79,13 @@ def perform_fit(
     fc = f.make_fit_container("test", dims)
     fc.set_fit_functions(user_fit[dims])
     fc.set_current_fit("default")
+    fc.use_settings = None
     fit_x, fit_y, result = fc.do_fit(x, y)
     return fit_x, fit_y, result
 
 
 def get_fits(dim: str = "1d") -> list:
-    return fitlogic.FitLogic().fit_list[dim].keys()
+    return FitLogic().fit_list[dim].keys()
 
 
 def analyse_mean(
@@ -70,7 +93,6 @@ def analyse_mean(
         signal_start: float = 0.0,
         signal_end: float = 200e-9,
         bin_width: float = 1e-9) -> Tuple[np.ndarray, np.ndarray]:
-
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
 
