@@ -318,16 +318,16 @@ def make_lorentzian_fit(self, x_axis, data, estimator, units=None,
     if units is None:
         units = ["arb. units"]
 
-    result_str_dict['Position'] = {'value': result.params['center'].value,
-                                   'error': result.params['center'].stderr,
+    result_str_dict['Position'] = {'value': result.__params['center'].value,
+                                   'error': result.__params['center'].stderr,
                                    'unit': units[0]}
 
-    result_str_dict['Contrast'] = {'value': abs(result.params['contrast'].value),
-                                   'error': result.params['contrast'].stderr,
+    result_str_dict['Contrast'] = {'value': abs(result.__params['contrast'].value),
+                                   'error': result.__params['contrast'].stderr,
                                    'unit': '%'}
 
-    result_str_dict['FWHM'] = {'value': result.params['fwhm'].value,
-                               'error': result.params['fwhm'].stderr,
+    result_str_dict['FWHM'] = {'value': result.__params['fwhm'].value,
+                               'error': result.__params['fwhm'].stderr,
                                'unit': units[0]}
 
     result_str_dict['chi_sqr'] = {'value': result.chisqr, 'unit': ''}
@@ -472,34 +472,34 @@ def make_lorentziandouble_fit(self, x_axis, data, estimator, units=None, add_par
     if units is None:
         units = ["arb. u."]
 
-    result_str_dict['Position 0'] = {'value': result.params['l0_center'].value,
-                                     'error': result.params['l0_center'].stderr,
+    result_str_dict['Position 0'] = {'value': result.__params['l0_center'].value,
+                                     'error': result.__params['l0_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Position 1'] = {'value': result.params['l1_center'].value,
-                                     'error': result.params['l1_center'].stderr,
+    result_str_dict['Position 1'] = {'value': result.__params['l1_center'].value,
+                                     'error': result.__params['l1_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Splitting'] = {'value': (result.params['l1_center'].value -
-                                              result.params['l0_center'].value),
-                                    'error': (result.params['l0_center'].stderr +
-                                              result.params['l1_center'].stderr),
+    result_str_dict['Splitting'] = {'value': (result.__params['l1_center'].value -
+                                              result.__params['l0_center'].value),
+                                    'error': (result.__params['l0_center'].stderr +
+                                              result.__params['l1_center'].stderr),
                                     'unit': units[0]}
 
-    result_str_dict['Contrast 0'] = {'value': abs(result.params['l0_contrast'].value),
-                                     'error': result.params['l0_contrast'].stderr,
+    result_str_dict['Contrast 0'] = {'value': abs(result.__params['l0_contrast'].value),
+                                     'error': result.__params['l0_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['Contrast 1'] = {'value': abs(result.params['l1_contrast'].value),
-                                     'error': result.params['l1_contrast'].stderr,
+    result_str_dict['Contrast 1'] = {'value': abs(result.__params['l1_contrast'].value),
+                                     'error': result.__params['l1_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['FWHM 0'] = {'value': result.params['l0_fwhm'].value,
-                                 'error': result.params['l0_fwhm'].stderr,
+    result_str_dict['FWHM 0'] = {'value': result.__params['l0_fwhm'].value,
+                                 'error': result.__params['l0_fwhm'].stderr,
                                  'unit': units[0]}
 
-    result_str_dict['FWHM 1'] = {'value': result.params['l1_fwhm'].value,
-                                 'error': result.params['l1_fwhm'].stderr,
+    result_str_dict['FWHM 1'] = {'value': result.__params['l1_fwhm'].value,
+                                 'error': result.__params['l1_fwhm'].stderr,
                                  'unit': units[0]}
 
     result_str_dict['chi_sqr'] = {'value': result.chisqr, 'unit': ''}
@@ -793,40 +793,40 @@ def make_lorentziantriple_fit(self, x_axis, data, estimator, units=None,
     if units is None:
         units = ["arb. units"]
 
-    result_str_dict['Position 0'] = {'value': result.params['l0_center'].value,
-                                     'error': result.params['l0_center'].stderr,
+    result_str_dict['Position 0'] = {'value': result.__params['l0_center'].value,
+                                     'error': result.__params['l0_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Position 1'] = {'value': result.params['l1_center'].value,
-                                     'error': result.params['l1_center'].stderr,
+    result_str_dict['Position 1'] = {'value': result.__params['l1_center'].value,
+                                     'error': result.__params['l1_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Position 2'] = {'value': result.params['l2_center'].value,
-                                     'error': result.params['l2_center'].stderr,
+    result_str_dict['Position 2'] = {'value': result.__params['l2_center'].value,
+                                     'error': result.__params['l2_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Contrast 0'] = {'value': abs(result.params['l0_contrast'].value),
-                                     'error': result.params['l0_contrast'].stderr,
+    result_str_dict['Contrast 0'] = {'value': abs(result.__params['l0_contrast'].value),
+                                     'error': result.__params['l0_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['Contrast 1'] = {'value': abs(result.params['l1_contrast'].value),
-                                     'error': result.params['l1_contrast'].stderr,
+    result_str_dict['Contrast 1'] = {'value': abs(result.__params['l1_contrast'].value),
+                                     'error': result.__params['l1_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['Contrast 2'] = {'value': abs(result.params['l2_contrast'].value),
-                                     'error': result.params['l2_contrast'].stderr,
+    result_str_dict['Contrast 2'] = {'value': abs(result.__params['l2_contrast'].value),
+                                     'error': result.__params['l2_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['FWHM 0'] = {'value': result.params['l0_sigma'].value,
-                                 'error': result.params['l0_sigma'].stderr,
+    result_str_dict['FWHM 0'] = {'value': result.__params['l0_sigma'].value,
+                                 'error': result.__params['l0_sigma'].stderr,
                                  'unit': units[0]}
 
-    result_str_dict['FWHM 1'] = {'value': result.params['l1_sigma'].value,
-                                 'error': result.params['l1_sigma'].stderr,
+    result_str_dict['FWHM 1'] = {'value': result.__params['l1_sigma'].value,
+                                 'error': result.__params['l1_sigma'].stderr,
                                  'unit': units[0]}
 
-    result_str_dict['FWHM 2'] = {'value': result.params['l2_sigma'].value,
-                                 'error': result.params['l2_sigma'].stderr,
+    result_str_dict['FWHM 2'] = {'value': result.__params['l2_sigma'].value,
+                                 'error': result.__params['l2_sigma'].stderr,
                                  'unit': units[0]}
 
     result_str_dict['chi_sqr'] = {'value': result.chisqr, 'unit': ''}

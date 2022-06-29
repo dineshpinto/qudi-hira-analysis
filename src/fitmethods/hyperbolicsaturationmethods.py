@@ -134,7 +134,7 @@ def estimate_hyperbolicsaturation(self, x_axis, data, params):
     results_lin = self.make_linear_fit(x_axis=x_axis_half, data=data_half,
                                            estimator=self.estimate_linear)
 
-    est_slope = results_lin.params['slope'].value
+    est_slope = results_lin.__params['slope'].value
     est_offset = data.min()
 
     data_red = data - est_slope*x_axis - est_offset

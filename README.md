@@ -26,7 +26,7 @@ flowchart TD;
 ### Plot confocal images
 
 ```python
-import src.io as sio
+import src.pathhandler as sio
 import src.fitting as sft
 import src.analysis_logic as analysis
 import matplotlib.pyplot as plt
