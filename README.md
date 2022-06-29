@@ -8,51 +8,79 @@
 
 This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their individual licenses in the file header docstring.
 
-## Layout
-+ JupyterLab notebooks are stored in `notebooks/`
-+ Reusable code is stored in `src/`
-  + `io.py` Reading and writing data and figures
-  + `fitting.py` and `qudi_fit_wrapper.py` Set of (semi)-automated fitting routines
-+ Utilities such as automated copy scripts, conda envs etc. are stored in `tools/`
-
 
 ## Schema
 
 ```mermaid
-graph TD;
-    I/O-- Load raw data from kernix into DataFrame -->LOAD-- Fit data using lmfit models -->FIT-- Plot fitted data with matplotlib -->PLOT-- Save plotted data to kernix -->I/O
+flowchart TD;
+    GenericIO<-- Handle file paths and read/write operations -->PathHandler;
+    PathHandler<-- Automated measurement data extraction and data handling -->DataHandler;
+    DataHandler-- Structure extracted data -->MeasurementDataclass;
+    MeasurementDataclass-- Fit and analyze data -->AnalysisLogic;
+    AnalysisLogic-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
+    Plot-- Save plotted data --> DataHandler;
 ```
 
-Example code to plot and fit all autocorrelation measurements for a particular experiment.
+## Examples
+
+### Plot confocal images
 
 ```python
 import src.io as sio
 import src.fitting as sft
+import src.analysis_logic as analysis
 import matplotlib.pyplot as plt
 
-# Measurement folder on kernix, to ensure reproducibility DO NOT copy raw data elsewhere 
-DATA_FOLDERPATH, FIGURE_FOLDERPATH = sio.get_data_and_figure_paths("20220112_SingleNV_Membrane_RT")
-
-# Get all filepaths corresponding to autocorrelation measurements
-autocorr_filepaths, _ = sio.get_measurement_file_list(DATA_FOLDERPATH, measurement="Autocorrelation")
+# Create instance of DataHandler and give it the measurement folder
+data_handler = DataHandler(measurement_folder="FR0213-UHV")
+# Automatically walk through measurement folders and extract a list
+# of confocal images each being an instance of MeasurementDataclass
+confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
 
 # Set up matplotlib figure
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(nrows=10)
 
-for filepath in autocorr_filepaths:
-    # Load raw measurement data into a pandas DataFrame  
-    df = sio.read_into_df(filepath)
-    x = df["Time (ps)"] / 1e3
-    y = df["g2(t) norm"]
-    # Fit raw data to an autocorrelation curve
-    autocorr_fit = sft.autocorrelation_fit(x, y)
-    # Plot raw and fitted data
-    ax.plot(x, y, ".")
-    ax.plot(x, autocorr_fit["fit"])
+# Loop over all confocal images
+for idx, confocal in enumerate(confocal_list):
+    # Plot each confocal image on a subplot row
+    ax[idx].imshow(confocal.data)
+    # Extract the z-height param from the name of file
+    z_height = confocal.get_param_from_filename(unit="um")
+    ax[idx].set_title(f"Z-Height = {z_height}")
 
-# Save figures to kernix
-sio.save_figures("autocorr_comparison", FIGURE_FOLDERPATH)
+# Save output image
+data_handler.save_figures(fig, filename="compare_confocals_at different_z_heights")
 ```
+
+### Plot Rabi with sinusoid exponential decay fit
+
+```python
+data_handler = DataHandler(measurement_folder="FR0213-UHV")
+rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
+
+fig, ax = plt.subplots(nrows=10)
+
+for idx, rabi in enumerate(rabi_list):
+    # Plot each confocal image on a subplot row
+    x = rabi["t(ns)"]
+    y = rabi["spin_state"]
+    
+    fit_x, fit_y, model = analysis.perform_fit(x, y, fit_function="sineexponentialdecay")
+    
+    ax[idx].plot(x, y)
+    ax[idx].plot(fit_x, fit_y)
+    
+    # Extract the power param from the name of file
+    power = rabi.get_param_from_filename(unit="dBm")
+    
+    # Title plot with power and T1rho time
+    t1rho = model.best_fit.
+    ax[idx].set_title(f"Power = {power}, T1rho = {}")
+
+# Save output image
+data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
+```
+
 
 ## Prerequisites
 - Python 3.10 or higher

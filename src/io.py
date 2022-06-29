@@ -24,6 +24,8 @@ Copyright (c) 2022 Dinesh Pinto. See the LICENSE file at the
 top-level directory of this distribution and at
 <https://github.com/dineshpinto/qudiamond-analysis/>
 """
+from __future__ import annotations
+
 import ast
 import datetime
 import inspect
@@ -43,6 +45,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from dateutil import parser
+from numpy import ndarray
+from pandas import DataFrame
 from tqdm import tqdm
 
 # Start module level logger
@@ -496,26 +500,34 @@ def read_spectrometer_data(filename: str, folder: str = "") -> pd.DataFrame:
 #
 
 
-def read_qudi_parameters(filename: str, folder: str = "") -> dict:
-    """ Extract parameters from a qudi dat file. """
-    if not filename.endswith(".dat"):
-        filename += ".dat"
+def read_qudi_parameters(filepath: str) -> dict:
+    """ Extract parameters from a qudi .dat file. """
+    if not filepath.endswith(".dat"):
+        filepath += ".dat"
 
     params = {}
-    with open(folder + filename) as dat_file:
+    with open(filepath) as dat_file:
         for line in dat_file:
             if line == '#=====\n':
                 break
             else:
-                # Remove # from beginning of lines
-                line = line[1:]
-                if ":" in line:
-                    try:
+                try:
+                    # Remove # from beginning of lines
+                    line = line[1:]
+
+                    if line.count(":") == 1:
+                        # Add params to dictionary
                         label, value = line.split(":")
                         if value != "\n":
                             params[label] = ast.literal_eval(inspect.cleandoc(value))
-                    except Exception as exc:
-                        pass
+                    elif line.count(":") == 3:
+                        # Handle files with timestamps in them
+                        label = line.split(":")[0]
+                        timestamp_str = "".join(line.split(":")[1:]).strip()
+                        datetime_str = datetime.datetime.strptime(timestamp_str, "%d.%m.%Y %Hh%Mmin%Ss").replace(tzinfo=datetime.timezone.utc)
+                        params[label] = datetime_str
+                except Exception as _:
+                    pass
     return params
 
 
@@ -588,6 +600,33 @@ def read_pulsed_measurement_data(data_folderpath: str, measurement_str: str) -> 
                     }
 
     return pulsed_measurement_data
+
+
+def read_generic_measurement_dataclass(data_folderpath: str, measurement: str):
+    if not os.path.exists(data_folderpath):
+        raise IOError(f"Check measurement folder path {data_folderpath}")
+
+    filepaths, filenames = get_measurement_file_list(data_folderpath, measurement=measurement)
+
+    measurement_filepaths, measurement_filenames, timestamps = [], [], []
+    for filepath, filename in zip(filepaths, filenames):
+        timestamps.append(filename[:16])
+        measurement_filepaths.append(filepath)
+        measurement_filenames.append(filename)
+
+    measurement_data = OrderedDict()
+
+    for timestamp in timestamps:
+        num = 0
+        for filepath, filename in zip(measurement_filepaths, measurement_filenames):
+            if filename.startswith(timestamp):
+                measurement_data[timestamp] = Measurement(
+                    timestamp=datetime.datetime.strptime(timestamp, "%Y%m%d-%H%M-%S"),
+                    filepath=filepath
+                )
+                num += 1
+
+    return measurement_data
 
 
 def read_pulsed_measurement_dataclass(data_folderpath: str, measurement_str: str):
@@ -734,3 +773,48 @@ class PulsedData:
     def show_image(self) -> Image:
         """ Use PIL to open the measurement image saved on the disk """
         return Image.open(self.pulsed_measurement.filepath.replace(".dat", "_fig.png"))
+
+
+@dataclass()
+class Measurement:
+    timestamp: datetime.datetime
+    filepath: str
+    data: pd.DataFrame = field(default=pd.DataFrame)
+    params: dict = field(default=dict)
+    pulsed_data: PulsedData = field(default=None)
+
+    def __repr__(self) -> str:
+        return f"PulsedData(timestamp='{self.timestamp}', filepath='{os.path.basename(self.filepath)}')"
+
+    def get_data(self) -> ndarray | DataFrame:
+        """ Read measurement data from file into pandas DataFrame """
+        if "Confocal" in self.filepath:
+            return self.__get_confocal_data()
+
+        if self.data.empty:
+            self.data = read_into_df(self.filepath)
+        return self.data
+
+    def __get_confocal_data(self) -> np.ndarray:
+        self.image_filepath = self.filepath.replace(self.filepath[-9:], "_image_1.dat")
+        return np.genfromtxt(self.image_filepath, dtype=None, delimiter='\t')
+
+    def get_params(self) -> dict:
+        """ Read measurement params from file into dict """
+        self.params = read_qudi_parameters(self.filepath)
+        return self.params
+
+    def set_datetime_index(self) -> pd.DataFrame:
+        if 'Start counting time' not in self.params:
+            raise ValueError("'Start counting time' not in params")
+        if not isinstance(self.data, pd.DataFrame):
+            raise TypeError("data is not of type pd.DataFrame")
+        if "Time (s)" not in self.data.columns:
+            raise IndexError("Unable to fine 'Time (s)' in DataFrame")
+
+        self.data['Time (s)'] += self.params['Start counting time'].timestamp()
+        self.data["Time"] = pd.to_datetime(self.data['Time (s)'], unit='s', utc=True)
+        self.data.set_index(self.data["Time"], inplace=True)
+        self.data.tz_convert('Europe/Berlin')
+        self.data.drop(["Time", "Time (s)"], inplace=True, axis=1)
+        return self.data
