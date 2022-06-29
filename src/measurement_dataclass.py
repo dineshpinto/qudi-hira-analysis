@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 
-from src.pathhandler import GenericIO
+from src.generic_io import GenericIO
 
 
 @dataclass()
@@ -85,7 +85,7 @@ class RawTimetrace(GenericIO):
 
 
 @dataclass()
-class PulsedMeasurementData:
+class PulsedMeasurementDataclass:
     pulsed_measurement: PulsedMeasurement
     laser_pulses: LaserPulses = field(default=None)
     raw_timetrace: RawTimetrace = field(default=None)
@@ -93,19 +93,15 @@ class PulsedMeasurementData:
     def __post_init__(self):
         self.base_filename = self.pulsed_measurement.filename.replace("_pulsed_measurement.dat", "")
 
-    def get_param_from_filename(self, unit: str = "dBm") -> float:
-        """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
-        return float(re.findall("(-?\d+\.?\d*)" + f"{unit}", self.pulsed_measurement.filename)[0])
-
     def show_image(self) -> Image:
         """ Use PIL to open the measurement image saved on the disk """
         return Image.open(self.pulsed_measurement.filepath.replace(".dat", "_fig.png"))
 
 
 @dataclass()
-class MeasurementData(GenericIO):
+class MeasurementDataclass(GenericIO):
     filepath: str
-    pulsed_data: PulsedMeasurementData = field(default=None)
+    pulsed_data: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 
@@ -130,6 +126,10 @@ class MeasurementData(GenericIO):
     def __get_confocal_data(self) -> np.ndarray:
         image_filepath = self.filepath.replace(self.filepath[-9:], "_image_1.dat")
         return np.genfromtxt(image_filepath, dtype=int, delimiter='\t')
+
+    def get_param_from_filename(self, unit: str = "dBm") -> float:
+        """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
+        return float(re.findall("(-?\d+\.?\d*)" + f"{unit}", self.pulsed_measurement.filename)[0])
 
     @property
     def params(self) -> dict:
