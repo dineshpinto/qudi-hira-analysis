@@ -26,9 +26,7 @@ flowchart TD;
 ### Plot confocal images
 
 ```python
-import src.pathhandler as sio
-import src.fitting as sft
-import src.analysis_logic as analysis
+from src.data_handler import DataHandler
 import matplotlib.pyplot as plt
 
 # Create instance of DataHandler and give it the measurement folder
@@ -55,8 +53,15 @@ data_handler.save_figures(fig, filename="compare_confocals_at different_z_height
 ### Plot Rabi with sinusoid exponential decay fit
 
 ```python
+from src.data_handler import DataHandler
+from src.analysis_logic import AnalysisLogic
+import matplotlib.pyplot as plt
+
 data_handler = DataHandler(measurement_folder="FR0213-UHV")
 rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
+
+# Create instance of AnalysisLogic()
+analysis = AnalysisLogic()
 
 fig, ax = plt.subplots(nrows=10)
 
@@ -65,6 +70,7 @@ for idx, rabi in enumerate(rabi_list):
     x = rabi["t(ns)"]
     y = rabi["spin_state"]
     
+    # Fit data to an exponentially decaying sinusoid
     fit_x, fit_y, model = analysis.perform_fit(x, y, fit_function="sineexponentialdecay")
     
     ax[idx].plot(x, y)
@@ -74,8 +80,8 @@ for idx, rabi in enumerate(rabi_list):
     power = rabi.get_param_from_filename(unit="dBm")
     
     # Title plot with power and T1rho time
-    t1rho = model.best_fit.
-    ax[idx].set_title(f"Power = {power}, T1rho = {}")
+    t1rho = model.best_fit.params["decay"]
+    ax[idx].set_title(f"Power = {power}, T1rho = {t1rho}")
 
 # Save output image
 data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
