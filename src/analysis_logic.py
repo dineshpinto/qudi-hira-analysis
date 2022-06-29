@@ -53,8 +53,9 @@ class AnalysisLogic(FitLogic):
         return fit_x, fit_y, result
 
     @staticmethod
-    def get_all_fits() -> list:
-        return FitLogic().fit_list["1d"].keys() + FitLogic().fit_list["2d"].keys()
+    def get_all_fits():
+        print(f"1d fits: {list(FitLogic().fit_list['1d'].keys())}")
+        print(f"2d fits: {list(FitLogic().fit_list['2d'].keys())}")
 
     @staticmethod
     def analyse_mean(
