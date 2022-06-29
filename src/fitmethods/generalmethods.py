@@ -154,8 +154,8 @@ def create_fit_string(self, result, model, units=None, decimal_digits_value_give
     fit_result = ''
     for variable in model.param_names:
         # check order of number
-        exponent_error = int("{:e}".format(result.params[variable].stderr)[-3:])
-        exponent_value = int("{:e}".format(result.params[variable].value)[-3:])
+        exponent_error = int("{:e}".format(result.__params[variable].stderr)[-3:])
+        exponent_value = int("{:e}".format(result.__params[variable].value)[-3:])
         if decimal_digits_value_given is None:
             decimal_digits_value = int(exponent_value-exponent_error+1)
             if decimal_digits_value <= 0:
@@ -168,10 +168,10 @@ def create_fit_string(self, result, model, units=None, decimal_digits_value_give
             fit_result += ("{0} [{1}] : {2} ± {3}\n".format(str(variable),
                                                             units[variable],
                                                             "{0:.{1}e}".format(
-                                                                float(result.params[variable].value),
+                                                                float(result.__params[variable].value),
                                                                 decimal_digits_value),
                                                             "{0:.{1}e}".format(
-                                                                float(result.params[variable].stderr),
+                                                                float(result.__params[variable].stderr),
                                                                 decimal_digits_err)))
         except:
             # self.log.warning('No unit given for parameter {}, setting unit '
@@ -179,10 +179,10 @@ def create_fit_string(self, result, model, units=None, decimal_digits_value_give
             fit_result += ("{0} [{1}] : {2} ± {3}\n".format(str(variable),
                                                             "arb. u.",
                                                             "{0:.{1}e}".format(
-                                                                float(result.params[variable].value),
+                                                                float(result.__params[variable].value),
                                                                 decimal_digits_value),
                                                             "{0:.{1}e}".format(
-                                                                float(result.params[variable].stderr),
+                                                                float(result.__params[variable].stderr),
                                                                 decimal_digits_err)))
     return fit_result
 

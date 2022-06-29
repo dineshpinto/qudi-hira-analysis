@@ -30,7 +30,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Parameters:
-    remote_computer_name: str = "LABKK"
+    # Name of computer
+    remote_computer_name: str = "PCKK022"
     # The code automatically detects whether kernix is connected remotely or not
     # Use when connected remotely
     kernix_remote_datafolder: str = os.path.join("\\\\kernix", "qudiamond", "Data")

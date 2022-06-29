@@ -219,11 +219,11 @@ def make_linear_fit(self, x_axis, data, estimator, units=None, add_params=None, 
 
     result_str_dict = dict()
 
-    result_str_dict['Slope'] = {'value': result.params['slope'].value,
-                                'error': result.params['slope'].stderr,
+    result_str_dict['Slope'] = {'value': result.__params['slope'].value,
+                                'error': result.__params['slope'].stderr,
                                 'unit': '{0}/{1}'.format(units[1], units[0])}
-    result_str_dict['Offset'] = {'value': result.params['offset'].value,
-                                 'error': result.params['offset'].stderr,
+    result_str_dict['Offset'] = {'value': result.__params['offset'].value,
+                                 'error': result.__params['offset'].stderr,
                                  'unit': units[1]}
 
     result.result_str_dict = result_str_dict

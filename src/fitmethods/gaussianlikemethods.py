@@ -339,20 +339,20 @@ def make_gaussian_fit(self, x_axis, data, estimator, units=None, add_params=None
     #                                    'error': result.params['amplitude'].stderr,
     #                                    'unit': units[1]}                               #amplitude
 
-    result_str_dict['Position'] = {'value': result.params['center'].value,
-                                        'error': result.params['center'].stderr,
+    result_str_dict['Position'] = {'value': result.__params['center'].value,
+                                        'error': result.__params['center'].stderr,
                                         'unit': units[0]}                               #position
 
     #result_str_dict['Standard deviation'] = {'value': result.params['sigma'].value,
     #                                'error': result.params['sigma'].stderr,
     #                                'unit': units[0]}                               #standart deviation
 
-    result_str_dict['Linewidth'] = {'value': result.params['fwhm'].value,
-                                        'error': result.params['fwhm'].stderr,
+    result_str_dict['Linewidth'] = {'value': result.__params['fwhm'].value,
+                                        'error': result.__params['fwhm'].stderr,
                                         'unit': units[0]}                               #FWHM
 
-    result_str_dict['Contrast'] = {'value': result.params['contrast'].value,
-                                        'error': result.params['contrast'].stderr,
+    result_str_dict['Contrast'] = {'value': result.__params['contrast'].value,
+                                        'error': result.__params['contrast'].stderr,
                                         'unit': '%'}                                    #Contrast
     result.result_str_dict = result_str_dict
 
@@ -509,20 +509,20 @@ def make_gaussianlinearoffset_fit(self, x_axis, data, estimator, units=None, add
     #                                    'error': result.params['amplitude'].stderr,
     #                                    'unit': units[1]}                               #amplitude
 
-    result_str_dict['Position'] = {'value': result.params['center'].value,
-                                        'error': result.params['center'].stderr,
+    result_str_dict['Position'] = {'value': result.__params['center'].value,
+                                        'error': result.__params['center'].stderr,
                                         'unit': units[0]}                               #position
 
     #result_str_dict['Standard deviation'] = {'value': result.params['sigma'].value,
     #                                'error': result.params['sigma'].stderr,
     #                                'unit': units[0]}                               #standart deviation
 
-    result_str_dict['Linewidth'] = {'value': result.params['fwhm'].value,
-                                        'error': result.params['fwhm'].stderr,
+    result_str_dict['Linewidth'] = {'value': result.__params['fwhm'].value,
+                                        'error': result.__params['fwhm'].stderr,
                                         'unit': units[0]}                               #FWHM
 
-    result_str_dict['Contrast'] = {'value': result.params['contrast'].value,
-                                        'error': result.params['contrast'].stderr,
+    result_str_dict['Contrast'] = {'value': result.__params['contrast'].value,
+                                        'error': result.__params['contrast'].stderr,
                                         'unit': '%'}                                    #Contrast
 
     #result_str_dict['Slope'] = {'value': result.params['slope'].value,
@@ -572,11 +572,11 @@ def estimate_gaussianlinearoffset_peak(self, x_axis, data, params):
     # peak at the borders, this method is much more beneficial.
 
     # assign the obtained values for the initial fit:
-    params['offset'] = res_ordinary_gauss.params['offset']
-    params['center'] = res_ordinary_gauss.params['center']
-    params['amplitude'] = res_ordinary_gauss.params['amplitude']
-    params['sigma'] = res_ordinary_gauss.params['sigma']
-    params['slope'] = res_linear.params['slope']
+    params['offset'] = res_ordinary_gauss.__params['offset']
+    params['center'] = res_ordinary_gauss.__params['center']
+    params['amplitude'] = res_ordinary_gauss.__params['amplitude']
+    params['sigma'] = res_ordinary_gauss.__params['sigma']
+    params['slope'] = res_linear.__params['slope']
 
     return error, params
 
@@ -633,28 +633,28 @@ def make_gaussiandouble_fit(self, x_axis, data, estimator,
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()
 
-    result_str_dict['Position 0'] = {'value': result.params['g0_center'].value,
-                                     'error': result.params['g0_center'].stderr,
+    result_str_dict['Position 0'] = {'value': result.__params['g0_center'].value,
+                                     'error': result.__params['g0_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Position 1'] = {'value': result.params['g1_center'].value,
-                                     'error': result.params['g1_center'].stderr,
+    result_str_dict['Position 1'] = {'value': result.__params['g1_center'].value,
+                                     'error': result.__params['g1_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Contrast 0'] = {'value': abs(result.params['g0_contrast'].value),
-                                     'error': result.params['g0_contrast'].stderr,
+    result_str_dict['Contrast 0'] = {'value': abs(result.__params['g0_contrast'].value),
+                                     'error': result.__params['g0_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['Contrast 1'] = {'value': abs(result.params['g1_contrast'].value),
-                                     'error': result.params['g1_contrast'].stderr,
+    result_str_dict['Contrast 1'] = {'value': abs(result.__params['g1_contrast'].value),
+                                     'error': result.__params['g1_contrast'].stderr,
                                      'unit': '%'}
 
-    result_str_dict['Linewidth 0'] = {'value': result.params['g0_sigma'].value,
-                                      'error': result.params['g0_sigma'].stderr,
+    result_str_dict['Linewidth 0'] = {'value': result.__params['g0_sigma'].value,
+                                      'error': result.__params['g0_sigma'].stderr,
                                       'unit': units[0]}
 
-    result_str_dict['Linewidth 1'] = {'value': result.params['g1_sigma'].value,
-                                      'error': result.params['g1_sigma'].stderr,
+    result_str_dict['Linewidth 1'] = {'value': result.__params['g1_sigma'].value,
+                                      'error': result.__params['g1_sigma'].stderr,
                                       'unit': units[0]}
 
     result_str_dict['chi_sqr'] = {'value': result.chisqr, 'unit': ''}
