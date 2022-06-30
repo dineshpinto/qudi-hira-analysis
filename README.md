@@ -14,6 +14,7 @@ individual licenses in the file header docstring.
 
 ## Schema
 
+### Overall
 ```mermaid
 flowchart TD;
     GenericIO<-- Handle file paths, VPN and storage read/write operations -->PathHandler;
@@ -22,6 +23,33 @@ flowchart TD;
     MeasurementDataclass-- Fit and analyze data -->AnalysisLogic;
     AnalysisLogic-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
+```
+
+### Measurement Dataclass
+```mermaid
+flowchart TD;
+    subgraph Standard Data
+        MeasurementDataclass-->filepath1;
+        MeasurementDataclass-->CustomDataImporter[Handle custom data like confocal etc.];
+        CustomDataImporter-->data1;
+        MeasurementDataclass-->params1;
+        filepath1-->ParameterExtraction[Extract params from filename]
+    end
+    subgraph Pulsed Data
+        MeasurementDataclass--oPulsedMeasurementDataclass;
+        PulsedMeasurementDataclass--> PulsedMeasurement;
+        PulsedMeasurement--> filepath2;
+        PulsedMeasurement--> data2;
+        PulsedMeasurement--> params2;
+        PulsedMeasurementDataclass--> LaserPulses; 
+        LaserPulses--> filepath3;
+        LaserPulses--> data3;
+        LaserPulses--> params3;
+        PulsedMeasurementDataclass--> RawTimetrace;
+        RawTimetrace--> filepath4;
+        RawTimetrace--> data4;
+        RawTimetrace--> params4;
+    end
 ```
 
 ## Examples
