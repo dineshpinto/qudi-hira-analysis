@@ -2,7 +2,8 @@
 
 A reproducible and transparent toolkit to analyze experimental data, primarily from an imaging magnetometer in diamond.
 
-**Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written texts. The
+**Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written text and
+equations. The
 toolkit itself is built entirely on free and open-source software.
 
 **Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of
@@ -15,7 +16,7 @@ individual licenses in the file header docstring.
 
 ```mermaid
 flowchart TD;
-    GenericIO<-- Handle file paths and storage read/write operations -->PathHandler;
+    GenericIO<-- Handle file paths, VPN and storage read/write operations -->PathHandler;
     PathHandler<-- Automated measurement data extraction and data handling -->DataHandler;
     DataHandler-- Structure extracted data -->MeasurementDataclass;
     MeasurementDataclass-- Fit and analyze data -->AnalysisLogic;
@@ -69,8 +70,7 @@ fig, ax = plt.subplots(nrows=10)
 
 for idx, rabi in enumerate(rabi_list):
     # Plot each confocal image on a subplot row
-    x = rabi["t(ns)"]
-    y = rabi["spin_state"]
+    x, y = rabi.data["t(ns)"], rabi.data["spin_state"]
 
     # Fit data to an exponentially decaying sinusoid
     fit_x, fit_y, model = analysis.perform_fit(x, y, fit_function="sineexponentialdecay")
@@ -117,7 +117,6 @@ See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
 
-
 ## Getting Started
 
 ### Prerequisites
@@ -146,7 +145,7 @@ gh repo clone dineshpinto/qudi-hira-analysis
 conda env create -f tools/conda-env-xx.yml
 ```
 
-where `xx` is either `win10` or `macm1`.
+where `xx` is either `win10` or `osx`.
 
 #### Activate environment
 
@@ -159,6 +158,19 @@ conda activate qudi-hira-analysis
 ```shell
 python -m ipykernel install --user --name=qudi-hira-analysis
 ```
+
+### Update location parameters
+
+The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
+stored. The code will automatically detect any VPN connection, and adjust its save location accordingly.
+
+| Attribute                   | Explanation                                                                                                      |
+|-----------------------------|------------------------------------------------------------------------------------------------------------------|
+| lab_computer_name           | Name of lab computer (use `os.environ["COMPUTERNAME"]`)                                                          |
+| kernix_remote_datafolder    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
+| output_figure_remote_folder | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
+| kernix_local_datafolder     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
+| output_figure_local_folder  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
 
 ### Start the analysis
 
