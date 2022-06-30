@@ -23,6 +23,7 @@ flowchart TD;
     MeasurementDataclass-- Fit and analyze data -->AnalysisLogic;
     AnalysisLogic-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
+    style MeasurementDataclass fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
 ```
 
 ### Measurement Dataclass
