@@ -1,4 +1,4 @@
-# qudiamond-analysis
+# Qudi Hira Analysis
 
 A reproducible and transparent toolkit to analyze experimental data, primarily from an imaging magnetometer in diamond.
 
