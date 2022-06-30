@@ -202,7 +202,7 @@ conda activate qudi-hira-analysis
 
 ```shell
 python -m ipykernel install --user --name=qudi-hira-analysis
-```                         |
+```
 
 ### Start the analysis
 
