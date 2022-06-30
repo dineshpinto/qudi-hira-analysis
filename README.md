@@ -19,11 +19,13 @@ individual licenses in the file header docstring.
 flowchart TD;
     GenericIO<-- Handle file paths, VPN and storage read/write operations -->PathHandler;
     PathHandler<-- Automated measurement data extraction and data handling -->DataHandler;
+    Parameters-- Custom params for filepath handling -->PathHandler
     DataHandler-- Structure extracted data -->MeasurementDataclass;
     MeasurementDataclass-- Fit and analyze data -->AnalysisLogic;
     AnalysisLogic-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
     style MeasurementDataclass fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
+    style Parameters fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
 ```
 
 ### Measurement Dataclass
@@ -52,6 +54,20 @@ flowchart TD;
         RawTimetrace--> params4;
     end
 ```
+
+### Parameters
+
+The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
+stored. The code will automatically detect any VPN connection, and adjust its save location accordingly (Note that you 
+cannot save to kernix when connected remotely).
+
+| Attribute            | Explanation                                                                                                      |
+|----------------------|------------------------------------------------------------------------------------------------------------------|
+| lab_computer_name    | Name of lab computer (use `os.environ["COMPUTERNAME"]`)                                                          |
+| remote_datafolder    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
+| remote_output_folder | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
+| local_datafolder     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
+| local_output_folder  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)     
 
 ## Examples
 
@@ -186,21 +202,7 @@ conda activate qudi-hira-analysis
 
 ```shell
 python -m ipykernel install --user --name=qudi-hira-analysis
-```
-
-### Update location parameters
-
-The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
-stored. The code will automatically detect any VPN connection, and adjust its save location accordingly (Note that you 
-cannot save to kernix when connected remotely).
-
-| Attribute            | Explanation                                                                                                      |
-|----------------------|------------------------------------------------------------------------------------------------------------------|
-| lab_computer_name    | Name of lab computer (use `os.environ["COMPUTERNAME"]`)                                                          |
-| remote_datafolder    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
-| remote_output_folder | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
-| local_datafolder     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
-| local_output_folder  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
+```                         |
 
 ### Start the analysis
 
