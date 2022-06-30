@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import List, TYPE_CHECKING, Union
+from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from parameters import ParametersQudiHira, ParametersDiamondAFM
+    from parameters import Parameters
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class PathHandler:
-    def __init__(self, measurement_folder: str, params: Union[ParametersQudiHira, ParametersDiamondAFM]):
+    def __init__(self, measurement_folder: str, params: Parameters):
         self.params = params
         self.data_folder_path = self._get_data_folder_path(measurement_folder)
         self.figure_folder_path = self._get_figure_folder_path(measurement_folder)

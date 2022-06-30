@@ -1,9 +1,39 @@
 import os
 from dataclasses import dataclass
 
+from abc import ABC, abstractmethod
+
 
 @dataclass(frozen=True)
-class ParametersQudiHira:
+class Parameters(ABC):
+    @property
+    @abstractmethod
+    def lab_computer_name(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def kernix_remote_datafolder(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def output_figure_remote_folder(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def kernix_local_datafolder(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def output_figure_local_folder(self):
+        raise NotImplementedError
+
+
+@dataclass(frozen=True)
+class ParametersQudiHira(Parameters):
     """ Parameters for new system """
     # Name of lab computer (run `os.environ["COMPUTERNAME"]` to check)
     lab_computer_name: str = "PCKK022"
