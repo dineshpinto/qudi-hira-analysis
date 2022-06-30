@@ -2,23 +2,24 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import List
+from typing import List, TYPE_CHECKING, Union
 
-from parameters import Parameters
+if TYPE_CHECKING:
+    from parameters import ParametersQudiHira, ParametersDiamondAFM
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class PathHandler:
-    def __init__(self, measurement_folder: str):
-        self.params = Parameters()
+    def __init__(self, measurement_folder: str, params: Union[ParametersQudiHira, ParametersDiamondAFM]):
+        self.params = params
         self.data_folder_path = self._get_data_folder_path(measurement_folder)
         self.figure_folder_path = self._get_figure_folder_path(measurement_folder)
 
     def _get_data_folder_path(self, folder_name: str) -> str:
         """ Create absolute folder paths. """
-        if os.environ["COMPUTERNAME"] == self.params.computer_name:
+        if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
             path = os.path.join(self.params.kernix_local_datafolder, folder_name)
         else:
             path = os.path.join(self.params.kernix_remote_datafolder, folder_name)
@@ -27,12 +28,17 @@ class PathHandler:
         return path
 
     def _get_figure_folder_path(self, folder_name: str) -> str:
-        if os.environ["COMPUTERNAME"] == self.params.computer_name:
+        if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
             path = os.path.join(self.params.output_figure_local_folder, folder_name)
         else:
             path = os.path.join(self.params.output_figure_remote_folder, folder_name)
 
-        logger.info(f"Figure folder path is {path}")
+        if not os.path.exists(path):
+            logger.info(f"Creating new figure folder path {path}")
+            os.mkdir(path)
+        else:
+            logger.info(f"Figure folder path is {path}")
+
         return path
 
     def _get_measurement_filepaths(self, measurement: str, extension: str = ".dat",

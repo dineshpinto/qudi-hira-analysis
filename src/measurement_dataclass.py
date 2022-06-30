@@ -124,12 +124,17 @@ class MeasurementDataclass(GenericIO):
         return self.__data
 
     def __get_confocal_data(self) -> np.ndarray:
+        """ Custom loading logic for confocal images """
         image_filepath = self.filepath.replace(self.filepath[-9:], "_image_1.dat")
         return np.genfromtxt(image_filepath, dtype=int, delimiter='\t')
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
-        return float(re.findall("(-?\d+\.?\d*)" + f"{unit}", self.pulsed_measurement.filename)[0])
+        params = re.findall("(-?\d+\.?\d*)" + f"{unit}", self.filename)
+        if len(params) == 0:
+            raise ValueError(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
+        else:
+            return float(params[0])
 
     @property
     def params(self) -> dict:
