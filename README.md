@@ -39,16 +39,16 @@ flowchart TD;
         filepath1-->ParameterExtraction[Extract params from filename]
     end
     subgraph Pulsed Data
-        MeasurementDataclass--oPulsedMeasurementDataclass;
-        PulsedMeasurementDataclass--> PulsedMeasurement;
+        MeasurementDataclass-- pulsed --oPulsedMeasurementDataclass;
+        PulsedMeasurementDataclass-- measurement --oPulsedMeasurement;
         PulsedMeasurement--> filepath2;
         PulsedMeasurement--> data2;
         PulsedMeasurement--> params2;
-        PulsedMeasurementDataclass--> LaserPulses; 
+        PulsedMeasurementDataclass-- laser_pulses --oLaserPulses; 
         LaserPulses--> filepath3;
         LaserPulses--> data3;
         LaserPulses--> params3;
-        PulsedMeasurementDataclass--> RawTimetrace;
+        PulsedMeasurementDataclass-- timetrace --oRawTimetrace;
         RawTimetrace--> filepath4;
         RawTimetrace--> data4;
         RawTimetrace--> params4;
@@ -74,8 +74,8 @@ cannot save to kernix when connected remotely).
 ### Plot all confocal images
 
 ```python
-from src.data_handler import DataHandler
 import matplotlib.pyplot as plt
+from src.data_handler import DataHandler
 
 data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
