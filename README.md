@@ -67,7 +67,7 @@ cannot save to kernix when connected remotely).
 | `remote_datafolder`    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
 | `remote_output_folder` | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
 | `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
-| `local_output_folder   | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
+| `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
 
 ## Examples
 
