@@ -5,15 +5,16 @@ import os
 import re
 from dataclasses import dataclass, field
 
+import lmfit
 import numpy as np
 import pandas as pd
 from PIL import Image
 
-from src.generic_io import GenericIO
+from src.io_handler import IOHandler
 
 
 @dataclass()
-class PulsedMeasurement(GenericIO):
+class PulsedMeasurement(IOHandler):
     filepath: str
     __data: pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
@@ -37,7 +38,7 @@ class PulsedMeasurement(GenericIO):
 
 
 @dataclass()
-class LaserPulses(GenericIO):
+class LaserPulses(IOHandler):
     filepath: str
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
@@ -61,7 +62,7 @@ class LaserPulses(GenericIO):
 
 
 @dataclass()
-class RawTimetrace(GenericIO):
+class RawTimetrace(IOHandler):
     filepath: str
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
@@ -99,9 +100,10 @@ class PulsedMeasurementDataclass:
 
 
 @dataclass()
-class MeasurementDataclass(GenericIO):
+class MeasurementDataclass(IOHandler):
     filepath: str = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
+    fit_model: lmfit.Model = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 

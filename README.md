@@ -1,13 +1,28 @@
 # Qudi Hira Analysis
 
-A reproducible and transparent toolkit to analyze experimental data, primarily from an imaging magnetometer in diamond.
+This toolkit automates a large portion of the work surrounding data analysis on a large experimental data set, allowing
+more focus on the actual data itself. Its focus is to analyze data from quantum sensing experiments where the
+primary raw data extracted is photon counts. The goal is to minimize the time from data collection to publication.
 
-**Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written text and
-equations. The
-toolkit itself is built entirely on free and open-source software.
+The high level interface is abstracted, and provides a set of functions to automate data import, handling and analysis.
+It is designed to be exposed through Jupyter Notebooks, although the abstract interface allows it to be integrated into
+larger, more general frameworks as well (with only some pain). Using the toolkit itself should only require a
+beginner-level understanding of Python.
 
-**Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of
-code are sufficient to reproduce all analyzed data and figures.
+The toolkit also aims to improve transparency and reproducibility in experimental data analysis. In an ideal scenario,
+two lines of code are sufficient to recreate all output data.
+
+The toolkit uses some handy Python features like dataclasses to store experimental data sets. Dataclasses offer a full
+OOP experience while analyzing complex data sets. They provide a solid and transparent structure to the data to reduce
+errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
+sidestepped by lazy loading data and storing metadata instead wherever possible.
+
+The visual structure of the toolkit is shown in the schema below. It largely consists of three portions:
+
+- `IOHandler` assumes a central store of raw data, which is never modified (read-only)
+- `DataHandler` automates the extraction of large amounts of data from the `IOHandler` interface
+- `AnalysisLogic` contains a set of automated fitting routines using `lmfit` internally (built on top of fitting
+  routines from the [qudi](https://github.com/Ulm-IQO/qudi) project)
 
 This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their
 individual licenses in the file header docstring.
@@ -15,9 +30,10 @@ individual licenses in the file header docstring.
 ## Schema
 
 ### Overall
+
 ```mermaid
 flowchart TD;
-    GenericIO<-- Handle file paths, VPN and storage read/write operations -->PathHandler;
+    IOHandler<-- Handle file paths, VPN and storage read/write operations -->PathHandler;
     PathHandler<-- Automated measurement data extraction and data handling -->DataHandler;
     Parameters-- Custom params for filepath handling -->PathHandler
     DataHandler-- Structure extracted data -->MeasurementDataclass;
@@ -29,6 +45,7 @@ flowchart TD;
 ```
 
 ### Measurement Dataclass
+
 ```mermaid
 flowchart TD;
     subgraph Standard Data
@@ -58,7 +75,7 @@ flowchart TD;
 ### Parameters
 
 The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
-stored. The code will automatically detect any VPN connection, and adjust its save location accordingly (Note that you 
+stored. The code will automatically detect any VPN connection, and adjust its save location accordingly (Note that you
 cannot save to kernix when connected remotely).
 
 | Attribute              | Explanation                                                                                                      |

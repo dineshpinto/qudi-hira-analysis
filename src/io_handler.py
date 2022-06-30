@@ -11,7 +11,7 @@ import pandas as pd
 from dateutil import parser
 
 
-class GenericIO:
+class IOHandler:
     """ Read and write files (eg. pys, df, pkl) """
 
     @staticmethod
