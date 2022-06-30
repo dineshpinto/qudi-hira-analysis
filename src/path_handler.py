@@ -23,18 +23,18 @@ class PathHandler:
     def _get_data_folder_path(self, folder_name: str) -> str:
         """ Create absolute folder paths. """
         if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
-            path = os.path.join(self.params.kernix_local_datafolder, folder_name)
+            path = os.path.join(self.params.local_datafolder, folder_name)
         else:
-            path = os.path.join(self.params.kernix_remote_datafolder, folder_name)
+            path = os.path.join(self.params.remote_datafolder, folder_name)
 
         self.log.info(f"Data folder path is {path}")
         return path
 
     def _get_figure_folder_path(self, folder_name: str) -> str:
         if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
-            path = os.path.join(self.params.output_figure_local_folder, folder_name)
+            path = os.path.join(self.params.local_output_folder, folder_name)
         else:
-            path = os.path.join(self.params.output_figure_remote_folder, folder_name)
+            path = os.path.join(self.params.remote_output_folder, folder_name)
 
         if not os.path.exists(path):
             self.log.info(f"Creating new figure folder path {path}")

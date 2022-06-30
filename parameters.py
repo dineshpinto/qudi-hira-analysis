@@ -13,22 +13,22 @@ class Parameters(ABC):
 
     @property
     @abstractmethod
-    def kernix_remote_datafolder(self):
+    def remote_datafolder(self):
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def output_figure_remote_folder(self):
+    def remote_output_folder(self):
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def kernix_local_datafolder(self):
+    def local_datafolder(self):
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def output_figure_local_folder(self):
+    def local_output_folder(self):
         raise NotImplementedError
 
 
@@ -41,18 +41,18 @@ class QudiHiraParameters(Parameters):
     # The code automatically detects whether kernix is connected remotely or not
 
     # Data folder on kernix when connected remotely (eg. VPN)
-    kernix_remote_datafolder: str = os.path.join("\\\\kernix", "qudiamond", "Data")
+    remote_datafolder: str = os.path.join("\\\\kernix", "qudiamond", "Data")
     # Folder to save output images
-    output_figure_remote_folder: str = os.path.join(os.path.expanduser("~"), "QudiHiraAnalysis")
+    remote_output_folder: str = os.path.join(os.path.expanduser("~"), "QudiHiraAnalysis")
 
     # Data folder on kernix when connected directly (e.g. on lab PC)
-    kernix_local_datafolder: str = os.path.join("Z:/", "Data")
+    local_datafolder: str = os.path.join("Z:/", "Data")
     # Folder to save output images
-    output_figure_local_folder: str = os.path.join("Z:/", "QudiHiraAnalysis")
+    local_output_folder: str = os.path.join("Z:/", "QudiHiraAnalysis")
 
 
 @dataclass(frozen=True)
-class DiamondAFMParameters:
+class DiamondAFMParameters(Parameters):
     """ Parameters for old system """
     # Name of lab computer (run `os.environ["COMPUTERNAME"]` to check)
     lab_computer_name: str = "PCKK022"
@@ -60,11 +60,11 @@ class DiamondAFMParameters:
     # The code automatically detects whether kernix is connected remotely or not
 
     # Data folder on kernix when connected remotely (eg. VPN)
-    kernix_remote_datafolder: str = os.path.join("\\\\kernix", "diamond_AFM", "data")
+    remote_datafolder: str = os.path.join("\\\\kernix", "diamond_AFM", "data")
     # Folder to save output images
-    output_figure_remote_folder: str = os.path.join(os.path.expanduser("~"), "QudiHiraAnalysis")
+    remote_output_folder: str = os.path.join(os.path.expanduser("~"), "QudiHiraAnalysis")
 
     # Data folder on kernix when connected directly (e.g. on lab PC)
-    kernix_local_datafolder: str = os.path.join("Z:/", "data")
+    local_datafolder: str = os.path.join("Z:/", "data")
     # Folder to save output images
-    output_figure_local_folder: str = os.path.join("Z:/", "QudiHiraAnalysis")
+    local_output_folder: str = os.path.join("Z:/", "QudiHiraAnalysis")

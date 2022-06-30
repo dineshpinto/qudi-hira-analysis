@@ -164,13 +164,13 @@ python -m ipykernel install --user --name=qudi-hira-analysis
 The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
 stored. The code will automatically detect any VPN connection, and adjust its save location accordingly.
 
-| Attribute                   | Explanation                                                                                                      |
-|-----------------------------|------------------------------------------------------------------------------------------------------------------|
-| lab_computer_name           | Name of lab computer (use `os.environ["COMPUTERNAME"]`)                                                          |
-| kernix_remote_datafolder    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
-| output_figure_remote_folder | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
-| kernix_local_datafolder     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
-| output_figure_local_folder  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
+| Attribute            | Explanation                                                                                                      |
+|----------------------|------------------------------------------------------------------------------------------------------------------|
+| lab_computer_name    | Name of lab computer (use `os.environ["COMPUTERNAME"]`)                                                          |
+| remote_datafolder    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
+| remote_output_folder | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
+| local_datafolder     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
+| local_output_folder  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
 
 ### Start the analysis
 
