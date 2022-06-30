@@ -100,7 +100,7 @@ class PulsedMeasurementDataclass:
 
 @dataclass()
 class MeasurementDataclass(GenericIO):
-    filepath: str
+    filepath: str = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)

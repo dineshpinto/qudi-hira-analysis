@@ -43,11 +43,10 @@ class DataHandler(PathHandler):
                         break
             pulsed_measurement_data.append(
                 MeasurementDataclass(
-                    filepath=pm.filepath,
-                    pulsed_data=PulsedMeasurementDataclass(
-                        pulsed_measurement=pm,
+                    pulsed=PulsedMeasurementDataclass(
+                        measurement=pm,
                         laser_pulses=lp,
-                        raw_timetrace=rt
+                        timetrace=rt
                     )
                 )
             )
@@ -85,4 +84,4 @@ class DataHandler(PathHandler):
                 if os.path.isfile(figure_path):
                     raise IOError(f"{figure_path} already exists")
 
-            fig.savefig(figure_path, dpi=300, bbox_inches="tight")
+            fig.savefig(figure_path, dpi=200, bbox_inches="tight")
