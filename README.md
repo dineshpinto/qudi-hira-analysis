@@ -23,7 +23,7 @@ flowchart TD;
 
 ## Examples
 
-### Plot confocal images
+### Plot all confocal images
 
 ```python
 from src.data_handler import DataHandler
@@ -50,7 +50,7 @@ for idx, confocal in enumerate(confocal_list):
 data_handler.save_figures(fig, filename="compare_confocals_at different_z_heights")
 ```
 
-### Plot Rabi with sinusoid exponential decay fit
+### Plot all Rabi oscillations with exponentially decaying sinusoid fit
 
 ```python
 from src.data_handler import DataHandler
@@ -89,8 +89,7 @@ data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
 
 
 ## Prerequisites
-- Python 3.10 or higher
-- Conda 4.11 or higher
+Latest version of [conda](https://docs.conda.io/en/latest/miniconda.html) package manager.
 
 ## Getting Started 
 
@@ -98,12 +97,12 @@ data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
 
 #### With Git
 ```shell
-git clone https://github.com/dineshpinto/qudiamond-analysis.git
+git clone https://github.com/dineshpinto/qudi-hira-analysis.git
 ```
 
 #### With Github CLI
 ```shell
-gh repo clone dineshpinto/qudiamond-analysis
+gh repo clone dineshpinto/qudi-hira-analysis
 ```
 
 ### Installing dependencies
@@ -116,12 +115,12 @@ where `xx` is either `win10` or `macm1`.
 
 #### Activate environment
 ```shell
-conda activate analysis
+conda activate qudi-hira-analysis
 ```
 
 #### Add conda environment to Jupyter kernel
 ```shell
-python -m ipykernel install --user --name=analysis
+python -m ipykernel install --user --name=qudi-hira-analysis
 ```
 
 ### Start the analysis
@@ -130,8 +129,10 @@ jupyter lab
 ```
 
 ### Notes
-- If exporting environments: ```conda env export --no-builds > tools/conda-env.yml```
-
+If exporting environments:
+```shell
+conda env export --no-builds > tools/conda-env-xx.yml
+```
 
 ## Makefile options
 The Makefile is configured to generate a variety of outputs:
