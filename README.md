@@ -1,19 +1,21 @@
 # qudiamond-analysis
 
- A reproducible and transparent toolkit to analyze experimental data, primarily from an imaging magnetometer in diamond.
+A reproducible and transparent toolkit to analyze experimental data, primarily from an imaging magnetometer in diamond.
 
-**Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written texts. The toolkit itself is built entirely on free and open-source software.
+**Transparency** is achieved using Jupyter notebooks, which mix analysis code and figures along with written texts. The
+toolkit itself is built entirely on free and open-source software.
 
-**Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of code are sufficient to reproduce all analyzed data and figures.
+**Reproducibility** is achieved using automated build tools (GNU Make) and environment metadata storage. Two lines of
+code are sufficient to reproduce all analyzed data and figures.
 
-This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their individual licenses in the file header docstring.
-
+This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their
+individual licenses in the file header docstring.
 
 ## Schema
 
 ```mermaid
 flowchart TD;
-    GenericIO<-- Handle file paths and read/write operations -->PathHandler;
+    GenericIO<-- Handle file paths and storage read/write operations -->PathHandler;
     PathHandler<-- Automated measurement data extraction and data handling -->DataHandler;
     DataHandler-- Structure extracted data -->MeasurementDataclass;
     MeasurementDataclass-- Fit and analyze data -->AnalysisLogic;
@@ -69,16 +71,16 @@ for idx, rabi in enumerate(rabi_list):
     # Plot each confocal image on a subplot row
     x = rabi["t(ns)"]
     y = rabi["spin_state"]
-    
+
     # Fit data to an exponentially decaying sinusoid
     fit_x, fit_y, model = analysis.perform_fit(x, y, fit_function="sineexponentialdecay")
-    
+
     ax[idx].plot(x, y)
     ax[idx].plot(fit_x, fit_y)
-    
+
     # Extract the power param from the name of file
     power = rabi.get_param_from_filename(unit="dBm")
-    
+
     # Title plot with power and T1rho time
     t1rho = model.best_fit.params["decay"]
     ax[idx].set_title(f"Power = {power}, T1rho = {t1rho}")
@@ -87,20 +89,24 @@ for idx, rabi in enumerate(rabi_list):
 data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
 ```
 
+See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 
-## Prerequisites
-Latest version of [conda](https://docs.conda.io/en/latest/miniconda.html) package manager.
+## Getting Started
 
-## Getting Started 
+### Prerequisites
+
+Latest version of the [conda](https://docs.conda.io/en/latest/miniconda.html) package manager.
 
 ### Clone the repository
 
 #### With Git
+
 ```shell
 git clone https://github.com/dineshpinto/qudi-hira-analysis.git
 ```
 
 #### With Github CLI
+
 ```shell
 gh repo clone dineshpinto/qudi-hira-analysis
 ```
@@ -108,36 +114,47 @@ gh repo clone dineshpinto/qudi-hira-analysis
 ### Installing dependencies
 
 #### Creating the conda environment
+
 ```shell
 conda env create -f tools/conda-env-xx.yml
 ```
+
 where `xx` is either `win10` or `macm1`.
 
 #### Activate environment
+
 ```shell
 conda activate qudi-hira-analysis
 ```
 
 #### Add conda environment to Jupyter kernel
+
 ```shell
 python -m ipykernel install --user --name=qudi-hira-analysis
 ```
 
 ### Start the analysis
+
 ```shell
 jupyter lab
 ```
 
 ### Notes
+
 If exporting environments:
+
 ```shell
 conda env export --no-builds > tools/conda-env-xx.yml
 ```
 
 ## Makefile options
+
 The Makefile is configured to generate a variety of outputs:
 
 + `make pdf` : Converts all notebooks to PDF (requires LaTeX backend)
 + `make html`: Converts all notebooks to HTML files
 + `make py`  : Converts all notebooks to Python files (useful for VCS)
 + `make all` : Sequentially runs all the notebooks in folder
+
+To use the `make` command on Windows you can install [Chocolatey](https://chocolatey.org/install), then
+run `choco install make`
