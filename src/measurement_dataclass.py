@@ -86,22 +86,22 @@ class RawTimetrace(GenericIO):
 
 @dataclass()
 class PulsedMeasurementDataclass:
-    pulsed_measurement: PulsedMeasurement
+    measurement: PulsedMeasurement
     laser_pulses: LaserPulses = field(default=None)
-    raw_timetrace: RawTimetrace = field(default=None)
+    timetrace: RawTimetrace = field(default=None)
 
     def __post_init__(self):
-        self.base_filename = self.pulsed_measurement.filename.replace("_pulsed_measurement.dat", "")
+        self.base_filename = self.measurement.filename.replace("_pulsed_measurement.dat", "")
 
     def show_image(self) -> Image:
         """ Use PIL to open the measurement image saved on the disk """
-        return Image.open(self.pulsed_measurement.filepath.replace(".dat", "_fig.png"))
+        return Image.open(self.measurement.filepath.replace(".dat", "_fig.png"))
 
 
 @dataclass()
 class MeasurementDataclass(GenericIO):
     filepath: str
-    pulsed_data: PulsedMeasurementDataclass = field(default=None)
+    pulsed: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 

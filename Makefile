@@ -24,4 +24,4 @@ run: $(NOTEBOOKS:%.ipynb=%.run)
 	jupyter nbconvert --to notebook --execute --inplace $<
 
 clean:
-	@rm -rf *.py *.pdf *.html
+	@rm -rf *.pdf *.html

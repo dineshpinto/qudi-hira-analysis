@@ -77,61 +77,16 @@ cannot save to kernix when connected remotely).
 from src.data_handler import DataHandler
 import matplotlib.pyplot as plt
 
-# Create instance of DataHandler and give it the measurement folder
 data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
-# Automatically walk through measurement folders and extract a list
-# of confocal images each being an instance of MeasurementDataclass
 confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
 
-# Set up matplotlib figure
 fig, ax = plt.subplots(nrows=10)
 
-# Loop over all confocal images
 for idx, confocal in enumerate(confocal_list):
-    # Plot each confocal image on a subplot row
     ax[idx].imshow(confocal.data)
-    # Extract the z-height param from the name of file
-    z_height = confocal.get_param_from_filename(unit="um")
-    ax[idx].set_title(f"Z-Height = {z_height}")
+    ax[idx].set_title(f"Laser power = {confocal.get_param_from_filename(unit='mW')}")
 
-# Save output image
-data_handler.save_figures(fig, filename="compare_confocals_at different_z_heights")
-```
-
-### Plot all Rabi oscillations with exponentially decaying sinusoid fit
-
-```python
-from src.data_handler import DataHandler
-from src.analysis_logic import AnalysisLogic
-import matplotlib.pyplot as plt
-
-data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
-rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
-
-# Create instance of AnalysisLogic()
-analysis = AnalysisLogic()
-
-fig, ax = plt.subplots(nrows=10)
-
-for idx, rabi in enumerate(rabi_list):
-    # Plot each confocal image on a subplot row
-    x, y = rabi.data["t(ns)"], rabi.data["spin_state"]
-
-    # Fit data to an exponentially decaying sinusoid
-    fit_x, fit_y, model = analysis.perform_fit(x, y, fit_function="sineexponentialdecay")
-
-    ax[idx].plot(x, y)
-    ax[idx].plot(fit_x, fit_y)
-
-    # Extract the power param from the name of file
-    power = rabi.get_param_from_filename(unit="dBm")
-
-    # Title plot with power and T1rho time
-    t1rho = model.best_fit.params["decay"]
-    ax[idx].set_title(f"Power = {power}, T1rho = {t1rho}")
-
-# Save output image
-data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
+data_handler.save_figures(fig, filename="compare_confocals_at different_laser_powers")
 ```
 
 See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
@@ -208,14 +163,6 @@ python -m ipykernel install --user --name=qudi-hira-analysis
 
 ```shell
 jupyter lab
-```
-
-### Notes
-
-If exporting environments:
-
-```shell
-conda env export --no-builds > tools/conda-env-xx.yml
 ```
 
 ## Makefile options
