@@ -33,7 +33,7 @@ from src.data_handler import DataHandler
 import matplotlib.pyplot as plt
 
 # Create instance of DataHandler and give it the measurement folder
-data_handler = DataHandler(measurement_folder="FR0213-UHV")
+data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 # Automatically walk through measurement folders and extract a list
 # of confocal images each being an instance of MeasurementDataclass
 confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
@@ -60,7 +60,7 @@ from src.data_handler import DataHandler
 from src.analysis_logic import AnalysisLogic
 import matplotlib.pyplot as plt
 
-data_handler = DataHandler(measurement_folder="FR0213-UHV")
+data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
 
 # Create instance of AnalysisLogic()
@@ -162,7 +162,8 @@ python -m ipykernel install --user --name=qudi-hira-analysis
 ### Update location parameters
 
 The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
-stored. The code will automatically detect any VPN connection, and adjust its save location accordingly.
+stored. The code will automatically detect any VPN connection, and adjust its save location accordingly (Note that you 
+cannot save to kernix when connected remotely).
 
 | Attribute            | Explanation                                                                                                      |
 |----------------------|------------------------------------------------------------------------------------------------------------------|
