@@ -49,9 +49,14 @@ class GenericIO:
     def read_into_dataframe(filepath: str) -> pd.DataFrame:
         """ Read a qudi data file into a pd DataFrame for analysis. """
         with open(filepath) as handle:
+            # Generate column names for DataFrame by parsing the file
             *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
             names = names[1:].strip().split("\t")
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
+
+    @staticmethod
+    def read_into_ndarray(filepath: str, **kwargs) -> np.ndarray:
+        return np.genfromtxt(filepath, **kwargs)
 
     @staticmethod
     def load_pys(filepath: str) -> np.ndarray:
@@ -192,7 +197,7 @@ class GenericIO:
 
     @staticmethod
     def read_lakeshore_data(filepath: str) -> pd.DataFrame:
-        """ Read data stored by Lakeshore TM224 temperature monitor software. """
+        """ Read data stored by Lakeshore temperature monitor software. """
         if not filepath.endswith(".xls"):
             filepath += ".xls"
 

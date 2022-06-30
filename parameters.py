@@ -8,27 +8,27 @@ from abc import ABC, abstractmethod
 class Parameters(ABC):
     @property
     @abstractmethod
-    def lab_computer_name(self):
+    def lab_computer_name(self) -> str:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def remote_datafolder(self):
+    def remote_datafolder(self) -> str:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def remote_output_folder(self):
+    def remote_output_folder(self) -> str:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def local_datafolder(self):
+    def local_datafolder(self) -> str:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def local_output_folder(self):
+    def local_output_folder(self) -> str:
         raise NotImplementedError
 
 

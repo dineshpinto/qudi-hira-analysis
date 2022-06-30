@@ -56,10 +56,11 @@ class AnalysisLogic(FitLogic):
         fit_x, fit_y, result = fc.do_fit(x, y)
         return fit_x, fit_y, result
 
-    @staticmethod
-    def get_all_fits():
-        print(f"1d fits: {list(FitLogic().fit_list['1d'].keys())}")
-        print(f"2d fits: {list(FitLogic().fit_list['2d'].keys())}")
+    def get_all_fits(self) -> Tuple[list, list]:
+        one_d_fits = list(self.fit_list['1d'].keys())
+        two_d_fits = list(self.fit_list['2d'].keys())
+        self.log.info(f"1d fits: {one_d_fits}\n2d fits: {two_d_fits}")
+        return one_d_fits, two_d_fits
 
     @staticmethod
     def analyse_mean(

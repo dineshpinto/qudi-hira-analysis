@@ -49,7 +49,7 @@ class LaserPulses(GenericIO):
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data.size is None:
-            self.__data = np.genfromtxt(self.filepath).T
+            self.__data = self.read_into_ndarray(self.filepath).T
         return self.__data
 
     @property
@@ -73,7 +73,7 @@ class RawTimetrace(GenericIO):
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data.size is None:
-            self.__data = np.genfromtxt(self.filepath).T
+            self.__data = self.read_into_ndarray(self.filepath).T
         return self.__data
 
     @property
@@ -126,7 +126,7 @@ class MeasurementDataclass(GenericIO):
     def __get_confocal_data(self) -> np.ndarray:
         """ Custom loading logic for confocal images """
         image_filepath = self.filepath.replace(self.filepath[-9:], "_image_1.dat")
-        return np.genfromtxt(image_filepath, dtype=int, delimiter='\t')
+        return self.read_into_ndarray(image_filepath, dtype=int, delimiter='\t')
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
