@@ -11,12 +11,12 @@ from src.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMea
 from src.path_handler import PathHandler
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class DataHandler(PathHandler):
     def __init__(self, **kwargs):
         super(DataHandler, self).__init__(**kwargs)
+        self.log = logging.getLogger(__name__)
 
     def __load_pulsed_measurements_dataclass_list(self, pulsed_measurement_str: str) -> List[MeasurementDataclass]:
         measurement_filepaths, timestamps = [], []
@@ -71,7 +71,7 @@ class DataHandler(PathHandler):
         if "." in filename:
             filename, _ = os.path.splitext(filename)
 
-        logger.info(f"Saving '{filename}' to '{self.figure_folder_path}'")
+        self.log.info(f"Saving '{filename}' to '{self.figure_folder_path}'")
 
         if only_jpg:
             extensions = [".jpg"]

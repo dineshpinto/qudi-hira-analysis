@@ -91,6 +91,33 @@ data_handler.save_figures(fig, filename="compare_rabis_at different_powers")
 
 See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 
+### Fits available
+
+| Dimension | Fit                           |
+|-----------|-------------------------------|
+| 1d        | decayexponential              |
+|           | biexponential                 |
+|           | decayexponentialstretched     |
+|           | gaussian                      |
+|           | gaussiandouble                |
+|           | gaussianlinearoffset          |
+|           | hyperbolicsaturation          |
+|           | linear                        |
+|           | lorentzian                    |
+|           | lorentziandouble              |
+|           | lorentziantriple              |
+|           | sine                          |
+|           | sinedouble                    |
+|           | sinedoublewithexpdecay        |
+|           | sinedoublewithtwoexpdecay     |
+|           | sineexponentialdecay          |
+|           | sinestretchedexponentialdecay |
+|           | sinetriple                    |
+|           | sinetriplewithexpdecay        |
+|           | sinetriplewiththreeexpdecay   |
+| 2d        | twoDgaussian                  |
+
+
 ## Getting Started
 
 ### Prerequisites

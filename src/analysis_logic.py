@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Tuple, TYPE_CHECKING
 
 import numpy as np
@@ -10,10 +11,13 @@ from src.qudi_fit_logic import FitLogic
 if TYPE_CHECKING:
     from lmfit.model import ModelResult
 
+logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
+
 
 class AnalysisLogic(FitLogic):
     def __init__(self):
         super().__init__()
+        self.log = logging.getLogger(__name__)
 
     def perform_fit(
             self,

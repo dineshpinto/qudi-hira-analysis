@@ -158,8 +158,8 @@ class FitLogic:
                 self.log.error('No estimator method for fit "{0}" found in FitLogic.'
                                ''.format(fit_name))
 
-        self.log.info('Methods were included to FitLogic, but only if naming is right: check the'
-                      ' doxygen documentation if you added a new method and it does not show.')
+        # self.log.info('Methods were included to FitLogic, but only if naming is right: check the'
+        #               ' doxygen documentation if you added a new method and it does not show.')
 
     def on_activate(self):
         """ Initialisation performed during activation of the module.
