@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import datetime
 import os
 import re
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-import lmfit
-import numpy as np
 import pandas as pd
-from PIL import Image
 
 from src.io_handler import IOHandler
+
+if TYPE_CHECKING:
+    import lmfit
+    import datetime
+    import numpy as np
+    from PIL import Image
 
 
 @dataclass()
@@ -101,6 +104,7 @@ class PulsedMeasurementDataclass:
 
 @dataclass()
 class MeasurementDataclass(IOHandler):
+    timestamp: datetime.datetime
     filepath: str = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
     fit_model: lmfit.Model = field(default=None)
@@ -109,7 +113,6 @@ class MeasurementDataclass(IOHandler):
 
     def __post_init__(self):
         self.filename = os.path.basename(self.filepath)
-        self.timestamp = datetime.datetime.strptime(os.path.basename(self.filepath)[:16], "%Y%m%d-%H%M-%S")
 
     def __repr__(self) -> str:
         return f"Measurement(timestamp='{self.timestamp}', filename='{self.filename}')"

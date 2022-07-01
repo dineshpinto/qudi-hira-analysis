@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import logging
 import os
 from typing import List
@@ -36,6 +37,7 @@ class DataHandler(PathHandler):
                     if "laser_pulses" in filename:
                         lp = LaserPulses(filepath=filepath)
                     elif "pulsed_measurement" in filename:
+                        timestamp = datetime.datetime.strptime(filename[:16], "%Y%m%d-%H%M-%S"),
                         pm = PulsedMeasurement(filepath=filepath)
                     elif "raw_timetrace" in filename:
                         rt = RawTimetrace(filepath=filepath)
@@ -43,6 +45,7 @@ class DataHandler(PathHandler):
                         break
             pulsed_measurement_data.append(
                 MeasurementDataclass(
+                    timestamp=timestamp,
                     pulsed=PulsedMeasurementDataclass(
                         measurement=pm,
                         laser_pulses=lp,
@@ -52,17 +55,34 @@ class DataHandler(PathHandler):
             )
         return pulsed_measurement_data
 
+    def __load_standard_measurements_dataclass_list(self, standard_measurement_str: str) -> List[MeasurementDataclass]:
+        standard_measurement_list: List[MeasurementDataclass] = []
+
+        timestamp_warning_raised = False
+        for filepath in self._get_measurement_filepaths(standard_measurement_str, extension=".dat"):
+            try:
+                timestamp = datetime.datetime.strptime(os.path.basename(filepath)[:16], "%Y%m%d-%H%M-%S")
+            except ValueError as _:
+                if not timestamp_warning_raised:
+                    # Only raise warning once
+                    self.log.warning(f"Unable to extract timestamp from filepath {filepath}, using mtime instead")
+                    timestamp_warning_raised = True
+                timestamp = datetime.datetime.fromtimestamp(os.path.getmtime("parameters.py")).astimezone()
+
+            standard_measurement_list.append(
+                MeasurementDataclass(
+                    filepath=filepath,
+                    timestamp=timestamp
+                )
+            )
+        return standard_measurement_list
+
     def load_measurements_into_dataclass_list(self, measurement_str: str) -> List[MeasurementDataclass]:
         if "PulsedMeasurement" in measurement_str:
             pulsed_measurement_str = measurement_str.split("/")[1]
             return self.__load_pulsed_measurements_dataclass_list(pulsed_measurement_str)
         else:
-            measurement_list: List[MeasurementDataclass] = []
-
-            for filepath in self._get_measurement_filepaths(measurement_str, extension=".dat"):
-                measurement_list.append(MeasurementDataclass(filepath=filepath))
-
-            return measurement_list
+            return self.__load_standard_measurements_dataclass_list(measurement_str)
 
     def save_figures(self, fig: plt.Figure, filename: str, overwrite: bool = True, only_jpg: bool = False):
         """ Saves figures from matplotlib plot data. """
