@@ -1,20 +1,19 @@
 # Qudi Hira Analysis
 
-This toolkit automates a large portion of the work surrounding data analysis on a large experimental data set, allowing
-more focus on the actual data itself. Its focus is to analyze data from quantum sensing experiments where the
-primary raw data extracted is photon counts. The goal is to minimize the time from data collection to publication.
+This toolkit automates a large portion of the work surrounding data analysis on quantum sensing experiments where the
+primary raw data extracted is photon counts.
 
 The high level interface is abstracted, and provides a set of functions to automate data import, handling and analysis.
 It is designed to be exposed through Jupyter Notebooks, although the abstract interface allows it to be integrated into
 larger, more general frameworks as well (with only some pain). Using the toolkit itself should only require a
 beginner-level understanding of Python.
 
-The toolkit also aims to improve transparency and reproducibility in experimental data analysis. In an ideal scenario,
+It also aims to improve transparency and reproducibility in experimental data analysis. In an ideal scenario,
 two lines of code are sufficient to recreate all output data.
 
-The toolkit uses some handy Python features like dataclasses to store experimental data sets. Dataclasses offer a full
-OOP experience while analyzing complex data sets. They provide a solid and transparent structure to the data to reduce
-errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
+Python offers some very handy features like dataclasses, which are heavily used by this toolkit. Dataclasses offer a
+full OOP experience while analyzing complex data sets. They provide a solid and transparent structure to the data to
+reduce errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
 sidestepped by lazy loading data and storing metadata instead wherever possible.
 
 The visual structure of the toolkit is shown in the schema below. It largely consists of three portions:
@@ -86,29 +85,8 @@ cannot save to kernix when connected remotely).
 | `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
 | `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
 
-## Examples
 
-### Plot all confocal images
-
-```python
-import matplotlib.pyplot as plt
-from src.data_handler import DataHandler
-
-data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
-confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
-
-fig, ax = plt.subplots(nrows=10)
-
-for idx, confocal in enumerate(confocal_list):
-    ax[idx].imshow(confocal.data)
-    ax[idx].set_title(f"Laser power = {confocal.get_param_from_filename(unit='mW')}")
-
-data_handler.save_figures(fig, filename="compare_confocals_at different_laser_powers")
-```
-
-See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
-
-### Fits available
+### AnalysisLogic fits
 
 | Dimension | Fit                           |
 |-----------|-------------------------------|
@@ -133,6 +111,27 @@ See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 |           | sinetriplewithexpdecay        |
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
+
+
+## Example: Plot all confocal images
+
+```python
+import matplotlib.pyplot as plt
+from src.data_handler import DataHandler
+
+data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
+confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
+
+fig, ax = plt.subplots(nrows=10)
+
+for idx, confocal in enumerate(confocal_list):
+    ax[idx].imshow(confocal.data)
+    ax[idx].set_title(f"Laser power = {confocal.get_param_from_filename(unit='mW')}")
+
+data_handler.save_figures(fig, filename="compare_confocals_at different_laser_powers")
+```
+
+See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 
 ## Getting Started
 
@@ -162,7 +161,7 @@ gh repo clone dineshpinto/qudi-hira-analysis
 conda env create -f tools/conda-env-xx.yml
 ```
 
-where `xx` is either `win10` or `osx`.
+where `xx` is either `win10` or `osx`. Note: `osx` was tested on Apple Silicon M1.
 
 #### Activate environment
 
@@ -192,4 +191,4 @@ The Makefile is configured to generate a variety of outputs:
 + `make all` : Sequentially runs all the notebooks in folder
 
 To use the `make` command on Windows you can install [Chocolatey](https://chocolatey.org/install), then
-run `choco install make`
+install make with `choco install make`
