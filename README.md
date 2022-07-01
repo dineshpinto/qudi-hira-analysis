@@ -52,6 +52,7 @@ flowchart TD;
         MeasurementDataclass-->CustomDataImporter[Handle custom data like confocal etc.];
         CustomDataImporter-->data1;
         MeasurementDataclass-->params1;
+        MeasurementDataclass-->timestamp1;
         filepath1-->ParameterExtraction[Extract params from filename]
     end
     subgraph Pulsed Data
