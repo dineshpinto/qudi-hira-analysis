@@ -113,18 +113,21 @@ cannot save to kernix when connected remotely).
 | 2d        | twoDgaussian                  |
 
 
-## Example: Plot all confocal images
+## Example: Plot all confocal images taken in May 2022
 
 ```python
+from dateutil.parser import parse
 import matplotlib.pyplot as plt
 from src.data_handler import DataHandler
 
 data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
 
-fig, ax = plt.subplots(nrows=10)
+confocals_in_may = [confocal for confocal in confocal_list if confocal.timestamp.month == parse("May 2022").month]
 
-for idx, confocal in enumerate(confocal_list):
+fig, ax = plt.subplots(nrows=len(confocals_in_may))
+
+for idx, confocal in enumerate(confocals_in_may):
     ax[idx].imshow(confocal.data)
     ax[idx].set_title(f"Laser power = {confocal.get_param_from_filename(unit='mW')}")
 
