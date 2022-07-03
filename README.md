@@ -12,7 +12,8 @@ It also aims to improve transparency and reproducibility in experimental data an
 two lines of code are sufficient to recreate all output data.
 
 Python offers some very handy features like dataclasses, which are heavily used by this toolkit. Dataclasses offer a
-full OOP experience while analyzing complex data sets. They provide a solid and transparent structure to the data to
+full OOP (object oriented programming) experience while analyzing complex data sets. They provide a solid and
+transparent structure to the data to
 reduce errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
 sidestepped by lazy loading data and storing metadata instead wherever possible.
 
@@ -86,7 +87,6 @@ cannot save to kernix when connected remotely).
 | `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
 | `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
 
-
 ### AnalysisLogic fits
 
 | Dimension | Fit                           |
@@ -112,7 +112,6 @@ cannot save to kernix when connected remotely).
 |           | sinetriplewithexpdecay        |
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
-
 
 ## Example: Plot all confocal images taken in May 2022
 
@@ -141,7 +140,8 @@ See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 
 ### Prerequisites
 
-Latest version of the [conda](https://docs.conda.io/en/latest/miniconda.html) package manager.
+Latest version of the [conda](https://docs.conda.io/en/latest/miniconda.html) package manager and
+[git](https://git-scm.com/downloads) version control2.
 
 ### Clone the repository
 
