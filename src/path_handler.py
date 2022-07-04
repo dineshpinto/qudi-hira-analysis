@@ -8,9 +8,6 @@ if TYPE_CHECKING:
     from parameters import Parameters
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
 class PathHandler:
