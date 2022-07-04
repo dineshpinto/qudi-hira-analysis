@@ -141,7 +141,7 @@ See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 ### Prerequisites
 
 Latest version of the [conda](https://docs.conda.io/en/latest/miniconda.html) package manager and
-[git](https://git-scm.com/downloads) version control2.
+[git](https://git-scm.com/downloads) version control system.
 
 ### Clone the repository
 
