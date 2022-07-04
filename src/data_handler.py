@@ -21,7 +21,7 @@ class DataHandler(PathHandler):
 
     def __load_pulsed_measurements_dataclass_list(self, pulsed_measurement_str: str) -> List[MeasurementDataclass]:
         measurement_filepaths, timestamps = [], []
-        for filepath in self._get_measurement_filepaths(measurement="PulsedMeasurement", extension=".dat"):
+        for filepath in self.get_measurement_filepaths(measurement="PulsedMeasurement", extension=".dat"):
             filename = os.path.basename(filepath)
             if pulsed_measurement_str in filename:
                 timestamps.append(filename[:16])
@@ -59,7 +59,7 @@ class DataHandler(PathHandler):
         standard_measurement_list: List[MeasurementDataclass] = []
 
         timestamp_warning_raised = False
-        for filepath in self._get_measurement_filepaths(standard_measurement_str, extension=".dat"):
+        for filepath in self.get_measurement_filepaths(standard_measurement_str, extension=".dat"):
             try:
                 timestamp = datetime.datetime.strptime(os.path.basename(filepath)[:16], "%Y%m%d-%H%M-%S")
             except ValueError as _:

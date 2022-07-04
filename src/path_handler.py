@@ -13,11 +13,11 @@ logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=log
 class PathHandler:
     def __init__(self, measurement_folder: str, params: Parameters):
         self.params = params
-        self.data_folder_path = self._get_data_folder_path(measurement_folder)
-        self.figure_folder_path = self._get_figure_folder_path(measurement_folder)
+        self.data_folder_path = self.__get_data_folder_path(measurement_folder)
+        self.figure_folder_path = self.__get_figure_folder_path(measurement_folder)
         self.log = logging.getLogger(__name__)
 
-    def _get_data_folder_path(self, folder_name: str) -> str:
+    def __get_data_folder_path(self, folder_name: str) -> str:
         """ Create absolute folder paths. """
         if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
             path = os.path.join(self.params.local_datafolder, folder_name)
@@ -27,7 +27,7 @@ class PathHandler:
         self.log.info(f"Data folder path is {path}")
         return path
 
-    def _get_figure_folder_path(self, folder_name: str) -> str:
+    def __get_figure_folder_path(self, folder_name: str) -> str:
         if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
             path = os.path.join(self.params.local_output_folder, folder_name)
         else:
@@ -38,11 +38,10 @@ class PathHandler:
             os.mkdir(path)
         else:
             self.log.info(f"Figure folder path is {path}")
-
         return path
 
-    def _get_measurement_filepaths(self, measurement: str, extension: str = ".dat",
-                                   exclude_str: str = "image_1.dat") -> list:
+    def get_measurement_filepaths(self, measurement: str, extension: str = ".dat",
+                                  exclude_str: str = "image_1.dat") -> list:
         """
         List all measurement files for a single measurement type, regardless of date
         within a similar set (i.e. top level folder).

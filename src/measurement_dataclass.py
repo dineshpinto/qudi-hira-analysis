@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from PIL import Image
 
 
-@dataclass()
+@dataclass
 class PulsedMeasurement(IOHandler):
     filepath: str
     __data: pd.DataFrame = field(default=None)
@@ -40,7 +40,7 @@ class PulsedMeasurement(IOHandler):
         return self.__params
 
 
-@dataclass()
+@dataclass
 class LaserPulses(IOHandler):
     filepath: str
     __data: np.ndarray = field(default=None)
@@ -64,7 +64,7 @@ class LaserPulses(IOHandler):
         return self.__params
 
 
-@dataclass()
+@dataclass
 class RawTimetrace(IOHandler):
     filepath: str
     __data: np.ndarray = field(default=None)
@@ -102,7 +102,7 @@ class PulsedMeasurementDataclass:
         return Image.open(self.measurement.filepath.replace(".dat", "_fig.png"))
 
 
-@dataclass()
+@dataclass
 class MeasurementDataclass(IOHandler):
     timestamp: datetime.datetime
     filepath: str = field(default=None)
