@@ -2,6 +2,7 @@ import ast
 import datetime
 import inspect
 import itertools
+import logging
 import os
 import pickle
 from typing import Tuple
@@ -10,9 +11,14 @@ import numpy as np
 import pandas as pd
 from dateutil import parser
 
+logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
+
 
 class IOHandler:
     """ Read and write files (eg. pys, df, pkl) """
+
+    def __init__(self):
+        self.log = logging.getLogger(__name__)
 
     @staticmethod
     def read_qudi_parameters(filepath: str) -> dict:
@@ -59,59 +65,65 @@ class IOHandler:
         return np.genfromtxt(filepath, **kwargs)
 
     @staticmethod
-    def load_pys(filepath: str) -> np.ndarray:
+    def __check_extension(filepath: str, extension: str) -> str:
+        """
+        Check if filepath extension matches expected extension.
+        - If no extension found, add extension
+        - If wrong extension found, raise IOError
+        """
+        filename = os.path.basename(filepath)
+
+        if filename.endswith(extension):
+            return filepath
+        elif "." in filename:
+            _, ext = filename.split(".")
+            raise IOError(f"Invalid extension '{ext}' in '{filename}', extension should be '{extension}'")
+        else:
+            filepath += extension
+        return filepath
+
+    def load_pys(self, filepath: str) -> np.ndarray:
         """ Loads raw pys data files. Wraps around numpy.load. """
-        if not filepath.endswith(".pys"):
-            filepath += ".pys"
+        filepath = self.__check_extension(filepath, ".pys")
         return np.load(filepath, encoding="bytes", allow_pickle=True)
 
-    @staticmethod
-    def save_pys(dictionary: dict, filepath: str):
+    def save_pys(self, dictionary: dict, filepath: str):
         """ Saves processed pickle files for plotting/further analysis. """
         if not os.path.exists(filepath):
             os.makedirs(filepath)
-        if not filepath.endswith(".pys"):
-            filepath += ".pys"
+        filepath = self.__check_extension(filepath, ".pys")
 
         with open(filepath, 'wb') as f:
             pickle.dump(dictionary, f, 1)
 
-    @staticmethod
-    def save_df(df: pd.DataFrame, filepath: str):
+    def save_df(self, df: pd.DataFrame, filepath: str):
         """ Save Dataframe as csv. """
         if not os.path.exists(filepath):
             os.makedirs(filepath)
-        if not filepath.endswith(".csv"):
-            filepath += ".csv"
+        filepath = self.__check_extension(filepath, ".csv")
 
         df.to_csv(filepath, sep='\t', encoding='utf-8')
 
-    @staticmethod
-    def load_pkl(filepath: str) -> dict:
+    def load_pkl(self, filepath: str) -> dict:
         """ Loads processed pickle files for plotting/further analysis. """
-        if not filepath.endswith(".pkl"):
-            filepath += ".pkl"
+        filepath = self.__check_extension(filepath, ".pkl")
 
         with open(filepath, 'rb') as f:
             file = pickle.load(f)
         return file
 
-    @staticmethod
-    def save_pkl(obj: object, filepath: str):
+    def save_pkl(self, obj: object, filepath: str):
         """ Saves processed pickle files for plotting/further analysis. """
         if not os.path.exists(filepath):
             os.makedirs(filepath)
-        if not filepath.endswith(".pkl"):
-            filepath += ".pkl"
+        filepath = self.__check_extension(filepath, ".pkl")
 
         with open(filepath, 'wb') as f:
             pickle.dump(obj, f)
 
-    @staticmethod
-    def _extract_data_from_nanonis_dat(filepath: str) -> pd.DataFrame:
+    def _extract_data_from_nanonis_dat(self, filepath: str) -> pd.DataFrame:
         """ Extract data from a Nanonis dat file. """
-        if not filepath.endswith(".dat"):
-            filepath += ".dat"
+        filepath = self.__check_extension(filepath, ".dat")
 
         skip_rows = 0
         with open(filepath) as dat_file:
@@ -127,11 +139,9 @@ class IOHandler:
         df = pd.read_table(filepath, sep="\t", skiprows=skip_rows)
         return df
 
-    @staticmethod
-    def _extract_parameters_from_nanonis_dat(filepath: str) -> dict:
+    def _extract_parameters_from_nanonis_dat(self, filepath: str) -> dict:
         """ Extract parameters from a Nanonis dat file. """
-        if not filepath.endswith(".dat"):
-            filepath += ".dat"
+        filepath = self.__check_extension(filepath, ".dat")
 
         parameters = {}
         with open(filepath) as dat_file:
@@ -145,7 +155,7 @@ class IOHandler:
                 else:
                     label, value, _ = line.split("\t")
                     try:
-                        # Convert strings to numbers where possible
+                        # Convert strings to number where possible
                         value = float(value)
                     except ValueError:
                         pass
@@ -160,46 +170,36 @@ class IOHandler:
         data = self._extract_data_from_nanonis_dat(filepath)
         return parameters, data
 
-    @staticmethod
-    def _channel_to_gauge_names(channel_names: list) -> list:
+    def _channel_to_gauge_names(self, channel_names: list) -> list:
         """ Replace the channel names with gauge locations. """
         gauges = {"CH 1": "Main", "CH 2": "Prep", "CH 3": "Backing"}
-        return [gauges.get(ch, ch) for ch in channel_names]
-
-    @staticmethod
-    def _convert_tpg_to_mpl_time(df: pd.DataFrame) -> np.ndarray:
-        """
-        Read DataFrame extracted using read_tpg_data and add in matplotlib
-        datetimes using "Date" and "Time" cols.
-        """
-        datetimes = df["Date"] + " " + df["Time"]
-        # Convert raw dates and times to datetime Series, then to an matplotlib Series
-        dt_series_datetime = [datetime.datetime.strptime(str(dt), '%d-%b-%y %H:%M:%S.%f') for dt in datetimes]
-        # noinspection PyUnresolvedReferences
-        dt_series_mpl = matplotlib.dates.date2num(dt_series_datetime)
-        return dt_series_mpl
+        try:
+            self.log.warning(f"Using pressure gauge layout {gauges}")
+            return [gauges[ch] for ch in channel_names]
+        except KeyError:
+            self.log.warning("Incorrect gauge layout, using numbered channels")
+            return channel_names
 
     def read_pfeiffer_data(self, filepath: str) -> pd.DataFrame:
         """ Read data stored by Pfeiffer vacuum monitoring software. """
-        if not filepath.endswith(".txt"):
-            filepath += ".txt"
+        filepath = self.__check_extension(filepath, ".txt")
 
         # Extract only the header to check which gauges are connected
         file_header = pd.read_csv(filepath, sep="\t", skiprows=1, nrows=1)
+
         header = self._channel_to_gauge_names(file_header)
 
         # Create DataFrame with new header
         df = pd.read_csv(filepath, sep="\t", skiprows=5, names=header)
 
-        # Save matplotlib datetimes for plotting
-        df["MPL_datetimes"] = self._convert_tpg_to_mpl_time(df)
+        df['Datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'])
+        df = df.set_index('Datetime')
+        df = df.drop(['Date', 'Time'], axis=1)
         return df
 
-    @staticmethod
-    def read_lakeshore_data(filepath: str) -> pd.DataFrame:
+    def read_lakeshore_data(self, filepath: str) -> pd.DataFrame:
         """ Read data stored by Lakeshore temperature monitor software. """
-        if not filepath.endswith(".xls"):
-            filepath += ".xls"
+        filepath = self.__check_extension(filepath, ".xls")
 
         # Extract only the timestamp
         timestamp = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
@@ -208,20 +208,14 @@ class IOHandler:
 
         # Create DataFrame
         df = pd.read_excel(filepath, skiprows=3)
-
         # Add matplotlib datetimes to DataFrame
-        time_array = []
-        for milliseconds in df["Time"]:
-            time_array.append(timestamp_dt + datetime.timedelta(milliseconds=milliseconds))
-        # noinspection PyUnresolvedReferences
-        df["MPL_datetimes"] = matplotlib.dates.date2num(time_array)
+
+        df["Datetime"] = [timestamp_dt + datetime.timedelta(milliseconds=ms) for ms in df["Time"]]
         return df
 
-    @staticmethod
-    def read_oceanoptics_data(filepath: str) -> pd.DataFrame:
+    def read_oceanoptics_data(self, filepath: str) -> pd.DataFrame:
         """ Read spectrometer data from OceanOptics spectrometer. """
-        if not filepath.endswith(".txt"):
-            filepath += ".txt"
+        filepath = self.__check_extension(filepath, ".txt")
 
         df = pd.read_csv(filepath, sep="\t", skiprows=14, names=["wavelength", "intensity"])
         return df
