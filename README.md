@@ -113,25 +113,34 @@ cannot save to kernix when connected remotely).
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
 
-## Example: Plot all confocal images taken in May 2022
+## Example: Plot all rabi oscillations in a timeframe and fit to exponentially decaying double sinusoid
 
 ```python
 from dateutil.parser import parse
 import matplotlib.pyplot as plt
+
 from src.data_handler import DataHandler
+from src.analysis_logic import AnalysisLogic
+from parameters import QudiHiraParameters
 
-data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
-confocal_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Confocal")
+data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv", params=QudiHiraParameters)
+analysis_logic = AnalysisLogic()
 
-confocals_in_may = [confocal for confocal in confocal_list if confocal.timestamp.month == parse("May 2022").month]
+rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
+filtered_rabi_list = [rabi for rabi in rabi_list if
+                      parse("10 July 2022 13:30") < rabi.timestamp < parse("10 July 2022 17:30")]
 
-fig, ax = plt.subplots(nrows=len(confocals_in_may))
+fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
 
-for idx, confocal in enumerate(confocals_in_may):
-    ax[idx].imshow(confocal.data)
-    ax[idx].set_title(f"Laser power = {confocal.get_param_from_filename(unit='mW')}")
+for idx, rabi in enumerate(filtered_rabi_list):
+  x, y = rabi.pulsed.measurement.data["t(ns)"], rabi.pulsed.measurement.data["spin_state"]
+  fit_x, fit_y, result = analysis_logic.perform_fit(x, y, fit_function="sinedoublewithexpdecay")
 
-data_handler.save_figures(fig, filename="compare_confocals_at different_laser_powers")
+  ax[idx].plot(x, y, ".")
+  ax[idx].plot(fit_x, fit_y, "-")
+  ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, T1rho = {result.params['Lifetime']}")
+
+data_handler.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
 ```
 
 See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
