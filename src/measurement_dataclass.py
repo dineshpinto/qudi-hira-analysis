@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
+from src.analysis_logic import AnalysisLogic
 from src.io_handler import IOHandler
 
 if TYPE_CHECKING:
-    import lmfit
     import datetime
     import numpy as np
     from PIL import Image
@@ -103,11 +103,10 @@ class PulsedMeasurementDataclass:
 
 
 @dataclass
-class MeasurementDataclass(IOHandler):
+class MeasurementDataclass(IOHandler, AnalysisLogic):
     timestamp: datetime.datetime
     filepath: str = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
-    fit_model: lmfit.Model = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 

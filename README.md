@@ -120,11 +120,9 @@ from dateutil.parser import parse
 import matplotlib.pyplot as plt
 
 from src.data_handler import DataHandler
-from src.analysis_logic import AnalysisLogic
 from parameters import QudiHiraParameters
 
 data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv", params=QudiHiraParameters)
-analysis_logic = AnalysisLogic()
 
 rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
 filtered_rabi_list = [rabi for rabi in rabi_list if
@@ -133,12 +131,12 @@ filtered_rabi_list = [rabi for rabi in rabi_list if
 fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
 
 for idx, rabi in enumerate(filtered_rabi_list):
-  x, y = rabi.pulsed.measurement.data["t(ns)"], rabi.pulsed.measurement.data["spin_state"]
-  fit_x, fit_y, result = analysis_logic.perform_fit(x, y, fit_function="sinedoublewithexpdecay")
+    x, y = rabi.pulsed.measurement.data["t(ns)"], rabi.pulsed.measurement.data["spin_state"]
+    fit_x, fit_y, result = rabi.perform_fit(x, y, fit_function="sinedoublewithexpdecay")
 
-  ax[idx].plot(x, y, ".")
-  ax[idx].plot(fit_x, fit_y, "-")
-  ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, T1rho = {result.params['Lifetime']}")
+    ax[idx].plot(x, y, ".")
+    ax[idx].plot(fit_x, fit_y, "-")
+    ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, T1rho = {result.params['Lifetime']}")
 
 data_handler.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
 ```
