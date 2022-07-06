@@ -54,6 +54,7 @@ flowchart TD;
         CustomDataImporter-->data1;
         MeasurementDataclass-->params1;
         MeasurementDataclass-->timestamp1;
+        MeasurementDataclass-->fit_result1;
         filepath1-->ParameterExtraction[Extract params from filename]
     end
     subgraph Pulsed Data
