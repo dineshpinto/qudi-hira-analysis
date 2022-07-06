@@ -132,11 +132,12 @@ fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
 
 for idx, rabi in enumerate(filtered_rabi_list):
     x, y = rabi.pulsed.measurement.data["t(ns)"], rabi.pulsed.measurement.data["spin_state"]
-    fit_x, fit_y, result = rabi.perform_fit(x, y, fit_function="sinedoublewithexpdecay")
+    fit_x, fit_y = rabi.fit(x=x, y=y, fit_function="sinedoublewithexpdecay")
 
     ax[idx].plot(x, y, ".")
     ax[idx].plot(fit_x, fit_y, "-")
-    ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, T1rho = {result.params['Lifetime']}")
+    ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, "
+                      f"T1rho = {rabi.fit_result.params['Lifetime']}")
 
 data_handler.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
 ```
