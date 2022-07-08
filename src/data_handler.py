@@ -84,7 +84,14 @@ class DataHandler(PathHandler):
         else:
             return self.__load_standard_measurements_dataclass_list(measurement_str)
 
-    def save_figures(self, fig: plt.Figure, filename: str, overwrite: bool = True, only_jpg: bool = False):
+    def save_figures(
+            self,
+            fig: plt.Figure,
+            filename: str,
+            overwrite: bool = True,
+            only_jpg: bool = False,
+            **kwargs
+    ):
         """ Saves figures from matplotlib plot data. """
 
         if "." in filename:
@@ -104,4 +111,4 @@ class DataHandler(PathHandler):
                 if os.path.isfile(figure_path):
                     raise IOError(f"{figure_path} already exists")
 
-            fig.savefig(figure_path, dpi=200, bbox_inches="tight")
+            fig.savefig(figure_path, dpi=200, bbox_inches="tight", **kwargs)

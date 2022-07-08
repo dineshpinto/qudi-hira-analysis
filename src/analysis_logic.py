@@ -27,13 +27,30 @@ class AnalysisLogic(FitLogic):
             estimator: str = "generic",
             dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         """
-        Fit functions:
-            - decayexponential
-            - decayexponentialstretched
-            - sineexponentialdecay
-            - sinedouble
-            - sinedoublewithexpdecay
-            - sinedoublewithtwoexpdecay
+        Fits available:
+            | Dimension | Fit                           |
+            |-----------|-------------------------------|
+            | 1d        | decayexponential              |
+            |           | biexponential                 |
+            |           | decayexponentialstretched     |
+            |           | gaussian                      |
+            |           | gaussiandouble                |
+            |           | gaussianlinearoffset          |
+            |           | hyperbolicsaturation          |
+            |           | linear                        |
+            |           | lorentzian                    |
+            |           | lorentziandouble              |
+            |           | lorentziantriple              |
+            |           | sine                          |
+            |           | sinedouble                    |
+            |           | sinedoublewithexpdecay        |
+            |           | sinedoublewithtwoexpdecay     |
+            |           | sineexponentialdecay          |
+            |           | sinestretchedexponentialdecay |
+            |           | sinetriple                    |
+            |           | sinetriplewithexpdecay        |
+            |           | sinetriplewiththreeexpdecay   |
+            | 2d        | twoDgaussian                  |
         """
 
         if isinstance(x, pd.Series):
