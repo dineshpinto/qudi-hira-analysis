@@ -21,16 +21,16 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-import numpy as np
-from lmfit.models import Model
-from lmfit import Parameters
-from scipy.signal import gaussian
-from scipy.ndimage import filters
-from scipy.interpolate import InterpolatedUnivariateSpline
 from collections import OrderedDict
 
-
+import numpy as np
+from lmfit import Parameters
+from lmfit.models import Model
+from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.ndimage import filters
+from scipy.signal import gaussian
 from scipy.special import gammaln, xlogy
+
 
 ################################################################################
 #                                                                              #
@@ -94,6 +94,7 @@ def make_poissonian_model(self, prefix=None):
             lmfit.parameter.Parameter (without s) objects, keeping the
             information about the current value.
     """
+
     def poisson_function(x, mu):
         """ Function of a poisson distribution.
 
@@ -146,8 +147,10 @@ def make_poissonianmultiple_model(self, no_of_functions=1):
 
     return multi_poisson_model, params
 
+
 def make_poissoniandouble_model(self):
     return self.make_poissonianmultiple_model(2)
+
 
 ################################################################################
 #                                                                              #
@@ -197,11 +200,11 @@ def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=No
 
     result_str_dict['Amplitude'] = {'value': result.__params['amplitude'].value,
                                     'error': result.__params['amplitude'].stderr,
-                                    'unit': units[1]}     # Amplitude
+                                    'unit': units[1]}  # Amplitude
 
     result_str_dict['Event rate'] = {'value': result.__params['mu'].value,
-                                    'error': result.__params['mu'].stderr,
-                                    'unit': units[0]}      # event rate
+                                     'error': result.__params['mu'].stderr,
+                                     'unit': units[0]}  # event rate
 
     result.result_str_dict = result_str_dict
 
@@ -285,7 +288,7 @@ def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None, add_par
 
     result_str_dict['Event rate 1'] = {'value': result.__params['p0_mu'].value,
                                        'error': result.__params['p0_mu'].stderr,
-                                       'unit':  units[1]}
+                                       'unit': units[1]}
 
     result_str_dict['Amplitude 2'] = {'value': result.__params['p1_amplitude'].value,
                                       'error': result.__params['p1_amplitude'].stderr,
@@ -293,7 +296,7 @@ def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None, add_par
 
     result_str_dict['Event rate 2'] = {'value': result.__params['p1_mu'].value,
                                        'error': result.__params['p1_mu'].stderr,
-                                       'unit':  units[1]}
+                                       'unit': units[1]}
 
     result.result_str_dict = result_str_dict
 

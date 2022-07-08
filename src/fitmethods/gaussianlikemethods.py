@@ -21,14 +21,13 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-
-import numpy as np
-from lmfit.models import Model, GaussianModel, ConstantModel
-from lmfit import Parameters
 from collections import OrderedDict
 
-from scipy.interpolate import InterpolatedUnivariateSpline
+import numpy as np
+from lmfit import Parameters
+from lmfit.models import Model
 from scipy.ndimage import filters
+
 
 ############################################################################
 #                                                                          #
@@ -97,6 +96,7 @@ def make_gaussianwithoutoffset_model(self, prefix=None):
 
     return full_gaussian_model, params
 
+
 ####################################
 # 1D Gaussian model with offset    #
 ####################################
@@ -127,6 +127,7 @@ def make_gaussian_model(self, prefix=None):
 
     return gaussian_offset_model, params
 
+
 ######################################################
 # 1D Gaussian model with linear (inclined) offset    #
 ######################################################
@@ -151,6 +152,7 @@ def make_gaussianlinearoffset_model(self, prefix=None):
     params = gaussian_linear_offset.make_params()
 
     return gaussian_linear_offset, params
+
 
 ##########################################
 # 1D Multiple Gaussian Model with offset #
@@ -181,7 +183,6 @@ def make_multiplegaussianoffset_model(self, no_of_functions=1):
                                             expr='({0}amplitude/offset)*100'.format(prefix))
 
         for ii in range(1, no_of_functions):
-
             prefix = 'g{0:d}_'.format(ii)
             multi_gaussian_model += self.make_gaussianwithoutoffset_model(prefix=prefix)[0]
             multi_gaussian_model.set_param_hint('{0}contrast'.format(prefix),
@@ -190,6 +191,7 @@ def make_multiplegaussianoffset_model(self, no_of_functions=1):
     params = multi_gaussian_model.make_params()
 
     return multi_gaussian_model, params
+
 
 ##########################################
 #   1D Double Gaussian Model with offset #
@@ -205,6 +207,7 @@ def make_gaussiandouble_model(self):
 
     return self.make_multiplegaussianoffset_model(no_of_functions=2)
 
+
 ##########################################
 #   1D Triple Gaussian Model with offset #
 ##########################################
@@ -218,6 +221,7 @@ def make_gaussiantriple_model(self):
     """
 
     return self.make_multiplegaussianoffset_model(no_of_functions=3)
+
 
 #####################
 # 2D gaussian model #
@@ -280,16 +284,17 @@ def make_twoDgaussian_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error('The passed prefix <{0}> of type {1} is not a string and'
-                     'cannot be used as a prefix and will be ignored for now.'
-                     'Correct that!'.format(prefix, type(prefix)))
+                       'cannot be used as a prefix and will be ignored for now.'
+                       'Correct that!'.format(prefix, type(prefix)))
         gaussian_2d_model = Model(twoDgaussian_function, independent_vars='x')
     else:
         gaussian_2d_model = Model(twoDgaussian_function, independent_vars='x',
-                               prefix=prefix)
+                                  prefix=prefix)
 
     params = gaussian_2d_model.make_params()
 
     return gaussian_2d_model, params
+
 
 ################################################################################
 #                                                                              #
@@ -328,36 +333,35 @@ def make_gaussian_fit(self, x_axis, data, estimator, units=None, add_params=None
         result = mod_final.fit(data, x=x_axis, params=params, **kwargs)
     except:
         self.log.warning('The 1D gaussian peak fit did not work. Error '
-                       'message: {0}\n'.format(result.message))
+                         'message: {0}\n'.format(result.message))
 
     if units is None:
-            units = ['arb. unit', 'arb. unit']
+        units = ['arb. unit', 'arb. unit']
 
     result_str_dict = OrderedDict()  # create result string for gui
 
-    #result_str_dict['Amplitude'] = {'value': result.params['amplitude'].value,
+    # result_str_dict['Amplitude'] = {'value': result.params['amplitude'].value,
     #                                    'error': result.params['amplitude'].stderr,
     #                                    'unit': units[1]}                               #amplitude
 
     result_str_dict['Position'] = {'value': result.__params['center'].value,
-                                        'error': result.__params['center'].stderr,
-                                        'unit': units[0]}                               #position
+                                   'error': result.__params['center'].stderr,
+                                   'unit': units[0]}  # position
 
-    #result_str_dict['Standard deviation'] = {'value': result.params['sigma'].value,
+    # result_str_dict['Standard deviation'] = {'value': result.params['sigma'].value,
     #                                'error': result.params['sigma'].stderr,
     #                                'unit': units[0]}                               #standart deviation
 
     result_str_dict['Linewidth'] = {'value': result.__params['fwhm'].value,
-                                        'error': result.__params['fwhm'].stderr,
-                                        'unit': units[0]}                               #FWHM
+                                    'error': result.__params['fwhm'].stderr,
+                                    'unit': units[0]}  # FWHM
 
     result_str_dict['Contrast'] = {'value': result.__params['contrast'].value,
-                                        'error': result.__params['contrast'].stderr,
-                                        'unit': '%'}                                    #Contrast
+                                   'error': result.__params['contrast'].stderr,
+                                   'unit': '%'}  # Contrast
     result.result_str_dict = result_str_dict
 
     return result
-
 
 
 def estimate_gaussian_peak(self, x_axis, data, params):
@@ -406,7 +410,7 @@ def estimate_gaussian_peak(self, x_axis, data, params):
     # calculating the first moment of the gaussian distribution (which is the
     # mean value), since it is unreliable if the distribution begins or ends at
     # the edges of the data (but it helps a lot for standard deviation):
-    mean_val_calc = np.sum(x_axis*data_smoothed) / np.sum(data_smoothed)
+    mean_val_calc = np.sum(x_axis * data_smoothed) / np.sum(data_smoothed)
     params['center'].set(value=x_axis[np.argmax(data_smoothed)],
                          min=center_min, max=center_max)
 
@@ -423,17 +427,18 @@ def estimate_gaussian_peak(self, x_axis, data, params):
     # mean is then higher, which will decrease eventually the initial value for
     # sigma. But if the peak values is within the distribution the standard
     # deviation formula performs even better:
-    params['sigma'].set(value=np.sqrt(abs(mom2 - mean_val_calc**2)),
+    params['sigma'].set(value=np.sqrt(abs(mom2 - mean_val_calc ** 2)),
                         min=sigma_min, max=sigma_max)
     # params['sigma'].set(value=(x_axis.max() - x_axis.min()) / 3.)
 
     # Do not set the maximal amplitude value based on the distribution, since
     # the fit will fail if the peak is at the edges or beyond the range of the
     # x values.
-    params['amplitude'].set(value=data_smoothed.max()-data_smoothed.min(),
+    params['amplitude'].set(value=data_smoothed.max() - data_smoothed.min(),
                             min=ampl_min)
 
     return error, params
+
 
 def estimate_gaussian_dip(self, x_axis, data, params):
     """ Provides a gaussian offset dip estimator.
@@ -457,9 +462,9 @@ def estimate_gaussian_dip(self, x_axis, data, params):
     data_negative = data * (-1)
 
     error, params_ret = self.estimate_gaussian_peak(x_axis,
-                                                          data_negative,
-                                                          params_peak
-                                                          )
+                                                    data_negative,
+                                                    params_peak
+                                                    )
 
     params['sigma'] = params_ret['sigma']
     params['offset'].set(value=-params_ret['offset'])
@@ -469,6 +474,7 @@ def estimate_gaussian_dip(self, x_axis, data, params):
     params['center'] = params_ret['center']
 
     return error, params
+
 
 ##############################################
 # 1D Gaussian with linear inclined offset    #
@@ -499,39 +505,40 @@ def make_gaussianlinearoffset_fit(self, x_axis, data, estimator, units=None, add
         result = mod_final.fit(data, x=x_axis, params=params, **kwargs)
     except:
         self.log.warning('The 1D gaussian peak fit did not work. Error '
-                       'message: {0}\n'.format(result.message))
+                         'message: {0}\n'.format(result.message))
     if units is None:
-            units = ['arb. unit', 'arb. unit']
+        units = ['arb. unit', 'arb. unit']
 
     result_str_dict = OrderedDict()  # create result string for gui
 
-    #result_str_dict['Amplitude'] = {'value': result.params['amplitude'].value,
+    # result_str_dict['Amplitude'] = {'value': result.params['amplitude'].value,
     #                                    'error': result.params['amplitude'].stderr,
     #                                    'unit': units[1]}                               #amplitude
 
     result_str_dict['Position'] = {'value': result.__params['center'].value,
-                                        'error': result.__params['center'].stderr,
-                                        'unit': units[0]}                               #position
+                                   'error': result.__params['center'].stderr,
+                                   'unit': units[0]}  # position
 
-    #result_str_dict['Standard deviation'] = {'value': result.params['sigma'].value,
+    # result_str_dict['Standard deviation'] = {'value': result.params['sigma'].value,
     #                                'error': result.params['sigma'].stderr,
     #                                'unit': units[0]}                               #standart deviation
 
     result_str_dict['Linewidth'] = {'value': result.__params['fwhm'].value,
-                                        'error': result.__params['fwhm'].stderr,
-                                        'unit': units[0]}                               #FWHM
+                                    'error': result.__params['fwhm'].stderr,
+                                    'unit': units[0]}  # FWHM
 
     result_str_dict['Contrast'] = {'value': result.__params['contrast'].value,
-                                        'error': result.__params['contrast'].stderr,
-                                        'unit': '%'}                                    #Contrast
+                                   'error': result.__params['contrast'].stderr,
+                                   'unit': '%'}  # Contrast
 
-    #result_str_dict['Slope'] = {'value': result.params['slope'].value,
+    # result_str_dict['Slope'] = {'value': result.params['slope'].value,
     #                                    'error': result.params['slope'].stderr,
     #                                    'unit': ''}                                    #Slope
 
     result.result_str_dict = result_str_dict
 
     return result
+
 
 def estimate_gaussianlinearoffset_peak(self, x_axis, data, params):
     """ Provides a gauss peak estimator with a linear changing offset.
@@ -579,6 +586,7 @@ def estimate_gaussianlinearoffset_peak(self, x_axis, data, params):
     params['slope'] = res_linear.__params['slope']
 
     return error, params
+
 
 #################################
 # Two Gaussian with flat offset #
@@ -662,9 +670,10 @@ def make_gaussiandouble_fit(self, x_axis, data, estimator,
     result.result_str_dict = result_str_dict
     return result
 
+
 def estimate_gaussiandouble_peak(self, x_axis, data, params,
-                                threshold_fraction=0.4, minimal_threshold=0.1,
-                                sigma_threshold_fraction=0.2):
+                                 threshold_fraction=0.4, minimal_threshold=0.1,
+                                 sigma_threshold_fraction=0.2):
     """ Provide an estimator for a double gaussian peak fit with the parameters
     coming from the physical properties of an experiment done in gated counter:
                     - positive peak
@@ -687,29 +696,29 @@ def estimate_gaussiandouble_peak(self, x_axis, data, params,
 
     error = self._check_1D_input(x_axis=x_axis, data=data, params=params)
 
-
     mod_lor, params_lor = self.make_multiplelorentzian_model(no_of_functions=2)
 
     error, params_lor = self.estimate_lorentziandouble_dip(x_axis=x_axis,
-                                                     data=-data,
-                                                     params=params_lor,
-                                                     threshold_fraction=threshold_fraction,
-                                                     minimal_threshold=minimal_threshold,
-                                                     sigma_threshold_fraction=sigma_threshold_fraction)
+                                                           data=-data,
+                                                           params=params_lor,
+                                                           threshold_fraction=threshold_fraction,
+                                                           minimal_threshold=minimal_threshold,
+                                                           sigma_threshold_fraction=sigma_threshold_fraction)
 
     params['g0_amplitude'].value = -params_lor['l0_amplitude'].value
     params['g0_center'].value = params_lor['l0_center'].value
-    params['g0_sigma'].value = params_lor['l0_sigma'].value/(np.sqrt(2*np.log(2)))
+    params['g0_sigma'].value = params_lor['l0_sigma'].value / (np.sqrt(2 * np.log(2)))
     params['g1_amplitude'].value = -params_lor['l1_amplitude'].value
     params['g1_center'].value = params_lor['l1_center'].value
-    params['g1_sigma'].value = params_lor['l1_sigma'].value/(np.sqrt(2*np.log(2)))
+    params['g1_sigma'].value = params_lor['l1_sigma'].value / (np.sqrt(2 * np.log(2)))
     params['offset'].value = -params_lor['offset'].value
 
     return error, params
 
+
 def estimate_gaussiandouble_dip(self, x_axis, data, params,
-                               threshold_fraction=0.4, minimal_threshold=0.1,
-                               sigma_threshold_fraction=0.2):
+                                threshold_fraction=0.4, minimal_threshold=0.1,
+                                sigma_threshold_fraction=0.2):
     """ Provide an estimator for a double gaussian dip fit with the parameters
     coming from the physical properties of an experiment done in gated counter:
                     - positive peak
@@ -735,21 +744,22 @@ def estimate_gaussiandouble_dip(self, x_axis, data, params,
     mod_lor, params_lor = self.make_multiplelorentzian_model(no_of_functions=2)
 
     error, params_lor = self.estimate_lorentziandouble_dip(x_axis=x_axis,
-                                                     data=data,
-                                                     params=params_lor,
-                                                     threshold_fraction=threshold_fraction,
-                                                     minimal_threshold=minimal_threshold,
-                                                     sigma_threshold_fraction=sigma_threshold_fraction)
+                                                           data=data,
+                                                           params=params_lor,
+                                                           threshold_fraction=threshold_fraction,
+                                                           minimal_threshold=minimal_threshold,
+                                                           sigma_threshold_fraction=sigma_threshold_fraction)
 
     params['g0_amplitude'].value = params_lor['l0_amplitude'].value
     params['g0_center'].value = params_lor['l0_center'].value
-    params['g0_sigma'].value = params_lor['l0_sigma'].value/(np.sqrt(2*np.log(2)))
+    params['g0_sigma'].value = params_lor['l0_sigma'].value / (np.sqrt(2 * np.log(2)))
     params['g1_amplitude'].value = params_lor['l1_amplitude'].value
     params['g1_center'].value = params_lor['l1_center'].value
-    params['g1_sigma'].value = params_lor['l1_sigma'].value/(np.sqrt(2*np.log(2)))
+    params['g1_sigma'].value = params_lor['l1_sigma'].value / (np.sqrt(2 * np.log(2)))
     params['offset'].value = params_lor['offset'].value
 
     return error, params
+
 
 ###################################
 # 2D Gaussian with flat offset    #
@@ -791,9 +801,10 @@ def make_twoDgaussian_fit(self, xy_axes, data, estimator, units=None, add_params
     except:
         result = gaussian_2d_model.fit(data, x=xy_axes, params=params, **kwargs)
         self.log.warning('The 2D gaussian fit did not work: {0}'.format(
-                       result.message))
+            result.message))
 
     return result
+
 
 def estimate_twoDgaussian(self, x_axis, y_axis, data, params):
     """ Provide a simple two dimensional gaussian function.
@@ -847,25 +858,26 @@ def estimate_twoDgaussian(self, x_axis, y_axis, data, params):
             error = -1
 
     # auxiliary variables:
-    stepsize_x = x_axis[1]-x_axis[0]
-    stepsize_y = y_axis[1]-y_axis[0]
+    stepsize_x = x_axis[1] - x_axis[0]
+    stepsize_y = y_axis[1] - y_axis[0]
     n_steps_x = len(x_axis)
     n_steps_y = len(y_axis)
 
     # populate the parameter container:
     params['amplitude'].set(value=amplitude, min=100, max=1e7)
-    params['sigma_x'].set(value=sigma_x, min=1*stepsize_x,
-                          max=3*(x_axis[-1]-x_axis[0]))
-    params['sigma_y'].set(value=sigma_y, min=1*stepsize_y,
-                          max=3*(y_axis[-1]-y_axis[0]))
-    params['center_x'].set(value=center_x, min=(x_axis[0])-n_steps_x*stepsize_x,
-                           max=x_axis[-1]+n_steps_x*stepsize_x)
-    params['center_y'].set(value=center_y, min=(y_axis[0])-n_steps_y*stepsize_y,
-                           max=y_axis[-1]+n_steps_y*stepsize_y)
+    params['sigma_x'].set(value=sigma_x, min=1 * stepsize_x,
+                          max=3 * (x_axis[-1] - x_axis[0]))
+    params['sigma_y'].set(value=sigma_y, min=1 * stepsize_y,
+                          max=3 * (y_axis[-1] - y_axis[0]))
+    params['center_x'].set(value=center_x, min=(x_axis[0]) - n_steps_x * stepsize_x,
+                           max=x_axis[-1] + n_steps_x * stepsize_x)
+    params['center_y'].set(value=center_y, min=(y_axis[0]) - n_steps_y * stepsize_y,
+                           max=y_axis[-1] + n_steps_y * stepsize_y)
     params['theta'].set(value=theta, min=0, max=np.pi)
     params['offset'].set(value=offset, min=0, max=1e7)
 
     return error, params
+
 
 def estimate_twoDgaussian_MLE(self, x_axis, y_axis, data, params):
     """ Provide an estimator for 2D gaussian based on maximum likelihood estimation.
@@ -919,21 +931,21 @@ def estimate_twoDgaussian_MLE(self, x_axis, y_axis, data, params):
             error = -1
 
     # auxiliary variables:
-    stepsize_x = x_axis[1]-x_axis[0]
-    stepsize_y = y_axis[1]-y_axis[0]
+    stepsize_x = x_axis[1] - x_axis[0]
+    stepsize_y = y_axis[1] - y_axis[0]
     n_steps_x = len(x_axis)
     n_steps_y = len(y_axis)
 
     # populate the parameter container:
     params['amplitude'].set(value=amplitude, min=100, max=1e7)
-    params['sigma_x'].set(value=sigma_x, min=1*stepsize_x,
-                          max=3*(x_axis[-1]-x_axis[0]))
-    params['sigma_y'].set(value=sigma_y, min=1*stepsize_y,
-                          max=3*(y_axis[-1]-y_axis[0]))
-    params['center_x'].set(value=center_x, min=(x_axis[0])-n_steps_x*stepsize_x,
-                           max=x_axis[-1]+n_steps_x*stepsize_x)
-    params['center_y'].set(value=center_y, min=(y_axis[0])-n_steps_y*stepsize_y,
-                           max=y_axis[-1]+n_steps_y*stepsize_y)
+    params['sigma_x'].set(value=sigma_x, min=1 * stepsize_x,
+                          max=3 * (x_axis[-1] - x_axis[0]))
+    params['sigma_y'].set(value=sigma_y, min=1 * stepsize_y,
+                          max=3 * (y_axis[-1] - y_axis[0]))
+    params['center_x'].set(value=center_x, min=(x_axis[0]) - n_steps_x * stepsize_x,
+                           max=x_axis[-1] + n_steps_x * stepsize_x)
+    params['center_y'].set(value=center_y, min=(y_axis[0]) - n_steps_y * stepsize_y,
+                           max=y_axis[-1] + n_steps_y * stepsize_y)
     params['theta'].set(value=theta, min=0, max=np.pi)
     params['offset'].set(value=offset, min=0, max=1e7)
 

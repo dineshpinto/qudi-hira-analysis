@@ -21,8 +21,9 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-from lmfit.models import Model
 import numpy as np
+from lmfit.models import Model
+
 
 ############################################################################
 #                                                                          #
@@ -54,6 +55,7 @@ def make_constant_model(self, prefix=None):
     For further information have a look in:
     http://cars9.uchicago.edu/software/python/lmfit/builtin_models.html#models.GaussianModel
     """
+
     def constant_function(x, offset):
         """ Function of a constant value.
 
@@ -256,9 +258,9 @@ def estimate_linear(self, x_axis, data, params):
         data_mean = data.mean()
 
         for i in range(0, len(x_axis)):
-            a_1 += (x_axis[i]-x_mean)*(data[i]-data_mean)
-            a_2 += np.power(x_axis[i]-x_mean, 2)
-        slope = a_1/a_2
+            a_1 += (x_axis[i] - x_mean) * (data[i] - data_mean)
+            a_2 += np.power(x_axis[i] - x_mean, 2)
+        slope = a_1 / a_2
         intercept = data_mean - slope * x_mean
         params['offset'].value = intercept
         params['slope'].value = slope
@@ -268,4 +270,3 @@ def estimate_linear(self, x_axis, data, params):
         params['offset'].value = 0
 
     return error, params
-
