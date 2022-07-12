@@ -149,8 +149,9 @@ See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
 
 ### Prerequisites
 
-Latest version of the [conda](https://docs.conda.io/en/latest/miniconda.html) package manager and
-[git](https://git-scm.com/downloads) version control system.
+Latest version of: 
+- [conda](https://docs.conda.io/en/latest/miniconda.html) package manager
+- [git](https://git-scm.com/downloads) version control system.
 
 ### Clone the repository
 
@@ -174,7 +175,7 @@ gh repo clone dineshpinto/qudi-hira-analysis
 conda env create -f tools/conda-env-xx.yml
 ```
 
-where `xx` is either `win10` or `osx`. Note: `osx` was tested on Apple Silicon M1.
+where `xx` is either `win10`, `osx-intel` or `osx-apple-silicon`.
 
 #### Activate environment
 
