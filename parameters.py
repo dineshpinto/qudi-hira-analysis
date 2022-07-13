@@ -47,7 +47,7 @@ class QudiHiraParameters(Parameters):
     # Data folder on kernix when connected remotely (eg. VPN)
     remote_datafolder: str = os.path.join("\\\\kernix", "qudiamond", "Data")
     # Folder to save output images
-    remote_output_folder: str = os.path.join(os.path.expanduser("~"), "QudiHiraAnalysis")
+    remote_output_folder: str = os.path.join("C:/", "Nextcloud", "Data_Analysis")
 
     # Data folder on kernix when connected directly (e.g. on lab PC)
     local_datafolder: str = os.path.join("Z:/", "Data")

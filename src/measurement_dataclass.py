@@ -53,7 +53,7 @@ class LaserPulses(IOHandler):
     @property
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
-        if self.__data.size is None:
+        if self.__data is None:
             self.__data = self.read_into_ndarray(self.filepath).T
         return self.__data
 
@@ -104,7 +104,7 @@ class PulsedMeasurementDataclass:
 
 
 @dataclass
-class MeasurementDataclass(IOHandler, AnalysisLogic):
+class MeasurementDataclass(IOHandler):
     timestamp: datetime.datetime
     filepath: str = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
@@ -113,6 +113,8 @@ class MeasurementDataclass(IOHandler, AnalysisLogic):
     fit_result: ModelResult = field(default=None)
 
     def __post_init__(self):
+        super().__init__()
+        self.analysis = AnalysisLogic()
         self.filename = os.path.basename(self.filepath)
 
     def __repr__(self) -> str:
@@ -124,15 +126,10 @@ class MeasurementDataclass(IOHandler, AnalysisLogic):
         if self.__data is None:
             # Add custom measurement loading logic here
             if "Confocal" in self.filepath:
-                self.__data = self.__get_confocal_data()
+                self.__data = self.read_into_ndarray(self.filepath, dtype=int, delimiter='\t')
             else:
                 self.__data = self.read_into_dataframe(self.filepath)
         return self.__data
-
-    def __get_confocal_data(self) -> np.ndarray:
-        """ Custom loading logic for confocal images """
-        image_filepath = self.filepath.replace(self.filepath[-9:], "_image_1.dat")
-        return self.read_into_ndarray(image_filepath, dtype=int, delimiter='\t')
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
@@ -166,5 +163,5 @@ class MeasurementDataclass(IOHandler, AnalysisLogic):
 
     def fit(self, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
         """ Wrapper around AnalysisLogic.perform_fit() to populate fit_result attribute. """
-        fit_x, fit_y, self.fit_result = self.perform_fit(**kwargs)
+        fit_x, fit_y, self.fit_result = self.analysis.perform_fit(**kwargs)
         return fit_x, fit_y

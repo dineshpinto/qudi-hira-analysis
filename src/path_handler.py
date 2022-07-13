@@ -13,9 +13,9 @@ logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=log
 class PathHandler:
     def __init__(self, measurement_folder: str, params: Parameters):
         self.params = params
+        self.log = logging.getLogger(__name__)
         self.data_folder_path = self.__get_data_folder_path(measurement_folder)
         self.figure_folder_path = self.__get_figure_folder_path(measurement_folder)
-        self.log = logging.getLogger(__name__)
 
     def __get_data_folder_path(self, folder_name: str) -> str:
         """ Create absolute folder paths. """
