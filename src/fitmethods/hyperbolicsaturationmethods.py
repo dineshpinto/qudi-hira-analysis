@@ -20,8 +20,9 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-import numpy as np
+
 from lmfit.models import Model
+import numpy as np
 
 
 ################################################################################
@@ -63,8 +64,8 @@ def make_hyperbolicsaturation_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error('The passed prefix <{0}> of type {1} is not a string and'
-                       'cannot be used as a prefix and will be ignored for now.'
-                       'Correct that!'.format(prefix, type(prefix)))
+                     'cannot be used as a prefix and will be ignored for now.'
+                     'Correct that!'.format(prefix, type(prefix)))
 
         mod_sat = Model(hyperbolicsaturation_function, independent_vars='x')
     else:
@@ -127,22 +128,23 @@ def estimate_hyperbolicsaturation(self, x_axis, data, params):
 
     error = self._check_1D_input(x_axis=x_axis, data=data, params=params)
 
-    x_axis_half = x_axis[len(x_axis) // 2:]
-    data_half = data[len(x_axis) // 2:]
+    x_axis_half = x_axis[len(x_axis)//2:]
+    data_half = data[len(x_axis)//2:]
 
     results_lin = self.make_linear_fit(x_axis=x_axis_half, data=data_half,
-                                       estimator=self.estimate_linear)
+                                           estimator=self.estimate_linear)
 
-    est_slope = results_lin.__params['slope'].value
+    est_slope = results_lin.params['slope'].value
     est_offset = data.min()
 
-    data_red = data - est_slope * x_axis - est_offset
-    est_I_sat = np.mean(data_red[len(data_red) // 2:])
-    est_P_sat = est_I_sat / 2
+    data_red = data - est_slope*x_axis - est_offset
+    est_I_sat = np.mean(data_red[len(data_red)//2:])
+    est_P_sat = est_I_sat/2
 
     params['I_sat'].value = est_I_sat
     params['slope'].value = est_slope
     params['offset'].value = est_offset
     params['P_sat'].value = est_P_sat
+
 
     return error, params

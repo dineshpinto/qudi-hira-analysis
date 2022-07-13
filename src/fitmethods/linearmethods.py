@@ -21,9 +21,8 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-import numpy as np
 from lmfit.models import Model
-
+import numpy as np
 
 ############################################################################
 #                                                                          #
@@ -55,7 +54,6 @@ def make_constant_model(self, prefix=None):
     For further information have a look in:
     http://cars9.uchicago.edu/software/python/lmfit/builtin_models.html#models.GaussianModel
     """
-
     def constant_function(x, offset):
         """ Function of a constant value.
 
@@ -221,11 +219,11 @@ def make_linear_fit(self, x_axis, data, estimator, units=None, add_params=None, 
 
     result_str_dict = dict()
 
-    result_str_dict['Slope'] = {'value': result.__params['slope'].value,
-                                'error': result.__params['slope'].stderr,
+    result_str_dict['Slope'] = {'value': result.params['slope'].value,
+                                'error': result.params['slope'].stderr,
                                 'unit': '{0}/{1}'.format(units[1], units[0])}
-    result_str_dict['Offset'] = {'value': result.__params['offset'].value,
-                                 'error': result.__params['offset'].stderr,
+    result_str_dict['Offset'] = {'value': result.params['offset'].value,
+                                 'error': result.params['offset'].stderr,
                                  'unit': units[1]}
 
     result.result_str_dict = result_str_dict
@@ -258,9 +256,9 @@ def estimate_linear(self, x_axis, data, params):
         data_mean = data.mean()
 
         for i in range(0, len(x_axis)):
-            a_1 += (x_axis[i] - x_mean) * (data[i] - data_mean)
-            a_2 += np.power(x_axis[i] - x_mean, 2)
-        slope = a_1 / a_2
+            a_1 += (x_axis[i]-x_mean)*(data[i]-data_mean)
+            a_2 += np.power(x_axis[i]-x_mean, 2)
+        slope = a_1/a_2
         intercept = data_mean - slope * x_mean
         params['offset'].value = intercept
         params['slope'].value = slope
@@ -270,3 +268,4 @@ def estimate_linear(self, x_axis, data, params):
         params['offset'].value = 0
 
     return error, params
+

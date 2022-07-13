@@ -20,14 +20,13 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-from collections import OrderedDict
 
-import lmfit
 import numpy as np
-from lmfit import Parameters
+import lmfit
+from scipy.signal import gaussian
 from scipy.ndimage import filters
-from scipy.signal.windows import gaussian
-
+from lmfit import Parameters
+from collections import OrderedDict
 
 ############################################################################
 #                                                                          #
@@ -87,10 +86,10 @@ def _substitute_params(self, initial_params, update_params=None):
 
                 # Adapt the limits to the value:
                 if (initial_params[para].min is not None) and (initial_params[para].min > update_params[para].value):
-                    initial_params[para].min = update_params[para].value
+                   initial_params[para].min = update_params[para].value
 
                 if (initial_params[para].max is not None) and (initial_params[para].max < update_params[para].value):
-                    initial_params[para].max = update_params[para].value
+                   initial_params[para].max = update_params[para].value
 
                 initial_params[para].value = update_params[para].value
 
@@ -125,12 +124,11 @@ def _substitute_params(self, initial_params, update_params=None):
 
     else:
         self.log.error('The type of the passed update_params object <{0}> is '
-                       'neither of type lmfit.parameter.Parameters, '
-                       'OrderedDict or dict! Correct that, the initial_params'
-                       'will be returned.'.format(type(update_params)))
+                     'neither of type lmfit.parameter.Parameters, '
+                     'OrderedDict or dict! Correct that, the initial_params'
+                     'will be returned.'.format(type(update_params)))
 
     return initial_params
-
 
 def create_fit_string(self, result, model, units=None, decimal_digits_value_given=None,
                       decimal_digits_err_given=None):
@@ -156,10 +154,10 @@ def create_fit_string(self, result, model, units=None, decimal_digits_value_give
     fit_result = ''
     for variable in model.param_names:
         # check order of number
-        exponent_error = int("{:e}".format(result.__params[variable].stderr)[-3:])
-        exponent_value = int("{:e}".format(result.__params[variable].value)[-3:])
+        exponent_error = int("{:e}".format(result.params[variable].stderr)[-3:])
+        exponent_value = int("{:e}".format(result.params[variable].value)[-3:])
         if decimal_digits_value_given is None:
-            decimal_digits_value = int(exponent_value - exponent_error + 1)
+            decimal_digits_value = int(exponent_value-exponent_error+1)
             if decimal_digits_value <= 0:
                 decimal_digits_value = 1
         if decimal_digits_err_given is None:
@@ -170,10 +168,10 @@ def create_fit_string(self, result, model, units=None, decimal_digits_value_give
             fit_result += ("{0} [{1}] : {2} ± {3}\n".format(str(variable),
                                                             units[variable],
                                                             "{0:.{1}e}".format(
-                                                                float(result.__params[variable].value),
+                                                                float(result.params[variable].value),
                                                                 decimal_digits_value),
                                                             "{0:.{1}e}".format(
-                                                                float(result.__params[variable].stderr),
+                                                                float(result.params[variable].stderr),
                                                                 decimal_digits_err)))
         except:
             # self.log.warning('No unit given for parameter {}, setting unit '
@@ -181,74 +179,73 @@ def create_fit_string(self, result, model, units=None, decimal_digits_value_give
             fit_result += ("{0} [{1}] : {2} ± {3}\n".format(str(variable),
                                                             "arb. u.",
                                                             "{0:.{1}e}".format(
-                                                                float(result.__params[variable].value),
+                                                                float(result.params[variable].value),
                                                                 decimal_digits_value),
                                                             "{0:.{1}e}".format(
-                                                                float(result.__params[variable].stderr),
+                                                                float(result.params[variable].stderr),
                                                                 decimal_digits_err)))
     return fit_result
 
 
-def _search_end_of_dip(self, direction, data, peak_arg, start_arg, end_arg, sigma_threshold, minimal_threshold,
-                       make_prints):
+def _search_end_of_dip(self, direction, data, peak_arg, start_arg, end_arg, sigma_threshold, minimal_threshold, make_prints):
     """
     data has to be offset leveled such that offset is substracted
     """
     # Todo: Create doc string
-    absolute_min = data[peak_arg]
+    absolute_min  = data[peak_arg]
 
     if direction == 'left':
         mult = -1
-        sigma_arg = start_arg
+        sigma_arg=start_arg
     elif direction == 'right':
         mult = +1
-        sigma_arg = end_arg
+        sigma_arg=end_arg
     else:
         print('No valid direction in search end of peak')
-    ii = 0
+    ii=0
 
-    # if the minimum is at the end set this as boarder
-    if (peak_arg != start_arg and direction == 'left' or
-            peak_arg != end_arg and direction == 'right'):
+    #if the minimum is at the end set this as boarder
+    if (peak_arg != start_arg and direction=='left' or
+        peak_arg != end_arg   and direction=='right'):
         while True:
             # if no minimum can be found decrease threshold
-            if ((peak_arg - ii < start_arg and direction == 'left') or
-                    (peak_arg + ii > end_arg and direction == 'right')):
-                sigma_threshold *= 0.9
-                ii = 0
+            if ((peak_arg-ii<start_arg and direction == 'left') or
+                (peak_arg+ii>end_arg   and direction=='right')):
+                sigma_threshold*=0.9
+                ii=0
                 if make_prints:
-                    print('h1 sigma_threshold', sigma_threshold)
+                    print('h1 sigma_threshold',sigma_threshold)
 
-            # if the dip is always over threshold the end is as
+            #if the dip is always over threshold the end is as
             # set before
-            if abs(sigma_threshold / absolute_min) < abs(minimal_threshold):
+            if abs(sigma_threshold/absolute_min)<abs(minimal_threshold):
                 if make_prints:
                     print('h2')
                 break
 
-            # check if value was changed and search is finished
+             #check if value was changed and search is finished
             if ((sigma_arg == start_arg and direction == 'left') or
-                    (sigma_arg == end_arg and direction == 'right')):
+                (sigma_arg == end_arg   and direction=='right')):
                 # check if if value is lower as threshold this is the
                 # searched value
                 if make_prints:
                     print('h3')
-                if abs(data[peak_arg + (mult * ii)]) < abs(sigma_threshold):
+                if abs(data[peak_arg+(mult*ii)])<abs(sigma_threshold):
                     # value lower than threshold found - left end found
-                    sigma_arg = peak_arg + (mult * ii)
+                    sigma_arg=peak_arg+(mult*ii)
                     if make_prints:
                         print('h4')
                     break
-            ii += 1
+            ii+=1
 
     # in this case the value is the last index and should be search set
     # as right argument
     else:
         if make_prints:
             print('neu h10')
-        sigma_arg = peak_arg
+        sigma_arg=peak_arg
 
-    return sigma_threshold, sigma_arg
+    return sigma_threshold,sigma_arg
 
 
 def _search_double_dip(self, x_axis, data, threshold_fraction=0.3,
@@ -278,165 +275,165 @@ def _search_double_dip(self, x_axis, data, threshold_fraction=0.3,
     """
 
     if sigma_threshold_fraction is None:
-        sigma_threshold_fraction = threshold_fraction
+        sigma_threshold_fraction=threshold_fraction
 
-    error = 0
+    error=0
 
-    # first search for absolute minimum
-    absolute_min = data.min()
-    absolute_argmin = data.argmin()
+    #first search for absolute minimum
+    absolute_min=data.min()
+    absolute_argmin=data.argmin()
 
-    # adjust thresholds
-    threshold = threshold_fraction * absolute_min
-    sigma_threshold = sigma_threshold_fraction * absolute_min
+    #adjust thresholds
+    threshold=threshold_fraction*absolute_min
+    sigma_threshold=sigma_threshold_fraction*absolute_min
 
     dip0_arg = absolute_argmin
 
     # ====== search for the left end of the dip ======
 
     sigma_threshold, sigma0_argleft = self._search_end_of_dip(
-        direction='left',
-        data=data,
-        peak_arg=absolute_argmin,
-        start_arg=0,
-        end_arg=len(data) - 1,
-        sigma_threshold=sigma_threshold,
-        minimal_threshold=minimal_threshold,
-        make_prints=make_prints)
+                             direction='left',
+                             data=data,
+                             peak_arg = absolute_argmin,
+                             start_arg = 0,
+                             end_arg = len(data)-1,
+                             sigma_threshold = sigma_threshold,
+                             minimal_threshold = minimal_threshold,
+                             make_prints= make_prints)
 
     if make_prints:
-        print('Left sigma of main peak: ', x_axis[sigma0_argleft])
+        print('Left sigma of main peak: ',x_axis[sigma0_argleft])
 
     # ====== search for the right end of the dip ======
     # reset sigma_threshold
 
     sigma_threshold, sigma0_argright = self._search_end_of_dip(
-        direction='right',
-        data=data,
-        peak_arg=absolute_argmin,
-        start_arg=0,
-        end_arg=len(data) - 1,
-        sigma_threshold=sigma_threshold_fraction * absolute_min,
-        minimal_threshold=minimal_threshold,
-        make_prints=make_prints)
+                             direction='right',
+                             data=data,
+                             peak_arg = absolute_argmin,
+                             start_arg = 0,
+                             end_arg = len(data)-1,
+                             sigma_threshold = sigma_threshold_fraction*absolute_min,
+                             minimal_threshold = minimal_threshold,
+                             make_prints= make_prints)
 
     if make_prints:
-        print('Right sigma of main peak: ', x_axis[sigma0_argright])
+        print('Right sigma of main peak: ',x_axis[sigma0_argright])
 
     # ======== search for second lorentzian dip ========
-    left_index = int(0)
-    right_index = len(x_axis) - 1
+    left_index=int(0)
+    right_index=len(x_axis)-1
 
-    mid_index_left = sigma0_argleft
-    mid_index_right = sigma0_argright
+    mid_index_left=sigma0_argleft
+    mid_index_right=sigma0_argright
 
     # if main first dip covers the whole left side search on the right
     # side only
-    if mid_index_left == left_index:
+    if mid_index_left==left_index:
         if make_prints:
-            print('h11', left_index, mid_index_left, mid_index_right, right_index)
-        # if one dip is within the second they have to be set to one
-        if mid_index_right == right_index:
-            dip1_arg = dip0_arg
+            print('h11', left_index,mid_index_left,mid_index_right,right_index)
+        #if one dip is within the second they have to be set to one
+        if mid_index_right==right_index:
+            dip1_arg=dip0_arg
         else:
-            dip1_arg = data[mid_index_right:right_index].argmin() + mid_index_right
+            dip1_arg=data[mid_index_right:right_index].argmin()+mid_index_right
 
-    # if main first dip covers the whole right side search on the left
+    #if main first dip covers the whole right side search on the left
     # side only
-    elif mid_index_right == right_index:
+    elif mid_index_right==right_index:
         if make_prints:
             print('h12')
-        # if one dip is within the second they have to be set to one
-        if mid_index_left == left_index:
-            dip1_arg = dip0_arg
+        #if one dip is within the second they have to be set to one
+        if mid_index_left==left_index:
+            dip1_arg=dip0_arg
         else:
-            dip1_arg = data[left_index:mid_index_left].argmin()
+            dip1_arg=data[left_index:mid_index_left].argmin()
 
     # search for peak left and right of the dip
     else:
         while True:
-            # set search area excluding the first dip
-            left_min = data[left_index:mid_index_left].min()
-            left_argmin = data[left_index:mid_index_left].argmin()
-            right_min = data[mid_index_right:right_index].min()
-            right_argmin = data[mid_index_right:right_index].argmin()
+            #set search area excluding the first dip
+            left_min=data[left_index:mid_index_left].min()
+            left_argmin=data[left_index:mid_index_left].argmin()
+            right_min=data[mid_index_right:right_index].min()
+            right_argmin=data[mid_index_right:right_index].argmin()
 
             if abs(left_min) > abs(threshold) and \
-                    abs(left_min) > abs(right_min):
+               abs(left_min) > abs(right_min):
                 if make_prints:
                     print('h13')
                 # there is a minimum on the left side which is higher
                 # than the minimum on the right side
-                dip1_arg = left_argmin + left_index
+                dip1_arg = left_argmin+left_index
                 break
-            elif abs(right_min) > abs(threshold):
+            elif abs(right_min)>abs(threshold):
                 # there is a minimum on the right side which is higher
                 # than on left side
-                dip1_arg = right_argmin + mid_index_right
+                dip1_arg=right_argmin+mid_index_right
                 if make_prints:
                     print('h14')
                 break
             else:
                 # no minimum at all over threshold so lowering threshold
                 #  and resetting search area
-                threshold *= 0.9
-                left_index = int(0)
-                right_index = len(x_axis) - 1
-                mid_index_left = sigma0_argleft
-                mid_index_right = sigma0_argright
+                threshold*=0.9
+                left_index=int(0)
+                right_index=len(x_axis)-1
+                mid_index_left=sigma0_argleft
+                mid_index_right=sigma0_argright
                 if make_prints:
                     print('h15')
-                # if no second dip can be found set both to same value
-                if abs(threshold / absolute_min) < abs(minimal_threshold):
+                #if no second dip can be found set both to same value
+                if abs(threshold/absolute_min)<abs(minimal_threshold):
                     if make_prints:
                         print('h16')
                     self.log.warning('Threshold to minimum ratio was too '
-                                     'small to estimate two minima. So both '
-                                     'are set to the same value')
-                    error = -1
-                    dip1_arg = dip0_arg
+                            'small to estimate two minima. So both '
+                            'are set to the same value')
+                    error=-1
+                    dip1_arg=dip0_arg
                     break
 
     # if the dip is exactly at one of the boarders that means
     # the dips are most probably overlapping
     if dip1_arg in (sigma0_argleft, sigma0_argright):
-        # print('Dips are overlapping')
-        distance_left = abs(dip0_arg - sigma0_argleft)
+        #print('Dips are overlapping')
+        distance_left  = abs(dip0_arg - sigma0_argleft)
         distance_right = abs(dip0_arg - sigma0_argright)
         sigma1_argleft = sigma0_argleft
         sigma1_argright = sigma0_argright
         if distance_left > distance_right:
-            dip1_arg = dip0_arg - abs(distance_left - distance_right)
+            dip1_arg = dip0_arg - abs(distance_left-distance_right)
         elif distance_left < distance_right:
-            dip1_arg = dip0_arg + abs(distance_left - distance_right)
+            dip1_arg = dip0_arg + abs(distance_left-distance_right)
         else:
             dip1_arg = dip0_arg
-        # print(distance_left,distance_right,dip1_arg)
+        #print(distance_left,distance_right,dip1_arg)
     else:
         # if the peaks are not overlapping search for left and right
         # boarder of the dip
 
         # ====== search for the right end of the dip ======
         sigma_threshold, sigma1_argleft = self._search_end_of_dip(
-            direction='left',
-            data=data,
-            peak_arg=dip1_arg,
-            start_arg=0,
-            end_arg=len(data) - 1,
-            sigma_threshold=sigma_threshold_fraction * absolute_min,
-            minimal_threshold=minimal_threshold,
-            make_prints=make_prints)
+                                 direction='left',
+                                 data=data,
+                                 peak_arg = dip1_arg,
+                                 start_arg = 0,
+                                 end_arg = len(data)-1,
+                                 sigma_threshold = sigma_threshold_fraction*absolute_min,
+                                 minimal_threshold = minimal_threshold,
+                                 make_prints= make_prints)
 
         # ====== search for the right end of the dip ======
         sigma_threshold, sigma1_argright = self._search_end_of_dip(
-            direction='right',
-            data=data,
-            peak_arg=dip1_arg,
-            start_arg=0,
-            end_arg=len(data) - 1,
-            sigma_threshold=sigma_threshold_fraction * absolute_min,
-            minimal_threshold=minimal_threshold,
-            make_prints=make_prints)
+                                 direction='right',
+                                 data=data,
+                                 peak_arg = dip1_arg,
+                                 start_arg = 0,
+                                 end_arg = len(data)-1,
+                                 sigma_threshold = sigma_threshold_fraction*absolute_min,
+                                 minimal_threshold = minimal_threshold,
+                                 make_prints= make_prints)
 
     return error, sigma0_argleft, dip0_arg, sigma0_argright, sigma1_argleft, dip1_arg, sigma1_argright
 
@@ -472,19 +469,18 @@ def find_offset_parameter(self, x_values=None, data=None):
     elif len(x_values) >= 100.:
         len_x = 10
     else:
-        len_x = int(len(x_values) / 10.) + 1
+        len_x = int(len(x_values)/10.)+1
 
     lorentz = mod.eval(x=np.linspace(0, len_x, len_x), amplitude=1, offset=0.,
-                       sigma=len_x / 4., center=len_x / 2.)
-    data_smooth = filters.convolve1d(data, lorentz / lorentz.sum(),
+                       sigma=len_x/4., center=len_x/2.)
+    data_smooth = filters.convolve1d(data, lorentz/lorentz.sum(),
                                      mode='constant', cval=data.max())
 
     # finding most frequent value which is supposed to be the offset
     hist = np.histogram(data_smooth, bins=10)
-    offset = (hist[1][hist[0].argmax()] + hist[1][hist[0].argmax() + 1]) / 2.
+    offset = (hist[1][hist[0].argmax()]+hist[1][hist[0].argmax()+1])/2.
 
     return data_smooth, offset
-
 
 ############################################################################
 #                                                                          #
@@ -503,7 +499,7 @@ def gaussian_smoothing(self, data=None, filter_len=None, filter_sigma=None):
     @return array: smoothed data
 
     """
-    # Todo: Check for wrong data type
+    #Todo: Check for wrong data type
     if filter_len is None:
         if len(data) < 20.:
             filter_len = 5
@@ -516,6 +512,7 @@ def gaussian_smoothing(self, data=None, filter_len=None, filter_sigma=None):
 
     gaus = gaussian(filter_len, filter_sigma)
     return filters.convolve1d(data, gaus / gaus.sum(), mode='mirror')
+
 
 
 def _check_1D_input(self, x_axis, data, params):
@@ -543,3 +540,4 @@ def _check_1D_input(self, x_axis, data, params):
         error = -1
 
     return error
+
