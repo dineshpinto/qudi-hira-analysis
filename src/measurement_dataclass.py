@@ -140,6 +140,7 @@ class MeasurementDataclass(IOHandler):
     def params(self) -> dict:
         """ Read measurement params from file into dict """
         if self.__params is None:
+            # Add custom parameter loading logic here
             if "frq-sweep" in self.filepath:
                 self.__params = self._extract_parameters_from_nanonis_dat(self.filepath)
             else:
@@ -153,7 +154,6 @@ class MeasurementDataclass(IOHandler):
             raise ValueError(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
         else:
             return float(params[0])
-
 
     def set_datetime_index(self) -> pd.DataFrame:
         if 'Start counting time' not in self.__params:
