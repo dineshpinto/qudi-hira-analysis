@@ -2,36 +2,34 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import List, TYPE_CHECKING
+from typing import List
 
-if TYPE_CHECKING:
-    from parameters import Parameters
+import parameters as params
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
 class PathHandler:
-    def __init__(self, measurement_folder: str, params: Parameters):
-        self.params = params
+    def __init__(self, measurement_folder: str):
         self.log = logging.getLogger(__name__)
         self.data_folder_path = self.__get_data_folder_path(measurement_folder)
         self.figure_folder_path = self.__get_figure_folder_path(measurement_folder)
 
     def __get_data_folder_path(self, folder_name: str) -> str:
         """ Create absolute folder paths. """
-        if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
-            path = os.path.join(self.params.local_datafolder, folder_name)
+        if os.environ["COMPUTERNAME"] == params.lab_computer_name:
+            path = os.path.join(params.local_datafolder, folder_name)
         else:
-            path = os.path.join(self.params.remote_datafolder, folder_name)
+            path = os.path.join(params.remote_datafolder, folder_name)
 
         self.log.info(f"Data folder path is {path}")
         return path
 
     def __get_figure_folder_path(self, folder_name: str) -> str:
-        if os.environ["COMPUTERNAME"] == self.params.lab_computer_name:
-            path = os.path.join(self.params.local_output_folder, folder_name)
+        if os.environ["COMPUTERNAME"] == params.lab_computer_name:
+            path = os.path.join(params.local_output_folder, folder_name)
         else:
-            path = os.path.join(self.params.remote_output_folder, folder_name)
+            path = os.path.join(params.remote_output_folder, folder_name)
 
         if not os.path.exists(path):
             self.log.info(f"Creating new figure folder path {path}")
