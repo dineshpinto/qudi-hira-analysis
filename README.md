@@ -41,7 +41,6 @@ flowchart TD;
     MeasurementDataclass-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
     style MeasurementDataclass fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
-    style Parameters fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
 ```
 
 ### Measurement Dataclass
@@ -73,20 +72,6 @@ flowchart TD;
         RawTimetrace--> params4;
     end
 ```
-
-### Parameters
-
-The `Parameters` dataclass in `parameters.py` contains the attributes about which computer is used and where the data is
-stored. The code will automatically detect any VPN connection, and adjust its save location accordingly (Note that you
-cannot save to kernix when connected remotely).
-
-| Attribute              | Explanation                                                                                                      |
-|------------------------|------------------------------------------------------------------------------------------------------------------|
-| `lab_computer_name`    | Name of lab computer, use `os.environ["COMPUTERNAME"]` (eg. PCKK022)                                             |
-| `remote_datafolder`    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
-| `remote_output_folder` | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
-| `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
-| `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
 
 ### AnalysisLogic fits
 
@@ -121,9 +106,8 @@ from dateutil.parser import parse
 import matplotlib.pyplot as plt
 
 from src.data_handler import DataHandler
-from parameters import QudiHiraParameters
 
-data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv", params=QudiHiraParameters)
+data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 
 rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
 filtered_rabi_list = [rabi for rabi in rabi_list if
@@ -132,24 +116,30 @@ filtered_rabi_list = [rabi for rabi in rabi_list if
 fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
 
 for idx, rabi in enumerate(filtered_rabi_list):
-    x, y = rabi.pulsed.measurement.data["t(ns)"], rabi.pulsed.measurement.data["spin_state"]
-    fit_x, fit_y = rabi.fit(x=x, y=y, fit_function="sinedoublewithexpdecay")
+    x, y, yerr = rabi.data["Controlled variable(s)"], rabi.data["Signal"], rabi.data["Error"]
+    fit_x, fit_y, result = rabi.analysis.perform_fit(x=x, y=y, fit_function="sinedoublewithexpdecay")
 
-    ax[idx].plot(x, y, ".")
+    ax[idx].errorbar(x, y, yerr=yerr, fmt=".")
     ax[idx].plot(fit_x, fit_y, "-")
     ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, "
-                      f"T1rho = {rabi.fit_result.params['Lifetime']}")
+                      f"T1rho = {result.params['Lifetime'].value}")
 
 data_handler.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
 ```
 
-See [ExampleNotebook.ipynb](ExampleNotebook.ipynb) for more examples.
+For more examples:
+
+- [ExampleNotebook.ipynb](ExampleNotebook.ipynb) contains examples using the automated data extractor, and is useful for
+  data exploration
+- [ExampleNotebook2.ipynb](ExampleNotebook2.ipynb) assumes you want to analyze specific data points, and provides a
+  simple interface
 
 ## Getting Started
 
 ### Prerequisites
 
-Latest version of: 
+Latest version of:
+
 - [conda](https://docs.conda.io/en/latest/miniconda.html) package manager
 - [git](https://git-scm.com/downloads) version control system.
 
@@ -189,13 +179,26 @@ conda activate qudi-hira-analysis
 python -m ipykernel install --user --name=qudi-hira-analysis
 ```
 
+### Set up filepath parameters
+
+Modify `parameters.py` with the correct data source and outputs. This will allow the library to automatically detect
+which filepaths to use when connected remotely.
+
+| Variable               | Explanation                                                                                                      |
+|------------------------|------------------------------------------------------------------------------------------------------------------|
+| `lab_computer_name`    | Name of lab computer, use `os.environ["COMPUTERNAME"]` (eg. PCKK022)                                             |
+| `remote_datafolder`    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
+| `remote_output_folder` | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
+| `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
+| `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
+
 ### Start the analysis
 
 ```shell
 jupyter lab
 ```
 
-## Makefile options
+## Makefile
 
 The Makefile is configured to generate a variety of outputs:
 
