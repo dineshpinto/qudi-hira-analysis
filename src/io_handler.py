@@ -2,7 +2,6 @@ import ast
 import datetime
 import inspect
 import itertools
-import logging
 import os
 import pickle
 from typing import Tuple
@@ -11,14 +10,9 @@ import numpy as np
 import pandas as pd
 from dateutil import parser
 
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
-
 
 class IOHandler:
     """ Read and write files (eg. pys, df, pkl) """
-
-    def __init__(self):
-        self.log = logging.getLogger(__name__)
 
     @staticmethod
     def read_qudi_parameters(filepath: str) -> dict:
@@ -174,10 +168,8 @@ class IOHandler:
         """ Replace the channel names with gauge locations. """
         gauges = {"CH 1": "Main", "CH 2": "Prep", "CH 3": "Backing"}
         try:
-            self.log.warning(f"Using pressure gauge layout {gauges}")
             return [gauges[ch] for ch in channel_names]
         except KeyError:
-            self.log.warning("Incorrect gauge layout, using numbered channels")
             return channel_names
 
     def read_pfeiffer_data(self, filepath: str) -> pd.DataFrame:
