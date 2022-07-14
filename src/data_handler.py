@@ -63,7 +63,7 @@ class DataHandler(PathHandler):
             except ValueError as _:
                 # Only raise warning once
                 self.log.warning(f"Unable to extract timestamp from filepath {filepath}, using mtime instead")
-                timestamp = datetime.datetime.fromtimestamp(os.path.getmtime("parameters_example.py")).astimezone()
+                timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath)).astimezone()
             standard_measurement_list.append(MeasurementDataclass(filepath=filepath, timestamp=timestamp))
         return standard_measurement_list
 
@@ -99,38 +99,51 @@ class DataHandler(PathHandler):
     def load_measurement_list_into_dataclass_list(self, measurement_list: List[str]) -> List[MeasurementDataclass]:
         measurement_dataclass_list = []
         for measurement in measurement_list:
-            # Separate filename from measurement type
-            measurement_type, filename = measurement.split("\\")
+            if len(measurement.split("\\")) > 1:
+                # Measurement performed from qudi-hira
+                # Separate filename from measurement type
+                measurement_type, filename = measurement.split("\\")
 
-            # Recreate full filepath
-            filepath = os.path.join(
-                self.data_folder_path,
-                self.expand_timestamped_folderpath(filename),
-                measurement_type,
-                filename
-            )
-            filepath = self._extract_base_filepath(filepath)
-            timestamp = datetime.datetime.strptime(filename[:16], "%Y%m%d-%H%M-%S")
+                # Recreate full filepath
+                filepath = os.path.join(
+                    self.data_folder_path,
+                    self.expand_timestamped_folderpath(filename),
+                    measurement_type,
+                    filename
+                )
+                filepath = self._extract_base_filepath(filepath)
+                timestamp = datetime.datetime.strptime(filename[:16], "%Y%m%d-%H%M-%S")
 
-            if "PulsedMeasurement" in measurement:
-                measurement_dataclass_list.append(
-                    MeasurementDataclass(
-                        timestamp=timestamp,
-                        filepath=filepath,
-                        pulsed=PulsedMeasurementDataclass(
-                            measurement=PulsedMeasurement(filepath=filepath + "_pulsed_measurement.dat"),
-                            laser_pulses=LaserPulses(filepath=filepath + "_laser_pulses.dat"),
-                            timetrace=RawTimetrace(filepath=filepath + "_raw_timetrace.dat")
+                if "PulsedMeasurement" in measurement:
+                    measurement_dataclass_list.append(
+                        MeasurementDataclass(
+                            timestamp=timestamp,
+                            filepath=filepath,
+                            pulsed=PulsedMeasurementDataclass(
+                                measurement=PulsedMeasurement(filepath=filepath + "_pulsed_measurement.dat"),
+                                laser_pulses=LaserPulses(filepath=filepath + "_laser_pulses.dat"),
+                                timetrace=RawTimetrace(filepath=filepath + "_raw_timetrace.dat")
+                            )
                         )
                     )
-                )
-            else:
-                measurement_dataclass_list.append(
-                    MeasurementDataclass(
-                        filepath=filepath + ".dat",
-                        timestamp=timestamp
+                else:
+                    measurement_dataclass_list.append(
+                        MeasurementDataclass(
+                            filepath=filepath + ".dat",
+                            timestamp=timestamp
+                        )
                     )
-                )
+            else:
+                # Generic measurement type
+                if "frq-sweep" in measurement:
+                    filepath = os.path.join(self.data_folder_path, measurement) + ".dat"
+                    timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath)).astimezone()
+                    measurement_dataclass_list.append(
+                        MeasurementDataclass(
+                            filepath=filepath,
+                            timestamp=timestamp
+                        )
+                    )
         return measurement_dataclass_list
 
     def save_figures(

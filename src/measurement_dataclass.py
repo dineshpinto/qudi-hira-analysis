@@ -123,13 +123,28 @@ class MeasurementDataclass(IOHandler):
     @property
     def data(self) -> np.ndarray | pd.DataFrame:
         """ Read measurement data from file into suitable data structure """
-        if self.__data is None:
-            # Add custom measurement loading logic here
-            if "Confocal" in self.filepath:
-                self.__data = self.read_into_ndarray(self.filepath, dtype=int, delimiter='\t')
+        if self.pulsed:
+            return self.pulsed.measurement.data
+        else:
+            if self.__data is None:
+                # Add custom measurement loading logic here
+                if "Confocal" in self.filepath:
+                    self.__data = self.read_into_ndarray(self.filepath, dtype=int, delimiter='\t')
+                elif "frq-sweep" in self.filepath:
+                    self.__data = self._extract_data_from_nanonis_dat(self.filepath)
+                else:
+                    self.__data = self.read_into_dataframe(self.filepath)
+            return self.__data
+
+    @property
+    def params(self) -> dict:
+        """ Read measurement params from file into dict """
+        if self.__params is None:
+            if "frq-sweep" in self.filepath:
+                self.__params = self._extract_parameters_from_nanonis_dat(self.filepath)
             else:
-                self.__data = self.read_into_dataframe(self.filepath)
-        return self.__data
+                self.__params = self.read_qudi_parameters(self.filepath)
+        return self.__params
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
@@ -139,12 +154,6 @@ class MeasurementDataclass(IOHandler):
         else:
             return float(params[0])
 
-    @property
-    def params(self) -> dict:
-        """ Read measurement params from file into dict """
-        if self.__params is None:
-            self.__params = self.read_qudi_parameters(self.filepath)
-        return self.__params
 
     def set_datetime_index(self) -> pd.DataFrame:
         if 'Start counting time' not in self.__params:
