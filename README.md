@@ -107,10 +107,10 @@ import matplotlib.pyplot as plt
 
 from src.data_handler import DataHandler
 
-data_handler = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
+tip_2S6 = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 
-rabi_list = data_handler.load_measurements_into_dataclass_list(measurement_str="Rabi")
-filtered_rabi_list = [rabi for rabi in rabi_list if
+tip_2S6_rabi_list = tip_2S6.load_measurements_into_dataclass_list(measurement_str="Rabi")
+filtered_rabi_list = [rabi for rabi in tip_2S6_rabi_list if
                       parse("10 July 2022 13:30") < rabi.timestamp < parse("10 July 2022 17:30")]
 
 fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
@@ -124,15 +124,15 @@ for idx, rabi in enumerate(filtered_rabi_list):
     ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, "
                       f"T1rho = {result.params['Lifetime'].value}")
 
-data_handler.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
+tip_2S6.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
 ```
 
 For more examples:
 
 - [ExampleNotebook.ipynb](ExampleNotebook.ipynb) contains examples using the automated data extractor, and is useful for
   data exploration
-- [ExampleNotebook2.ipynb](ExampleNotebook2.ipynb) assumes you want to analyze specific data points, and provides a
-  simple interface
+- [ExampleNotebook2.ipynb](ExampleNotebook2.ipynb) assumes you want to analyze specific data points, and is useful for
+  presentation/paper analysis preparation
 
 ## Getting Started
 
