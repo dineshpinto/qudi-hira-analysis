@@ -74,7 +74,8 @@ class DataHandler(PathHandler):
         else:
             return self.__load_standard_measurements_dataclass_list(measurement_str)
 
-    def _extract_base_filepath(self, filepath: str) -> str:
+    @staticmethod
+    def _extract_base_filepath(filepath: str) -> str:
         path_endswith = [
             "_pulsed_measurement",
             "_pulsed_measurement_fig",
@@ -83,13 +84,11 @@ class DataHandler(PathHandler):
             "_fig"
         ]
 
-        base_filepath = None
+        base_filepath = filepath
         for path in path_endswith:
             if filepath.endswith(path):
                 base_filepath = filepath[:-len(path)]
                 break
-        if base_filepath is None:
-            self.log.error(f"Unable to extract base filepath from {filepath}")
         return base_filepath
 
     @staticmethod

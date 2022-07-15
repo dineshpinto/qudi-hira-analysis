@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from enum import Enum
 from typing import Tuple, TYPE_CHECKING
 
 import numpy as np
@@ -14,6 +15,30 @@ if TYPE_CHECKING:
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
+class FitMethods(Enum):
+    decayexponential: str = "decayexponential"
+    biexponential: str = "biexponential"
+    decayexponentialstretched: str = "decayexponentialstretched"
+    gaussian: str = "gaussian"
+    gaussiandouble: str = "gaussiandouble"
+    gaussianlinearoffset: str = "gaussianlinearoffset"
+    hyperbolicsaturation: str = "hyperbolicsaturation"
+    linear: str = "linear"
+    lorentzian: str = "lorentzian"
+    lorentziandouble: str = "lorentziandouble"
+    lorentziantriple: str = "lorentziantriple"
+    sine: str = "sine"
+    sinedouble: str = "sinedouble"
+    sinedoublewithexpdecay: str = "sinedoublewithexpdecay"
+    sinedoublewithtwoexpdecay: str = "sinedoublewithtwoexpdecay"
+    sineexponentialdecay: str = "sineexponentialdecay"
+    sinestretchedexponentialdecay: str = "sinestretchedexponentialdecay"
+    sinetriple: str = "sinetriple"
+    sinetriplewithexpdecay: str = "sinetriplewithexpdecay"
+    sinetriplewiththreeexpdecay: str = "sinetriplewiththreeexpdecay"
+    twoDgaussian: str = "twoDgaussian"
+
+
 class AnalysisLogic(FitLogic):
     def __init__(self):
         super().__init__()
@@ -23,7 +48,7 @@ class AnalysisLogic(FitLogic):
             self,
             x: pd.Series,
             y: pd.Series,
-            fit_function: str,
+            fit_function: str | FitMethods,
             estimator: str = "generic",
             dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         """
@@ -57,6 +82,8 @@ class AnalysisLogic(FitLogic):
             x = x.to_numpy()
         if isinstance(y, pd.Series):
             y = y.to_numpy()
+        if isinstance(fit_function, FitMethods):
+            fit_function = fit_function.name
 
         fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
         user_fit = self.validate_load_fits(fit)
