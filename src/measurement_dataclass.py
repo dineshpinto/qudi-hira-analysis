@@ -141,7 +141,10 @@ class MeasurementDataclass(IOHandler):
             if "frq-sweep" in self.filepath:
                 self.__params = self._extract_parameters_from_nanonis_dat(self.filepath)
             else:
-                self.__params = self.read_qudi_parameters(self.filepath)
+                if self.pulsed is not None:
+                    self.__params = self.read_qudi_parameters(self.pulsed.measurement.filepath)
+                else:
+                    self.__params = self.read_qudi_parameters(self.filepath)
         return self.__params
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
