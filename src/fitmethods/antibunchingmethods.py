@@ -51,15 +51,6 @@ def make_antibunching_fit(self, x_axis, data, estimator, units=None, add_params=
 
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()
-
-    if units is None:
-        units = ["arb. units"]
-
-    result_str_dict['ZeroDelay'] = {'value': result.params['n'].value,
-                                    'error': result.params['n'].stderr,
-                                    'unit': units[0]}
-
-    result_str_dict['chi_sqr'] = {'value': result.chisqr, 'unit': ''}
     result.result_str_dict = result_str_dict
 
     return result
