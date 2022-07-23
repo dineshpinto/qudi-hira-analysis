@@ -182,7 +182,7 @@ python -m ipykernel install --user --name=qudi-hira-analysis
 
 ### Set up filepath parameters
 
-Modify `parameters.py` with the correct data source and outputs. This will allow the library to automatically detect
+Rename `parameters-example.py` to `parameters.py` and add in the correct data source and outputs. This will allow the library to automatically detect
 which filepaths to use when connected remotely.
 
 | Variable               | Explanation                                                                                                      |
