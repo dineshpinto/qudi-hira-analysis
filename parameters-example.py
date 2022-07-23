@@ -8,7 +8,7 @@ lab_computer_name: str = "PCKK022"
 # Source data folder on kernix
 remote_datafolder: str = os.path.join("\\\\kernix", "qudiamond", "Data")
 # Folder to save output images
-remote_output_folder: str = os.path.join("C:/", "Nextcloud", "Data_Analysis")
+remote_output_folder: str = os.path.join("C:/", "Data_Analysis")
 
 # LOCAL FOLDER PATHS (e.g. when on lab PC)
 
