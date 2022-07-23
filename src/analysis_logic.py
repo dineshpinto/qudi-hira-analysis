@@ -16,27 +16,29 @@ logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=log
 
 
 class FitMethods(Enum):
-    decayexponential: str = "decayexponential"
-    biexponential: str = "biexponential"
-    decayexponentialstretched: str = "decayexponentialstretched"
-    gaussian: str = "gaussian"
-    gaussiandouble: str = "gaussiandouble"
-    gaussianlinearoffset: str = "gaussianlinearoffset"
-    hyperbolicsaturation: str = "hyperbolicsaturation"
-    linear: str = "linear"
-    lorentzian: str = "lorentzian"
-    lorentziandouble: str = "lorentziandouble"
-    lorentziantriple: str = "lorentziantriple"
-    sine: str = "sine"
-    sinedouble: str = "sinedouble"
-    sinedoublewithexpdecay: str = "sinedoublewithexpdecay"
-    sinedoublewithtwoexpdecay: str = "sinedoublewithtwoexpdecay"
-    sineexponentialdecay: str = "sineexponentialdecay"
-    sinestretchedexponentialdecay: str = "sinestretchedexponentialdecay"
-    sinetriple: str = "sinetriple"
-    sinetriplewithexpdecay: str = "sinetriplewithexpdecay"
-    sinetriplewiththreeexpdecay: str = "sinetriplewiththreeexpdecay"
-    twoDgaussian: str = "twoDgaussian"
+    """ Fit methods with corresponding estimators """
+    decayexponential: str = "generic"
+    biexponential: str = "generic"
+    decayexponentialstretched: str = "generic"
+    gaussian: str = "dip"
+    gaussiandouble: str = "dip"
+    gaussianlinearoffset: str = "dip"
+    hyperbolicsaturation: str = "generic"
+    linear: str = "generic"
+    lorentzian: str = "dip"
+    lorentziandouble: str = "dip"
+    lorentziantriple: str = "dip"
+    sine: str = "generic"
+    sinedouble: str = "generic"
+    sinedoublewithexpdecay: str = "generic"
+    sinedoublewithtwoexpdecay: str = "generic"
+    sineexponentialdecay: str = "generic"
+    sinestretchedexponentialdecay: str = "generic"
+    sinetriple: str = "generic"
+    sinetriplewithexpdecay: str = "generic"
+    sinetriplewiththreeexpdecay: str = "generic"
+    twoDgaussian: str = "dip"
+    antibunching: str = "dip"
 
 
 class AnalysisLogic(FitLogic):
@@ -48,8 +50,7 @@ class AnalysisLogic(FitLogic):
             self,
             x: pd.Series,
             y: pd.Series,
-            fit_function: str | FitMethods,
-            estimator: str = "generic",
+            fit_function: FitMethods,
             dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         """
         Fits available:
@@ -82,10 +83,8 @@ class AnalysisLogic(FitLogic):
             x = x.to_numpy()
         if isinstance(y, pd.Series):
             y = y.to_numpy()
-        if isinstance(fit_function, FitMethods):
-            fit_function = fit_function.name
 
-        fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
+        fit = {dims: {'default': {'fit_function': fit_function.name, 'estimator': fit_function.value}}}
         user_fit = self.validate_load_fits(fit)
 
         use_settings = {}

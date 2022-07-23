@@ -106,6 +106,7 @@ from dateutil.parser import parse
 import matplotlib.pyplot as plt
 
 from src.data_handler import DataHandler
+from src.analysis_logic import FitMethods
 
 tip_2S6 = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
 
@@ -117,7 +118,7 @@ fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
 
 for idx, rabi in enumerate(filtered_rabi_list):
     x, y, yerr = rabi.data["Controlled variable(s)"], rabi.data["Signal"], rabi.data["Error"]
-    fit_x, fit_y, result = rabi.analysis.perform_fit(x=x, y=y, fit_function="sinedoublewithexpdecay")
+    fit_x, fit_y, result = rabi.analysis.perform_fit(x=x, y=y, fit_function=FitMethods.sinedoublewithexpdecay)
 
     ax[idx].errorbar(x, y, yerr=yerr, fmt=".")
     ax[idx].plot(fit_x, fit_y, "-")
