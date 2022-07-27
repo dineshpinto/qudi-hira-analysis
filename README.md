@@ -180,13 +180,13 @@ python -m ipykernel install --user --name=qudi-hira-analysis
 Rename `parameters-example.py` to `parameters.py` and add in the correct data source and outputs. This will allow the library to automatically detect
 which filepaths to use when connected remotely.
 
-| Variable               | Explanation                                                                                                      |
-|------------------------|------------------------------------------------------------------------------------------------------------------|
-| `lab_computer_name`    | Name of lab computer, use `os.environ["COMPUTERNAME"]` (eg. PCKK022)                                             |
-| `remote_datafolder`    | Folder to connect to when running analysis remotely (eg. over VPN) (default: `\\kernix\qudiamond\Data`)          |
-| `remote_output_folder` | Folder to place output images when running remotely (eg. over VPN) (default: `$USER\Documents\QudiHiraAnalysis`) |
-| `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                                  |
-| `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                              |
+| Variable               | Explanation                                                                                                |
+|------------------------|------------------------------------------------------------------------------------------------------------|
+| `lab_computer_name`    | Name of lab computer, run `os.environ["COMPUTERNAME"]` on lab computer to check (default: `PCKK022`)       |
+| `remote_datafolder`    | Folder to connect to when running analysis remotely eg. when over VPN (default: `\\kernix\qudiamond\Data`) |
+| `remote_output_folder` | Folder to place output images when running remotely eg. when over VPN (default: `$USER\QudiHiraAnalysis`)  |
+| `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                            |
+| `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                        |
 
 ### Start the analysis
 
