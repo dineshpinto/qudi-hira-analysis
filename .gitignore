@@ -262,3 +262,5 @@ fabric.properties
 .idea
 
 parameters.py
+*.ipynb
+!ExampleNotebook.ipynb

@@ -12,7 +12,7 @@ It also aims to improve transparency and reproducibility in experimental data an
 two lines of code are sufficient to recreate all output data.
 
 Python offers some very handy features like dataclasses, which are heavily used by this toolkit. Dataclasses offer a
-full OOP (object oriented programming) experience while analyzing complex data sets. They provide a solid and
+full OOP (object-oriented programming) experience while analyzing complex data sets. They provide a solid and
 transparent structure to the data to
 reduce errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
 sidestepped by lazy loading data and storing metadata instead wherever possible.
@@ -128,12 +128,7 @@ for idx, rabi in enumerate(filtered_rabi_list):
 tip_2S6.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
 ```
 
-For more examples:
-
-- [ExampleNotebook.ipynb](ExampleNotebook.ipynb) contains examples using the automated data extractor, and is useful for
-  data exploration
-- [ExampleNotebook2.ipynb](ExampleNotebook2.ipynb) assumes you want to analyze specific data points, and is useful for
-  presentation/paper analysis preparation
+For more examples see [ExampleNotebook.ipynb](ExampleNotebook.ipynb)
 
 ## Getting Started
 
@@ -142,7 +137,7 @@ For more examples:
 Latest version of:
 
 - [conda](https://docs.conda.io/en/latest/miniconda.html) package manager
-- [git](https://git-scm.com/downloads) version control system.
+- [git](https://git-scm.com/downloads) version control system
 
 ### Clone the repository
 
