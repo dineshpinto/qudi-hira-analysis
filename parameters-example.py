@@ -1,3 +1,4 @@
+# Rename this file to parameters.py after modifying it
 import os
 
 # Name of lab computer (run `os.environ["COMPUTERNAME"]` to check)
