@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Tuple, Callable
+from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 @dataclass
 class PulsedMeasurement:
     filepath: str
-    loaders: Tuple[Callable, Callable] = field(default=None)
+    loaders: (Callable, Callable) = field(default=None)
     __data: pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 
@@ -44,7 +44,7 @@ class PulsedMeasurement:
 @dataclass
 class LaserPulses(IOHandler):
     filepath: str
-    loaders: Tuple[Callable, Callable] = field(default=None)
+    loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
 
@@ -69,7 +69,7 @@ class LaserPulses(IOHandler):
 @dataclass
 class RawTimetrace(IOHandler):
     filepath: str
-    loaders: Tuple[Callable, Callable] = field(default=None)
+    loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
 
