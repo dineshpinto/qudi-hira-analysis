@@ -3,14 +3,15 @@ from __future__ import annotations
 import datetime
 import logging
 import os
-from typing import List
+from typing import List, TYPE_CHECKING
 
-import matplotlib.pyplot as plt
-
+from src.io_handler import IOHandler
 from src.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
     LaserPulses, MeasurementDataclass
 from src.path_handler import PathHandler
-from src.io_handler import IOHandler
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
@@ -141,36 +142,12 @@ class DataHandler(PathHandler, IOHandler):
                     measurement_dataclass_list.append(
                         MeasurementDataclass(
                             filepath=filepath,
-                            timestamp=timestamp
+                            timestamp=timestamp,
                         )
                     )
         return measurement_dataclass_list
 
-    def save_figures(
-            self,
-            fig: plt.Figure,
-            filename: str,
-            overwrite: bool = True,
-            only_jpg: bool = False,
-            **kwargs
-    ):
-        """ Saves figures from matplotlib plot data. """
-
-        if "." in filename:
-            filename, _ = os.path.splitext(filename)
-
+    def save_figures(self, fig: plt.Figure, filename: str, **kwargs):
         self.log.info(f"Saving '{filename}' to '{self.figure_folder_path}'")
-
-        if only_jpg:
-            extensions = [".jpg"]
-        else:
-            extensions = [".jpg", ".pdf", ".svg", ".png"]
-
-        for ext in extensions:
-            figure_path = os.path.join(self.figure_folder_path, filename + ext)
-
-            if not overwrite:
-                if os.path.isfile(figure_path):
-                    raise IOError(f"{figure_path} already exists")
-
-            fig.savefig(figure_path, dpi=200, bbox_inches="tight", **kwargs)
+        filepath = os.path.join(self.figure_folder_path, filename)
+        self.savefig(fig, filepath, **kwargs)

@@ -6,6 +6,7 @@ import os
 import pickle
 from typing import Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dateutil import parser
@@ -209,3 +210,17 @@ class IOHandler:
 
         df = pd.read_csv(filepath, sep="\t", skiprows=14, names=["wavelength", "intensity"])
         return df
+
+    @staticmethod
+    def savefig(fig: plt.Figure, filepath: str, **kwargs):
+        """ Saves figures from matplotlib plot data. """
+
+        if "only_jpg" in kwargs:
+            extensions = [".jpg"]
+            kwargs.pop("only_jpg", None)
+        else:
+            extensions = [".jpg", ".pdf", ".svg", ".png"]
+
+        for ext in extensions:
+            figure_path = filepath + ext
+            fig.savefig(figure_path, dpi=200, **kwargs)
