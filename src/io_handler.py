@@ -115,7 +115,7 @@ class IOHandler:
         with open(filepath, 'wb') as f:
             pickle.dump(obj, f)
 
-    def _extract_data_from_nanonis_dat(self, filepath: str) -> pd.DataFrame:
+    def read_nanonis_data(self, filepath: str) -> pd.DataFrame:
         """ Extract data from a Nanonis dat file. """
         filepath = self.__check_extension(filepath, ".dat")
 
@@ -133,7 +133,7 @@ class IOHandler:
         df = pd.read_table(filepath, sep="\t", skiprows=skip_rows)
         return df
 
-    def _extract_parameters_from_nanonis_dat(self, filepath: str) -> dict:
+    def read_nanonis_parameters(self, filepath: str) -> dict:
         """ Extract parameters from a Nanonis dat file. """
         filepath = self.__check_extension(filepath, ".dat")
 
@@ -158,11 +158,9 @@ class IOHandler:
                     parameters[label] = value
         return parameters
 
-    def read_nanonis_data(self, filepath: str) -> Tuple[dict, pd.DataFrame]:
-        """ Convenience function to extract both parameters and data from a DAT file. """
-        parameters = self._extract_parameters_from_nanonis_dat(filepath)
-        data = self._extract_data_from_nanonis_dat(filepath)
-        return parameters, data
+    def read_nanonis_params_and_data(self, filepath: str) -> Tuple[dict, pd.DataFrame]:
+        """ Convenience function to extract both parameters and data from a Nanonis .dat file. """
+        return self.read_nanonis_parameters(filepath), self.read_nanonis_data(filepath)
 
     def _channel_to_gauge_names(self, channel_names: list) -> list:
         """ Replace the channel names with gauge locations. """

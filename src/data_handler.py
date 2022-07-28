@@ -10,11 +10,12 @@ import matplotlib.pyplot as plt
 from src.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
     LaserPulses, MeasurementDataclass
 from src.path_handler import PathHandler
+from src.io_handler import IOHandler
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
-class DataHandler(PathHandler):
+class DataHandler(PathHandler, IOHandler):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.log = logging.getLogger(__name__)

@@ -124,28 +124,44 @@ class MeasurementDataclass(IOHandler):
             return self.pulsed.measurement.data
         else:
             if self.__data is None:
-                # Add custom measurement loading logic here
+                # Add custom measurement lazy loading logic here
                 if "Confocal" in self.filepath:
                     self.__data = self.read_into_ndarray(self.filepath, dtype=int, delimiter='\t')
                 elif "frq-sweep" in self.filepath:
-                    self.__data = self._extract_data_from_nanonis_dat(self.filepath)
+                    self.__data = self.read_nanonis_data(self.filepath)
                 else:
                     self.__data = self.read_into_dataframe(self.filepath)
             return self.__data
+
+    @data.setter
+    def data(self, data: np.ndarray | pd.DataFrame):
+        """ Use setter only if custom loading logic fails """
+        if self.__data is None:
+            self.__data = data
+        else:
+            raise IOError("Setter cannot be called on data once it has been set")
 
     @property
     def params(self) -> dict:
         """ Read measurement params from file into dict """
         if self.__params is None:
-            # Add custom parameter loading logic here
+            # Add custom parameter lazy loading logic here
             if "frq-sweep" in self.filepath:
-                self.__params = self._extract_parameters_from_nanonis_dat(self.filepath)
+                self.__params = self.read_nanonis_parameters(self.filepath)
             else:
                 if self.pulsed is not None:
                     self.__params = self.read_qudi_parameters(self.pulsed.measurement.filepath)
                 else:
                     self.__params = self.read_qudi_parameters(self.filepath)
         return self.__params
+
+    @params.setter
+    def params(self, params: dict):
+        """ Use setter only if custom loading logic fails """
+        if self.__params is None:
+            self.__params = params
+        else:
+            raise IOError("Setter cannot be called on params once it has been set")
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
