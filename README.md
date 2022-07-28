@@ -33,11 +33,11 @@ individual licenses in the file header docstring.
 
 ```mermaid
 flowchart TD;
-    IOHandler<-- Handle file paths, VPN and storage read/write operations -->PathHandler;
-    PathHandler<-- Automated measurement data extraction and data handling -->DataHandler;
-    Parameters-- Custom params for filepath handling -->PathHandler
+    IOHandler<-- Handle all IO operations -->DataLoaders;
+    DataLoaders<-- Mapping IO callables to measurement data -->DataHandler;
+    Parameters[parameters.py]-- Custom params for handling VPN etc. -->PathHandler;
+    PathHandler-->DataHandler;
     DataHandler-- Structure extracted data -->MeasurementDataclass;
-    AnalysisLogic<-- Fit data -->MeasurementDataclass;
     MeasurementDataclass-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
     style MeasurementDataclass fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
@@ -48,28 +48,26 @@ flowchart TD;
 ```mermaid
 flowchart TD;
     subgraph Standard Data
-        MeasurementDataclass-->filepath1;
-        MeasurementDataclass-->CustomDataImporter[Handle custom data like confocal etc.];
-        CustomDataImporter-->data1;
-        MeasurementDataclass-->params1;
-        MeasurementDataclass-->timestamp1;
-        MeasurementDataclass-->fit_result1;
-        filepath1-->ParameterExtraction[Extract params from filename]
+        MeasurementDataclass-->filepath1[filepath];
+        MeasurementDataclass-->data1[data];
+        MeasurementDataclass-->params1[params];
+        MeasurementDataclass-->timestamp1[timestamp];
+        MeasurementDataclass-- analysis --oAnalysisLogic;
     end
     subgraph Pulsed Data
         MeasurementDataclass-- pulsed --oPulsedMeasurementDataclass;
         PulsedMeasurementDataclass-- measurement --oPulsedMeasurement;
-        PulsedMeasurement--> filepath2;
-        PulsedMeasurement--> data2;
-        PulsedMeasurement--> params2;
+        PulsedMeasurement--> filepath2[filepath];
+        PulsedMeasurement--> data2[data];
+        PulsedMeasurement--> params2[params];
         PulsedMeasurementDataclass-- laser_pulses --oLaserPulses; 
-        LaserPulses--> filepath3;
-        LaserPulses--> data3;
-        LaserPulses--> params3;
+        LaserPulses--> filepath3[filepath];
+        LaserPulses--> data3[data];
+        LaserPulses--> params3[params];
         PulsedMeasurementDataclass-- timetrace --oRawTimetrace;
-        RawTimetrace--> filepath4;
-        RawTimetrace--> data4;
-        RawTimetrace--> params4;
+        RawTimetrace--> filepath4[filepath];
+        RawTimetrace--> data4[data];
+        RawTimetrace--> params4[params];
     end
 ```
 
