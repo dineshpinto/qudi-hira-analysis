@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Callable
 
 import pandas as pd
 
@@ -17,8 +17,9 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class PulsedMeasurement(IOHandler):
+class PulsedMeasurement:
     filepath: str
+    loaders: Tuple[Callable, Callable] = field(default=None)
     __data: pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 
@@ -29,20 +30,21 @@ class PulsedMeasurement(IOHandler):
     def data(self) -> pd.DataFrame:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data is None:
-            self.__data = self.read_into_dataframe(self.filepath)
+            self.__data = self.loaders[0](self.filepath)
         return self.__data
 
     @property
     def params(self) -> dict:
         """ Read measurement params from file into dict """
         if self.__params is None:
-            self.__params = self.read_qudi_parameters(self.filepath)
+            self.__params = self.loaders[1](self.filepath)
         return self.__params
 
 
 @dataclass
 class LaserPulses(IOHandler):
     filepath: str
+    loaders: Tuple[Callable, Callable] = field(default=None)
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
 
@@ -53,20 +55,21 @@ class LaserPulses(IOHandler):
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data is None:
-            self.__data = self.read_into_ndarray(self.filepath).T
+            self.__data = self.loaders[0](self.filepath).T
         return self.__data
 
     @property
     def params(self) -> dict:
         """ Read measurement params from file into dict """
         if self.__params is None:
-            self.__params = self.read_qudi_parameters(self.filepath)
+            self.__params = self.loaders[1](self.filepath)
         return self.__params
 
 
 @dataclass
 class RawTimetrace(IOHandler):
     filepath: str
+    loaders: Tuple[Callable, Callable] = field(default=None)
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
 
@@ -77,18 +80,18 @@ class RawTimetrace(IOHandler):
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data.size is None:
-            self.__data = self.read_into_ndarray(self.filepath).T
+            self.__data = self.loaders[0](self.filepath).T
         return self.__data
 
     @property
     def params(self) -> dict:
         """ Read measurement params from file into dict """
         if self.__params is None:
-            self.__params = self.read_qudi_parameters(self.filepath)
+            self.__params = self.loaders[1](self.filepath)
         return self.__params
 
 
-@dataclass()
+@dataclass
 class PulsedMeasurementDataclass:
     measurement: PulsedMeasurement
     laser_pulses: LaserPulses = field(default=None)
@@ -103,9 +106,10 @@ class PulsedMeasurementDataclass:
 
 
 @dataclass
-class MeasurementDataclass(IOHandler):
+class MeasurementDataclass:
     timestamp: datetime.datetime
     filepath: str = field(default=None)
+    loaders: (Callable, Callable) = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
@@ -124,44 +128,18 @@ class MeasurementDataclass(IOHandler):
             return self.pulsed.measurement.data
         else:
             if self.__data is None:
-                # Add custom measurement lazy loading logic here
-                if "Confocal" in self.filepath:
-                    self.__data = self.read_into_ndarray(self.filepath, dtype=int, delimiter='\t')
-                elif "frq-sweep" in self.filepath:
-                    self.__data = self.read_nanonis_data(self.filepath)
-                else:
-                    self.__data = self.read_into_dataframe(self.filepath)
+                self.__data = self.loaders[0](self.filepath)
             return self.__data
-
-    @data.setter
-    def data(self, data: np.ndarray | pd.DataFrame):
-        """ Use setter only if custom loading logic fails """
-        if self.__data is None:
-            self.__data = data
-        else:
-            raise IOError("Setter cannot be called on data once it has been set")
 
     @property
     def params(self) -> dict:
         """ Read measurement params from file into dict """
-        if self.__params is None:
-            # Add custom parameter lazy loading logic here
-            if "frq-sweep" in self.filepath:
-                self.__params = self.read_nanonis_parameters(self.filepath)
-            else:
-                if self.pulsed is not None:
-                    self.__params = self.read_qudi_parameters(self.pulsed.measurement.filepath)
-                else:
-                    self.__params = self.read_qudi_parameters(self.filepath)
-        return self.__params
-
-    @params.setter
-    def params(self, params: dict):
-        """ Use setter only if custom loading logic fails """
-        if self.__params is None:
-            self.__params = params
+        if self.pulsed:
+            return self.pulsed.measurement.params
         else:
-            raise IOError("Setter cannot be called on params once it has been set")
+            if self.__params is None:
+                self.__params = self.loaders[1](self.filepath)
+            return self.__params
 
     def get_param_from_filename(self, unit: str = "dBm") -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
