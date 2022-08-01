@@ -24,17 +24,15 @@ class DataLoaders(IOHandler):
     The first callable is the function for loading data
     The second callable is the function for loading params
     """
-    default: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_into_dataframe,
-                                                                       IOHandler.read_qudi_parameters)
-    confocal: (Callable[[str], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray,
-                                                                      IOHandler.read_qudi_parameters)
-    laser_pulses: (Callable[[str], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray,
-                                                                          IOHandler.read_qudi_parameters)
-    raw_timetrace: (Callable[[str], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray,
-                                                                           IOHandler.read_qudi_parameters)
-    nanonis: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_nanonis_data,
-                                                                       IOHandler.read_nanonis_parameters)
-    figures: Callable[[plt.Figure, str, ...], None] = IOHandler.savefig
+    default_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_into_dataframe,
+                                                                              IOHandler.read_qudi_parameters)
+    confocal_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray,
+                                                                                  IOHandler.read_qudi_parameters)
+    trace_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray_transposed,
+                                                                               IOHandler.read_qudi_parameters)
+    nanonis_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_nanonis_data,
+                                                                              IOHandler.read_nanonis_parameters)
+    figure_loader: Callable[[plt.Figure, str, ...], None] = IOHandler.savefig
 
 
 class DataHandler(PathHandler, DataLoaders):
@@ -58,12 +56,12 @@ class DataHandler(PathHandler, DataLoaders):
                 filename = os.path.basename(filepath)
                 if filename.startswith(timestamp):
                     if "laser_pulses" in filename:
-                        lp = LaserPulses(filepath=filepath, loaders=DataLoaders.laser_pulses)
+                        lp = LaserPulses(filepath=filepath, loaders=DataLoaders.trace_loader)
                     elif "pulsed_measurement" in filename:
                         timestamp = datetime.datetime.strptime(filename[:16], "%Y%m%d-%H%M-%S"),
-                        pm = PulsedMeasurement(filepath=filepath, loaders=DataLoaders.default)
+                        pm = PulsedMeasurement(filepath=filepath, loaders=DataLoaders.default_loader)
                     elif "raw_timetrace" in filename:
-                        rt = RawTimetrace(filepath=filepath, loaders=DataLoaders.raw_timetrace)
+                        rt = RawTimetrace(filepath=filepath, loaders=DataLoaders.trace_loader)
                     if lp and pm and rt:
                         break
             pulsed_measurement_data.append(
@@ -91,7 +89,7 @@ class DataHandler(PathHandler, DataLoaders):
                 MeasurementDataclass(
                     filepath=filepath,
                     timestamp=timestamp,
-                    loaders=DataLoaders.default
+                    loaders=DataLoaders.default_loader
                 )
             )
         return standard_measurement_list
@@ -150,24 +148,24 @@ class DataHandler(PathHandler, DataLoaders):
                             pulsed=PulsedMeasurementDataclass(
                                 measurement=PulsedMeasurement(
                                     filepath=filepath + "_pulsed_measurement.dat",
-                                    loaders=DataLoaders.default
+                                    loaders=DataLoaders.default_loader
                                 ),
                                 laser_pulses=LaserPulses(
                                     filepath=filepath + "_laser_pulses.dat",
-                                    loaders=DataLoaders.laser_pulses
+                                    loaders=DataLoaders.trace_loader
                                 ),
                                 timetrace=RawTimetrace(
                                     filepath=filepath + "_raw_timetrace.dat",
-                                    loaders=DataLoaders.raw_timetrace
+                                    loaders=DataLoaders.trace_loader
                                 )
                             )
                         )
                     )
                 else:
                     if "Confocal" in filepath:
-                        loaders = DataLoaders.confocal
+                        loaders = DataLoaders.confocal_loader
                     else:
-                        loaders = DataLoaders.default
+                        loaders = DataLoaders.default_loader
                     measurement_dataclass_list.append(
                         MeasurementDataclass(
                             filepath=filepath + ".dat",
@@ -184,7 +182,7 @@ class DataHandler(PathHandler, DataLoaders):
                         MeasurementDataclass(
                             filepath=filepath,
                             timestamp=timestamp,
-                            loaders=DataLoaders.nanonis
+                            loaders=DataLoaders.nanonis_loader
                         )
                     )
         return measurement_dataclass_list
@@ -192,4 +190,4 @@ class DataHandler(PathHandler, DataLoaders):
     def save_figures(self, fig: plt.Figure, filename: str, **kwargs):
         self.log.info(f"Saving '{filename}' to '{self.figure_folder_path}'")
         filepath = os.path.join(self.figure_folder_path, filename)
-        DataLoaders.figures(fig, filepath, **kwargs)
+        DataLoaders.figure_loader(fig, filepath, **kwargs)

@@ -55,7 +55,7 @@ class LaserPulses(IOHandler):
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data is None:
-            self.__data = self.loaders[0](self.filepath).T
+            self.__data = self.loaders[0](self.filepath)
         return self.__data
 
     @property
@@ -80,7 +80,7 @@ class RawTimetrace(IOHandler):
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
         if self.__data.size is None:
-            self.__data = self.loaders[0](self.filepath).T
+            self.__data = self.loaders[0](self.filepath)
         return self.__data
 
     @property

@@ -86,6 +86,10 @@ class IOHandler:
         return np.genfromtxt(filepath, **kwargs)
 
     @staticmethod
+    def read_into_ndarray_transposed(filepath: str, **kwargs) -> np.ndarray:
+        return np.genfromtxt(filepath, **kwargs).T
+
+    @staticmethod
     def load_pys(self, filepath: str) -> np.ndarray:
         """ Loads raw pys data files. Wraps around numpy.load. """
         filepath = _check_extension(filepath, ".pys")
