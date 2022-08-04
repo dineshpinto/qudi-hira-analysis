@@ -141,7 +141,7 @@ class MeasurementDataclass:
                 self.__params = self.loaders[1](self.filepath)
             return self.__params
 
-    def get_param_from_filename(self, unit: str = "dBm") -> float:
+    def get_param_from_filename(self, unit: str) -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
         params = re.findall("(-?\d+\.?\d*)" + f"{unit}", self.filename)
         if len(params) == 0:
@@ -155,7 +155,7 @@ class MeasurementDataclass:
         if not isinstance(self.__data, pd.DataFrame):
             raise TypeError("data is not of type pd.DataFrame")
         if "Time (s)" not in self.__data.columns:
-            raise IndexError("Unable to fine 'Time (s)' in DataFrame")
+            raise IndexError("Unable to find column 'Time (s)' in DataFrame")
 
         self.__data['Time (s)'] += self.__params['Start counting time'].timestamp()
         self.__data["Time"] = pd.to_datetime(self.__data['Time (s)'], unit='s', utc=True)

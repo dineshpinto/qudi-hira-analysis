@@ -39,7 +39,7 @@ def _channel_to_gauge_names(channel_names: list) -> list:
 
 
 class IOHandler:
-    """ Read and write files (eg. pys, df, pkl) """
+    """ Handle all read and write operations. """
 
     @staticmethod
     def read_qudi_parameters(filepath: str) -> dict:
