@@ -85,11 +85,17 @@ class DataHandler(PathHandler, DataLoaders):
                 # Only raise warning once
                 self.log.warning(f"Unable to extract timestamp from filepath {filepath}, using mtime instead")
                 timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath)).astimezone()
+
+            if "Confocal" in filepath:
+                loaders = DataLoaders.confocal_loader
+            else:
+                loaders = DataLoaders.default_loader
+
             standard_measurement_list.append(
                 MeasurementDataclass(
                     filepath=filepath,
                     timestamp=timestamp,
-                    loaders=DataLoaders.default_loader
+                    loaders=loaders
                 )
             )
         return standard_measurement_list

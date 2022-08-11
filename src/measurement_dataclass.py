@@ -142,16 +142,17 @@ class MeasurementDataclass:
             return self.__params
 
     def get_param_from_filename(self, unit: str) -> float:
-        """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
-        params = re.findall("(-?\d+\.?\d*)" + f"{unit}", self.filename)
+        """ Extract param from filename with format <param><unit>, e.g. 12dBm -> 12, 2e-6mbar -> 2e-6 """
+        params = re.search(rf"(-?\d+\.?\d*)(?={unit})", self.filename)
 
-        if len(params) == 0:
+        # Handle exponents in filename
+        if self.filename[params.start() - 1] == "e":
             try:
-                return float(re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:])
+                params = re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:]
+                return float(params)
             except AttributeError:
                 raise Exception(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
-        else:
-            return float(params[0])
+        return float(params.group(0))
 
     def set_datetime_index(self) -> pd.DataFrame:
         if 'Start counting time' not in self.__params:
