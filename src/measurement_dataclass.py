@@ -144,8 +144,12 @@ class MeasurementDataclass:
     def get_param_from_filename(self, unit: str) -> float:
         """ Extract param from filename with format <param><unit>, example 12dBm -> 12 """
         params = re.findall("(-?\d+\.?\d*)" + f"{unit}", self.filename)
+
         if len(params) == 0:
-            raise ValueError(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
+            try:
+                return float(re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:])
+            except AttributeError:
+                raise Exception(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
         else:
             return float(params[0])
 

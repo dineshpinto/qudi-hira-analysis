@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 
 
 def get_list_of_empty_folders(root_folder: str) -> list:
@@ -17,6 +18,8 @@ def get_list_of_empty_folders(root_folder: str) -> list:
 
 
 def remove_folders_with_choice(folders_to_remove: list):
+    print("Directories with no data:")
+
     for _folders in folders_to_remove:
         print(_folders)
 
@@ -25,7 +28,10 @@ def remove_folders_with_choice(folders_to_remove: list):
     if choice.lower() == "y":
         for folder_to_remove in folders_to_remove:
             print(f"Removing directory {folder_to_remove}")
-            # os.rmdir(folder_to_remove)
+            try:
+                shutil.rmtree(folder_to_remove)
+            except PermissionError:
+                print(f"Unable to remove {folder_to_remove}, it is currently in use")
     else:
         print("Not removing directories")
 
