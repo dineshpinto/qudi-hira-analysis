@@ -88,6 +88,8 @@ class DataHandler(PathHandler, DataLoaders):
 
             if "Confocal" in filepath:
                 loaders = DataLoaders.confocal_loader
+            elif "frq-sweep" in filepath:
+                loaders = DataLoaders.nanonis_loader
             else:
                 loaders = DataLoaders.default_loader
 

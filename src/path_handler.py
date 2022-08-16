@@ -48,7 +48,7 @@ class PathHandler:
         for root, dirs, files in os.walk(self.data_folder_path):
             for file in files:
                 # Check if measurement string is in the root of the folder walk
-                if measurement in root and exclude_str not in file:
+                if (measurement in root or measurement in file) and (exclude_str not in file):
                     if extension:
                         if file.endswith(extension):
                             filepaths.append(os.path.join(root, file))
