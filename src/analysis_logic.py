@@ -79,7 +79,7 @@ class AnalysisLogic(FitLogic):
             | 2d        | twoDgaussian                  |
         """
 
-        if isinstance(x, pd.Series):
+        if isinstance(x, pd.Series) or isinstance(x, pd.Index):
             x = x.to_numpy()
         if isinstance(y, pd.Series):
             y = y.to_numpy()
