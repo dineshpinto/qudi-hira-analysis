@@ -77,6 +77,9 @@ class AnalysisLogic(FitLogic):
             |           | sinetriplewithexpdecay        |
             |           | sinetriplewiththreeexpdecay   |
             | 2d        | twoDgaussian                  |
+        Estimators:
+            - generic
+            - dip
         """
 
         if isinstance(x, pd.Series) or isinstance(x, pd.Index):
