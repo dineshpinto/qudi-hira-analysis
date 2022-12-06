@@ -20,9 +20,13 @@ logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=log
 
 class DataLoaders(IOHandler):
     """
-    Functions to use when importing/exporting data
-    The first callable is the function for loading data
-    The second callable is the function for loading params
+    Mapping IO functions to handlers
+    - The first callable is the function for loading data
+    - The second callable (optional) is the function for loading params
+
+    The basic idea is to abstract the measurement dataclass using the DataHandler interface.
+
+    MeasurementDataclass (loader) -> DataHandler (mapping of dataclass to loader) -> DataLoader (tuple of functions)
     """
     default_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_into_dataframe,
                                                                               IOHandler.read_qudi_parameters)
@@ -37,6 +41,11 @@ class DataLoaders(IOHandler):
 
 class DataHandler(PathHandler, DataLoaders):
     def __init__(self, **kwargs):
+        """
+        This class is specific for qudi-hira measurements. To support adding new measurement types to the dataclass
+        the callable needs to be added into `DataLoader` and corresponding functions need to be added into
+        `DataHandler`. 
+        """
         super().__init__(**kwargs)
         self.log = logging.getLogger(__name__)
 
