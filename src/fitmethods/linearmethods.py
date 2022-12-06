@@ -69,9 +69,9 @@ def make_constant_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
                        'a prefix and will be ignored for now. Correct that!'.format(prefix,
                                                                                     type(prefix)))
-        model = Model(constant_function, independent_vars='x')
+        model = Model(constant_function, independent_vars=['x'])
     else:
-        model = Model(constant_function, independent_vars='x', prefix=prefix)
+        model = Model(constant_function, independent_vars=['x'], prefix=prefix)
 
     params = model.make_params()
 
@@ -105,9 +105,9 @@ def make_amplitude_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
                        'a prefix and will be ignored for now. Correct that!'.format(prefix,
                                                                                     type(prefix)))
-        model = Model(amplitude_function, independent_vars='x')
+        model = Model(amplitude_function, independent_vars=['x'])
     else:
-        model = Model(amplitude_function, independent_vars='x', prefix=prefix)
+        model = Model(amplitude_function, independent_vars=['x'], prefix=prefix)
 
     params = model.make_params()
 
@@ -141,9 +141,9 @@ def make_slope_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
                        'a prefix and will be ignored for now. Correct that!'.format(prefix,
                                                                                     type(prefix)))
-        model = Model(slope_function, independent_vars='x')
+        model = Model(slope_function, independent_vars=['x'])
     else:
-        model = Model(slope_function, independent_vars='x', prefix=prefix)
+        model = Model(slope_function, independent_vars=['x'], prefix=prefix)
 
     params = model.make_params()
 
@@ -176,9 +176,9 @@ def make_linear_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
                        'a prefix and will be ignored for now. Correct that!'.format(prefix,
                                                                                     type(prefix)))
-        linear_mod = Model(linear_function, independent_vars='x')
+        linear_mod = Model(linear_function, independent_vars=['x'])
     else:
-        linear_mod = Model(linear_function, independent_vars='x', prefix=prefix)
+        linear_mod = Model(linear_function, independent_vars=['x'], prefix=prefix)
 
     slope, slope_param = self.make_slope_model(prefix=prefix)
     constant, constant_param = self.make_constant_model(prefix=prefix)

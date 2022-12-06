@@ -75,10 +75,10 @@ def make_barestretchedexponentialdecay_model(self, prefix=None):
                        'cannot be used as a prefix and will be ignored for now.'
                        'Correct that!'.format(prefix, type(prefix)))
         model = Model(barestretchedexponentialdecay_function,
-                      independent_vars='x')
+                      independent_vars=['x'])
     else:
         model = Model(barestretchedexponentialdecay_function,
-                      independent_vars='x', prefix=prefix)
+                      independent_vars=['x'], prefix=prefix)
 
     params = model.make_params()
 

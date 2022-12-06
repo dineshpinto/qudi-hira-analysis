@@ -212,7 +212,7 @@ class FitLogic:
                     try:
                         par = lmfit.parameter.Parameters()
                         par.loads(fit['parameters'])
-                    except:
+                    except KeyError:
                         model, par = self.fit_list[dim][fname]['make_model']()
                     new_fit['parameters'] = par
                     user_fits[dim][name] = new_fit

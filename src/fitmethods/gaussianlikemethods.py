@@ -81,9 +81,9 @@ def make_gaussianwithoutoffset_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and'
                        'cannot be used as a prefix and will be ignored for now.'
                        'Correct that!'.format(prefix, type(prefix)))
-        gaussian_model = Model(physical_gauss, independent_vars='x')
+        gaussian_model = Model(physical_gauss, independent_vars=['x'])
     else:
-        gaussian_model = Model(physical_gauss, independent_vars='x',
+        gaussian_model = Model(physical_gauss, independent_vars=['x'],
                                prefix=prefix)
 
     full_gaussian_model = amplitude_model * gaussian_model
@@ -282,9 +282,9 @@ def make_twoDgaussian_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and'
                      'cannot be used as a prefix and will be ignored for now.'
                      'Correct that!'.format(prefix, type(prefix)))
-        gaussian_2d_model = Model(twoDgaussian_function, independent_vars='x')
+        gaussian_2d_model = Model(twoDgaussian_function, independent_vars=['x'])
     else:
-        gaussian_2d_model = Model(twoDgaussian_function, independent_vars='x',
+        gaussian_2d_model = Model(twoDgaussian_function, independent_vars=['x'],
                                prefix=prefix)
 
     params = gaussian_2d_model.make_params()

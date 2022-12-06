@@ -219,9 +219,9 @@ def make_baresine_model(self, prefix=None):
         self.log.error('The passed prefix <{0}> of type {1} is not a string and'
                        'cannot be used as a prefix and will be ignored for now.'
                        'Correct that!'.format(prefix, type(prefix)))
-        model = Model(bare_sine_function, independent_vars='x')
+        model = Model(bare_sine_function, independent_vars=['x'])
     else:
-        model = Model(bare_sine_function, independent_vars='x', prefix=prefix)
+        model = Model(bare_sine_function, independent_vars=['x'], prefix=prefix)
 
     params = model.make_params()
 

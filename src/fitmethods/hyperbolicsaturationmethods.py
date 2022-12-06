@@ -67,9 +67,9 @@ def make_hyperbolicsaturation_model(self, prefix=None):
                      'cannot be used as a prefix and will be ignored for now.'
                      'Correct that!'.format(prefix, type(prefix)))
 
-        mod_sat = Model(hyperbolicsaturation_function, independent_vars='x')
+        mod_sat = Model(hyperbolicsaturation_function, independent_vars=['x'])
     else:
-        mod_sat = Model(hyperbolicsaturation_function, independent_vars='x',
+        mod_sat = Model(hyperbolicsaturation_function, independent_vars=['x'],
                         prefix=prefix)
 
     linear_model, params = self.make_linear_model(prefix=prefix)

@@ -15,7 +15,7 @@ def make_antibunching_model(self, prefix=None):
         return a * ((1 - (1 + b) * np.exp(-np.abs(x - tau0) / tau1) + b *
                      np.exp(-np.abs(x - tau0) / tau2)) * 1 / n + 1 - 1 / n)
 
-    antibunching_model = Model(antibunching, independent_vars='x')
+    antibunching_model = Model(antibunching, independent_vars=['x'])
     params = antibunching_model.make_params()
 
     return antibunching_model, params

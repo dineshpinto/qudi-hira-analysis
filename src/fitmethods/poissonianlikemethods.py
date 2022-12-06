@@ -112,11 +112,11 @@ def make_poissonian_model(self, prefix=None):
                        'cannot be used as a prefix and will be ignored for now.'
                        'Correct that!'.format(prefix, type(prefix)))
 
-        poissonian_model = Model(poisson_function, independent_vars='x')
+        poissonian_model = Model(poisson_function, independent_vars=['x'])
 
     else:
 
-        poissonian_model = Model(poisson_function, independent_vars='x',
+        poissonian_model = Model(poisson_function, independent_vars=['x'],
                                  prefix=prefix)
 
     poissonian_ampl_model = amplitude_model * poissonian_model

@@ -149,11 +149,11 @@ def make_lorentzianwithoutoffset_model(self, prefix=None):
             'The passed prefix <{0}> of type {1} is not a string and'
             'cannot be used as a prefix and will be ignored for now.'
             'Correct that!'.format(prefix, type(prefix)))
-        lorentz_model = Model(physical_lorentzian, independent_vars='x')
+        lorentz_model = Model(physical_lorentzian, independent_vars=['x'])
     else:
         lorentz_model = Model(
             physical_lorentzian,
-            independent_vars='x',
+            independent_vars=['x'],
             prefix=prefix)
 
     full_lorentz_model = amplitude_model * lorentz_model
