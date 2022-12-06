@@ -182,4 +182,3 @@ dependencies:
       - scikit-learn==1.1.3
       - threadpoolctl==3.1.0
       - tifffile==2022.10.10
-prefix: C:\Users\qudiamond\AppData\Local\Continuum\anaconda3\envs\qudi-hira-analysis
