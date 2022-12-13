@@ -263,6 +263,3 @@ fabric.properties
 
 # Additional files
 parameters.py
-
-*.ipynb
-!ExampleNotebook.ipynb
