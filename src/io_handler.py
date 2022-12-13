@@ -53,6 +53,7 @@ class IOHandler:
                 if line == '#=====\n':
                     break
                 else:
+                    # noinspection PyBroadException
                     try:
                         # Remove # from beginning of lines
                         line = line[1:]
@@ -86,7 +87,7 @@ class IOHandler:
         confocal_params = IOHandler.read_qudi_parameters(filepath)
         data = IOHandler.read_into_ndarray(filepath)
 
-        # Use micrometer as unit for x and y
+        # Use the confocal parameters to generate the index and columns for the DataFrame
         index = np.linspace(
             confocal_params['X image min (m)'],
             confocal_params['X image max (m)'],
@@ -98,6 +99,8 @@ class IOHandler:
             data.shape[1]
         )
         df = pd.DataFrame(data, index=index, columns=columns)
+        # Sort the index to get origin (0, 0) in the lower left corner of the DataFrame
+        df.sort_index(axis=0, ascending=False, inplace=True)
         return df
 
     @staticmethod
@@ -109,7 +112,7 @@ class IOHandler:
         return np.genfromtxt(filepath, **kwargs).T
 
     @staticmethod
-    def load_pys(self, filepath: str) -> np.ndarray:
+    def load_pys(filepath: str) -> np.ndarray:
         """ Loads raw pys data files. Wraps around numpy.load. """
         filepath = _check_extension(filepath, ".pys")
         return np.load(filepath, encoding="bytes", allow_pickle=True)
@@ -221,14 +224,13 @@ class IOHandler:
         filepath = _check_extension(filepath, ".xls")
 
         # Extract only the timestamp
-        timestamp = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+        timestamp = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=1, header=None)[1][0]
         # Parse datetime object from timestamp
         timestamp_dt = parser.parse(timestamp, tzinfos={"CET": 0 * 3600})
 
         # Create DataFrame
         df = pd.read_excel(filepath, skiprows=3)
         # Add matplotlib datetimes to DataFrame
-
         df["Datetime"] = [timestamp_dt + datetime.timedelta(milliseconds=ms) for ms in df["Time"]]
         return df
 
