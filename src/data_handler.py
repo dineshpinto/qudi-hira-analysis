@@ -30,8 +30,9 @@ class DataLoaders(IOHandler):
     """
     default_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_into_dataframe,
                                                                               IOHandler.read_qudi_parameters)
-    confocal_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray,
-                                                                                  IOHandler.read_qudi_parameters)
+    confocal_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (
+    IOHandler.read_confocal_into_dataframe,
+    IOHandler.read_qudi_parameters)
     trace_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray_transposed,
                                                                                IOHandler.read_qudi_parameters)
     nanonis_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_nanonis_data,

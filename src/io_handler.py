@@ -82,6 +82,25 @@ class IOHandler:
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
 
     @staticmethod
+    def read_confocal_into_dataframe(filepath) -> pd.DataFrame:
+        confocal_params = IOHandler.read_qudi_parameters(filepath)
+        data = IOHandler.read_into_ndarray(filepath)
+
+        # Use micrometer as unit for x and y
+        index = np.linspace(
+            confocal_params['X image min (m)'],
+            confocal_params['X image max (m)'],
+            data.shape[0]
+        )
+        columns = np.linspace(
+            confocal_params['Y image min'],
+            confocal_params['Y image max'],
+            data.shape[1]
+        )
+        df = pd.DataFrame(data, index=index, columns=columns)
+        return df
+
+    @staticmethod
     def read_into_ndarray(filepath: str, **kwargs) -> np.ndarray:
         return np.genfromtxt(filepath, **kwargs)
 
