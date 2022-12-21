@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "qudi-hira-analysis"
+version = "0.1.0"
+description = "A Python toolkit to analzye photon timetrace data from qubit sensors"
+authors = ["dineshpinto <dkpinto95@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "qudi-hira-analysis"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+lmfit = "^1.1.0"
+matplotlib = "^3.6.2"
+numpy = "^1.24.0"
+pandas = "^1.5.2"
+scipy = "^1.9.3"
+seaborn = "^0.12.1"
+jupyterlab = "^3.5.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

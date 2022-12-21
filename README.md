@@ -134,7 +134,7 @@ For more examples see [ExampleNotebook.ipynb](ExampleNotebook.ipynb)
 
 Latest version of:
 
-- [conda](https://docs.conda.io/en/latest/miniconda.html) package manager
+- [Poetry](https://python-poetry.org) (recommended) or [conda](https://docs.conda.io/en/latest/miniconda.html) package manager
 - [git](https://git-scm.com/downloads) version control system
 
 ### Clone the repository
@@ -151,7 +151,24 @@ git clone https://github.com/dineshpinto/qudi-hira-analysis.git
 gh repo clone dineshpinto/qudi-hira-analysis
 ```
 
-### Installing dependencies
+### Installing dependencies with Poetry (recommended)
+```bash
+poetry install
+```
+
+#### Add Jupyter kernelspec
+
+```bash
+poetry run python -m ipykernel install --user --name=qudi-hira-analysis
+```
+
+#### Explore `notebooks/`
+
+```shell
+poetry run jupyter lab
+```
+
+### Installing dependencies with conda (not recommended)
 
 #### Creating the conda environment
 
