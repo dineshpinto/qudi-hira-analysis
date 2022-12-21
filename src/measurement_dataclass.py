@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Callable
 import pandas as pd
 
 from src.analysis_logic import AnalysisLogic
-from src.io_handler import IOHandler
 
 if TYPE_CHECKING:
     import datetime
@@ -42,7 +41,7 @@ class PulsedMeasurement:
 
 
 @dataclass
-class LaserPulses(IOHandler):
+class LaserPulses:
     filepath: str
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
@@ -67,7 +66,7 @@ class LaserPulses(IOHandler):
 
 
 @dataclass
-class RawTimetrace(IOHandler):
+class RawTimetrace:
     filepath: str
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
