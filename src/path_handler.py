@@ -16,24 +16,27 @@ class PathHandler:
         self.figure_folder_path = self.__get_figure_folder_path(measurement_folder)
 
     def __get_data_folder_path(self, folder_name: str) -> str:
-        """ Create absolute folder paths. """
-        if os.environ["COMPUTERNAME"] == params.lab_computer_name:
-            path = os.path.join(params.local_datafolder, folder_name)
-        else:
-            path = os.path.join(params.remote_datafolder, folder_name)
+        """ Check if folder exists and return absolute folder paths. """
+        path = os.path.join(params.data_folder, folder_name)
+
+        if not os.path.exists(path):
+            raise IOError("Data folder path does not exist.")
 
         self.log.info(f"Data folder path is {path}")
         return path
 
     def __get_figure_folder_path(self, folder_name: str) -> str:
-        if os.environ["COMPUTERNAME"] == params.lab_computer_name:
-            path = os.path.join(params.local_output_folder, folder_name)
-        else:
-            path = os.path.join(params.remote_output_folder, folder_name)
+        """ Check if folder exists, if not, create it and return absolute folder paths. """
+
+        if not os.path.exists(params.figure_folder):
+            self.log.info(f"Creating new output folder {params.figure_folder}")
+            os.mkdir(params.figure_folder)
+
+        path = os.path.join(params.figure_folder, folder_name)
 
         if not os.path.exists(path):
-            self.log.info(f"Creating new figure folder path {path}")
-            os.mkdir(path)
+            self.log.info(f"Creating new output folder path {path}")
+            os.makedirs(path)
         else:
             self.log.info(f"Figure folder path is {path}")
         return path

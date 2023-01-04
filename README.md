@@ -145,30 +145,18 @@ Latest version of:
 git clone https://github.com/dineshpinto/qudi-hira-analysis.git
 ```
 
-#### With Github CLI
-
-```shell
-gh repo clone dineshpinto/qudi-hira-analysis
-```
-
 ### Installing dependencies with Poetry (recommended)
 ```bash
 poetry install
 ```
 
-#### Add Jupyter kernelspec
+#### Add Poetry environment to Jupyter kernel
 
 ```bash
 poetry run python -m ipykernel install --user --name=qudi-hira-analysis
 ```
 
-#### Explore `notebooks/`
-
-```shell
-poetry run jupyter lab
-```
-
-### Installing dependencies with conda (not recommended)
+### OR installing dependencies with conda (not recommended)
 
 #### Creating the conda environment
 
@@ -178,7 +166,7 @@ conda env create -f tools/conda-env-xx.yml
 
 where `xx` is either `win10`, `osx-intel` or `osx-apple-silicon`.
 
-#### Activate environment
+#### Activate conda environment
 
 ```shell
 conda activate qudi-hira-analysis
@@ -192,22 +180,29 @@ python -m ipykernel install --user --name=qudi-hira-analysis
 
 ### Set up filepath parameters
 
-Rename `parameters-example.py` to `parameters.py` and add in the correct data source and outputs. This will allow the library to automatically detect
-which filepaths to use when connected remotely.
+Rename `parameters-example.py` to `parameters.py` and add in the correct data source and outputs.
+This will allow the library to automatically generate filepaths.
 
-| Variable               | Explanation                                                                                                |
-|------------------------|------------------------------------------------------------------------------------------------------------|
-| `lab_computer_name`    | Name of lab computer, run `os.environ["COMPUTERNAME"]` on lab computer to check (default: `PCKK022`)       |
-| `remote_datafolder`    | Folder to connect to when running analysis remotely eg. when over VPN (default: `\\kernix\qudiamond\Data`) |
-| `remote_output_folder` | Folder to place output images when running remotely eg. when over VPN (default: `$USER\QudiHiraAnalysis`)  |
-| `local_datafolder`     | Folder to connect to when running  locally (default: `Z:\Data`)                                            |
-| `local_output_folder`  | Folder to place output images when running locally (default: `Z:\QudiHiraAnalysis`)                        |
+| Variable        | Explanation                                                                    |
+|-----------------|--------------------------------------------------------------------------------|
+| `data_folder`   | Top level folder where raw data is stored (can be a folder connected over VPN) |
+| `figure_folder` | Folder to place output images (default: `$USER\QudiHiraAnalysis`)              |
 
 ### Start the analysis
+
+#### If installed with Poetry
+
+```shell
+poetry run jupyter lab
+```
+
+#### OR with conda
 
 ```shell
 jupyter lab
 ```
+
+Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
 
 ## Makefile
 
