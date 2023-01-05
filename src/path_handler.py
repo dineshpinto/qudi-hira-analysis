@@ -4,20 +4,19 @@ import logging
 import os
 from typing import List
 
-import parameters as params
-
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
 class PathHandler:
-    def __init__(self, measurement_folder: str):
+    def __init__(self, data_folder: str, figure_folder: str, measurement_folder: str):
         self.log = logging.getLogger(__name__)
-        self.data_folder_path = self.__get_data_folder_path(measurement_folder)
-        self.figure_folder_path = self.__get_figure_folder_path(measurement_folder)
 
-    def __get_data_folder_path(self, folder_name: str) -> str:
+        self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
+        self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+
+    def __get_data_folder_path(self, data_folder: str, folder_name: str) -> str:
         """ Check if folder exists and return absolute folder paths. """
-        path = os.path.join(params.data_folder, folder_name)
+        path = os.path.join(data_folder, folder_name)
 
         if not os.path.exists(path):
             raise IOError("Data folder path does not exist.")
@@ -25,14 +24,14 @@ class PathHandler:
         self.log.info(f"Data folder path is {path}")
         return path
 
-    def __get_figure_folder_path(self, folder_name: str) -> str:
+    def __get_figure_folder_path(self, figure_folder: str, folder_name: str) -> str:
         """ Check if folder exists, if not, create it and return absolute folder paths. """
 
-        if not os.path.exists(params.figure_folder):
-            self.log.info(f"Creating new output folder {params.figure_folder}")
-            os.mkdir(params.figure_folder)
+        if not os.path.exists(figure_folder):
+            self.log.info(f"Creating new output folder {figure_folder}")
+            os.mkdir(figure_folder)
 
-        path = os.path.join(params.figure_folder, folder_name)
+        path = os.path.join(figure_folder, folder_name)
 
         if not os.path.exists(path):
             self.log.info(f"Creating new output folder path {path}")
