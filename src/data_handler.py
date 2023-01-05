@@ -8,7 +8,6 @@ from typing import List, TYPE_CHECKING, Callable
 from src.io_handler import IOHandler
 from src.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
     LaserPulses, MeasurementDataclass
-from src.path_handler import PathHandler
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
@@ -18,37 +17,84 @@ if TYPE_CHECKING:
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
-class DataLoaders(IOHandler):
-    """
-    Mapping IO functions to handlers
-    - The first callable is the function for loading data
-    - The second callable (optional) is the function for loading params
-
-    The basic idea is to abstract the measurement dataclass using the DataHandler interface.
-
-    MeasurementDataclass (loader) -> DataHandler (mapping of dataclass to loader) -> DataLoader (tuple of functions)
-    """
-    default_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_into_dataframe,
-                                                                              IOHandler.read_qudi_parameters)
-    confocal_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (
-        IOHandler.read_confocal_into_dataframe,
-        IOHandler.read_qudi_parameters)
-    trace_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (IOHandler.read_into_ndarray_transposed,
-                                                                               IOHandler.read_qudi_parameters)
-    nanonis_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (IOHandler.read_nanonis_data,
-                                                                              IOHandler.read_nanonis_parameters)
-    figure_loader: Callable[[plt.Figure, str, ...], None] = IOHandler.savefig
-
-
-class DataHandler(PathHandler, DataLoaders):
-    def __init__(self, **kwargs):
+class DataHandler(IOHandler):
+    def __init__(self, data_folder: str, figure_folder: str, measurement_folder: str = None):
         """
         This class is specific for qudi-hira measurements. To support adding new measurement types to the dataclass
         the callable needs to be added into `DataLoader` and corresponding functions need to be added into
-        `DataHandler`. 
+        `DataHandler`.
+        :param data_folder: Path to the base data folder
+        :param figure_folder: Path where figures should be saved
+        :param measurement_folder: Path to the specific measurement folder inside data folder
         """
-        super().__init__(**kwargs)
         self.log = logging.getLogger(__name__)
+        self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
+        self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+
+        super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
+
+        # Create callables used in measurement dataclasses
+        self.default_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (
+            self.read_into_dataframe,
+            self.read_qudi_parameters
+        )
+        self.confocal_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (
+            self.read_confocal_into_dataframe,
+            self.read_qudi_parameters
+        )
+        self.trace_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (
+            self.read_into_ndarray_transposed,
+            self.read_qudi_parameters
+        )
+        self.nanonis_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (
+            self.read_nanonis_data,
+            self.read_nanonis_parameters
+        )
+        self.figure_loader: Callable[[plt.Figure, str, ...], None] = self.save_figures
+
+    def __get_data_folder_path(self, data_folder: str, folder_name: str) -> str:
+        """ Check if folder exists and return absolute folder paths. """
+        path = os.path.join(data_folder, folder_name)
+
+        if not os.path.exists(path):
+            raise IOError("Data folder path does not exist.")
+
+        self.log.info(f"Data folder path is {path}")
+        return path
+
+    def __get_figure_folder_path(self, figure_folder: str, folder_name: str) -> str:
+        """ Check if folder exists, if not, create it and return absolute folder paths. """
+
+        if not os.path.exists(figure_folder):
+            self.log.info(f"Creating new output folder {figure_folder}")
+            os.mkdir(figure_folder)
+
+        path = os.path.join(figure_folder, folder_name)
+
+        if not os.path.exists(path):
+            self.log.info(f"Creating new output folder path {path}")
+            os.makedirs(path)
+        else:
+            self.log.info(f"Figure folder path is {path}")
+        return path
+
+    def get_measurement_filepaths(self, measurement: str, extension: str = ".dat",
+                                  exclude_str: str = "image_1.dat") -> list:
+        """
+        List all measurement files for a single measurement type, regardless of date
+        within a similar set (i.e. top level folder).
+        """
+        filepaths: List[str] = []
+        for root, dirs, files in os.walk(self.data_folder_path):
+            for file in files:
+                # Check if measurement string is in the root of the folder walk
+                if (measurement in root or measurement in file) and (exclude_str not in file):
+                    if extension:
+                        if file.endswith(extension):
+                            filepaths.append(os.path.join(root, file))
+                    else:
+                        filepaths.append(os.path.join(root, file))
+        return filepaths
 
     def __load_pulsed_measurements_dataclass_list(self, pulsed_measurement_str: str) -> List[MeasurementDataclass]:
         measurement_filepaths, timestamps = [], []
@@ -66,12 +112,12 @@ class DataHandler(PathHandler, DataLoaders):
                 filename = os.path.basename(filepath)
                 if filename.startswith(timestamp):
                     if "laser_pulses" in filename:
-                        lp = LaserPulses(filepath=filepath, loaders=DataLoaders.trace_loader)
+                        lp = LaserPulses(filepath=filepath, loaders=self.trace_loader)
                     elif "pulsed_measurement" in filename:
                         timestamp = datetime.datetime.strptime(filename[:16], "%Y%m%d-%H%M-%S"),
-                        pm = PulsedMeasurement(filepath=filepath, loaders=DataLoaders.default_loader)
+                        pm = PulsedMeasurement(filepath=filepath, loaders=self.default_loader)
                     elif "raw_timetrace" in filename:
-                        rt = RawTimetrace(filepath=filepath, loaders=DataLoaders.trace_loader)
+                        rt = RawTimetrace(filepath=filepath, loaders=self.trace_loader)
                     if lp and pm and rt:
                         break
             pulsed_measurement_data.append(
@@ -97,11 +143,11 @@ class DataHandler(PathHandler, DataLoaders):
                 timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath)).astimezone()
 
             if "Confocal" in filepath:
-                loaders = DataLoaders.confocal_loader
+                loaders = self.confocal_loader
             elif "frq-sweep" in filepath:
-                loaders = DataLoaders.nanonis_loader
+                loaders = self.nanonis_loader
             else:
-                loaders = DataLoaders.default_loader
+                loaders = self.default_loader
 
             standard_measurement_list.append(
                 MeasurementDataclass(
@@ -166,24 +212,24 @@ class DataHandler(PathHandler, DataLoaders):
                             pulsed=PulsedMeasurementDataclass(
                                 measurement=PulsedMeasurement(
                                     filepath=filepath + "_pulsed_measurement.dat",
-                                    loaders=DataLoaders.default_loader
+                                    loaders=self.default_loader
                                 ),
                                 laser_pulses=LaserPulses(
                                     filepath=filepath + "_laser_pulses.dat",
-                                    loaders=DataLoaders.trace_loader
+                                    loaders=self.trace_loader
                                 ),
                                 timetrace=RawTimetrace(
                                     filepath=filepath + "_raw_timetrace.dat",
-                                    loaders=DataLoaders.trace_loader
+                                    loaders=self.trace_loader
                                 )
                             )
                         )
                     )
                 else:
                     if "Confocal" in filepath:
-                        loaders = DataLoaders.confocal_loader
+                        loaders = self.confocal_loader
                     else:
-                        loaders = DataLoaders.default_loader
+                        loaders = self.default_loader
                     measurement_dataclass_list.append(
                         MeasurementDataclass(
                             filepath=filepath + ".dat",
@@ -200,12 +246,7 @@ class DataHandler(PathHandler, DataLoaders):
                         MeasurementDataclass(
                             filepath=filepath,
                             timestamp=timestamp,
-                            loaders=DataLoaders.nanonis_loader
+                            loaders=self.nanonis_loader
                         )
                     )
         return measurement_dataclass_list
-
-    def save_figures(self, fig: plt.Figure, filename: str, **kwargs):
-        self.log.info(f"Saving '{filename}' to '{self.figure_folder_path}'")
-        filepath = os.path.join(self.figure_folder_path, filename)
-        DataLoaders.figure_loader(fig, filepath, **kwargs)

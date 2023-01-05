@@ -41,11 +41,14 @@ def _channel_to_gauge_names(channel_names: list) -> list:
 class IOHandler:
     """ Handle all read and write operations. """
 
-    @staticmethod
-    def read_qudi_parameters(filepath: str) -> dict:
+    def __init__(self, base_read_path: str = "", base_write_path: str = ""):
+        self.base_read_path = base_read_path
+        self.base_write_path = base_write_path
+
+    def read_qudi_parameters(self, filepath: str) -> dict:
         """ Extract parameters from a qudi dat file. """
-        if not filepath.endswith(".dat"):
-            filepath += ".dat"
+        filepath = os.path.join(self.base_read_path, filepath)
+        filepath = _check_extension(filepath, ".dat")
 
         params = {}
         with open(filepath) as file:
@@ -73,17 +76,19 @@ class IOHandler:
                         pass
         return params
 
-    @staticmethod
-    def read_into_dataframe(filepath: str) -> pd.DataFrame:
+    def read_into_dataframe(self, filepath: str) -> pd.DataFrame:
         """ Read a qudi data file into a pd DataFrame for analysis. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         with open(filepath) as handle:
             # Generate column names for DataFrame by parsing the file
             *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
             names = names[1:].strip().split("\t")
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
 
-    @staticmethod
-    def read_confocal_into_dataframe(filepath) -> pd.DataFrame:
+    def read_confocal_into_dataframe(self, filepath) -> pd.DataFrame:
+        filepath = os.path.join(self.base_read_path, filepath)
+
         confocal_params = IOHandler.read_qudi_parameters(filepath)
         data = IOHandler.read_into_ndarray(filepath)
 
@@ -103,23 +108,25 @@ class IOHandler:
         df.sort_index(axis=0, ascending=False, inplace=True)
         return df
 
-    @staticmethod
-    def read_into_ndarray(filepath: str, **kwargs) -> np.ndarray:
+    def read_into_ndarray(self, filepath: str, **kwargs) -> np.ndarray:
+        filepath = os.path.join(self.base_read_path, filepath)
         return np.genfromtxt(filepath, **kwargs)
 
-    @staticmethod
-    def read_into_ndarray_transposed(filepath: str, **kwargs) -> np.ndarray:
+    def read_into_ndarray_transposed(self, filepath: str, **kwargs) -> np.ndarray:
+        filepath = os.path.join(self.base_read_path, filepath)
         return np.genfromtxt(filepath, **kwargs).T
 
-    @staticmethod
-    def load_pys(filepath: str) -> np.ndarray:
+    def read_pys(self, filepath: str) -> np.ndarray:
         """ Loads raw pys data files. Wraps around numpy.load. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         filepath = _check_extension(filepath, ".pys")
         return np.load(filepath, encoding="bytes", allow_pickle=True)
 
-    @staticmethod
-    def save_pys(dictionary: dict, filepath: str):
+    def save_pys(self, dictionary: dict, filepath: str):
         """ Saves processed pickle files for plotting/further analysis. """
+        filepath = os.path.join(self.base_write_path, filepath)
+
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         filepath = _check_extension(filepath, ".pys")
@@ -127,27 +134,29 @@ class IOHandler:
         with open(filepath, 'wb') as f:
             pickle.dump(dictionary, f, 1)
 
-    @staticmethod
-    def save_df(df: pd.DataFrame, filepath: str):
+    def save_df(self, df: pd.DataFrame, filepath: str):
         """ Save Dataframe as csv. """
+        filepath = os.path.join(self.base_write_path, filepath)
+
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         filepath = _check_extension(filepath, ".csv")
 
         df.to_csv(filepath, sep='\t', encoding='utf-8')
 
-    @staticmethod
-    def load_pkl(filepath: str) -> dict:
+    def read_pkl(self, filepath: str) -> dict:
         """ Loads processed pickle files for plotting/further analysis. """
+        filepath = os.path.join(self.base_read_path, filepath)
         filepath = _check_extension(filepath, ".pkl")
 
         with open(filepath, 'rb') as f:
             file = pickle.load(f)
         return file
 
-    @staticmethod
-    def save_pkl(obj: object, filepath: str):
+    def save_pkl(self, obj: object, filepath: str):
         """ Saves processed pickle files for plotting/further analysis. """
+        filepath = os.path.join(self.base_write_path, filepath)
+
         if not os.path.exists(filepath):
             os.makedirs(filepath)
         filepath = _check_extension(filepath, ".pkl")
@@ -155,9 +164,10 @@ class IOHandler:
         with open(filepath, 'wb') as f:
             pickle.dump(obj, f)
 
-    @staticmethod
-    def read_nanonis_data(filepath: str) -> pd.DataFrame:
+    def read_nanonis_data(self, filepath: str) -> pd.DataFrame:
         """ Extract data from a Nanonis dat file. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         filepath = _check_extension(filepath, ".dat")
 
         skip_rows = 0
@@ -174,9 +184,10 @@ class IOHandler:
         df = pd.read_table(filepath, sep="\t", skiprows=skip_rows)
         return df
 
-    @staticmethod
-    def read_nanonis_parameters(filepath: str) -> dict:
+    def read_nanonis_parameters(self, filepath: str) -> dict:
         """ Extract parameters from a Nanonis dat file. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         filepath = _check_extension(filepath, ".dat")
 
         parameters = {}
@@ -200,9 +211,10 @@ class IOHandler:
                     parameters[label] = value
         return parameters
 
-    @staticmethod
-    def read_pfeiffer_data(filepath: str) -> pd.DataFrame:
+    def read_pfeiffer_data(self, filepath: str) -> pd.DataFrame:
         """ Read data stored by Pfeiffer vacuum monitoring software. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         filepath = _check_extension(filepath, ".txt")
 
         # Extract only the header to check which gauges are connected
@@ -218,9 +230,10 @@ class IOHandler:
         df = df.drop(['Date', 'Time'], axis=1)
         return df
 
-    @staticmethod
-    def read_lakeshore_data(filepath: str) -> pd.DataFrame:
+    def read_lakeshore_data(self, filepath: str) -> pd.DataFrame:
         """ Read data stored by Lakeshore temperature monitor software. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         filepath = _check_extension(filepath, ".xls")
 
         # Extract only the timestamp
@@ -234,17 +247,18 @@ class IOHandler:
         df["Datetime"] = [timestamp_dt + datetime.timedelta(milliseconds=ms) for ms in df["Time"]]
         return df
 
-    @staticmethod
-    def read_oceanoptics_data(filepath: str) -> pd.DataFrame:
+    def read_oceanoptics_data(self, filepath: str) -> pd.DataFrame:
         """ Read spectrometer data from OceanOptics spectrometer. """
+        filepath = os.path.join(self.base_read_path, filepath)
+
         filepath = _check_extension(filepath, ".txt")
 
         df = pd.read_csv(filepath, sep="\t", skiprows=14, names=["wavelength", "intensity"])
         return df
 
-    @staticmethod
-    def savefig(fig: plt.Figure, filepath: str, **kwargs):
+    def save_figures(self, fig: plt.Figure, filepath: str, **kwargs):
         """ Saves figures from matplotlib plot data. """
+        filepath = os.path.join(self.base_write_path, filepath)
 
         if "only_jpg" in kwargs:
             extensions = [".jpg"]

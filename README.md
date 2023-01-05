@@ -35,8 +35,6 @@ individual licenses in the file header docstring.
 flowchart TD;
     IOHandler<-- Handle all IO operations -->DataLoaders;
     DataLoaders<-- Mapping IO callables to measurement data -->DataHandler;
-    Parameters[parameters.py]-- Custom params for handling VPN etc. -->PathHandler;
-    PathHandler-->DataHandler;
     DataHandler-- Structure extracted data -->MeasurementDataclass;
     MeasurementDataclass-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
@@ -106,7 +104,8 @@ import matplotlib.pyplot as plt
 from src.data_handler import DataHandler
 from src.analysis_logic import FitMethods
 
-tip_2S6 = DataHandler(measurement_folder="20220621_FR0612-F2-2S6_uhv")
+tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
+                      measurement_folder="20220621_FR0612-F2-2S6_uhv")
 
 tip_2S6_rabi_list = tip_2S6.load_measurements_into_dataclass_list(measurement_str="Rabi")
 filtered_rabi_list = [rabi for rabi in tip_2S6_rabi_list if
@@ -123,7 +122,7 @@ for idx, rabi in enumerate(filtered_rabi_list):
     ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, "
                       f"T1rho = {result.params['Lifetime'].value}")
 
-tip_2S6.save_figures(fig, filename="compare_rabi_oscillations_at different_powers")
+tip_2S6.save_figures(fig, "compare_rabi_oscillations_at different_powers")
 ```
 
 For more examples see [ExampleNotebook.ipynb](ExampleNotebook.ipynb)
@@ -138,8 +137,6 @@ Latest version of:
 - [git](https://git-scm.com/downloads) version control system
 
 ### Clone the repository
-
-#### With Git
 
 ```shell
 git clone https://github.com/dineshpinto/qudi-hira-analysis.git
@@ -177,16 +174,6 @@ conda activate qudi-hira-analysis
 ```shell
 python -m ipykernel install --user --name=qudi-hira-analysis
 ```
-
-### Set up filepath parameters
-
-Rename `parameters-example.py` to `parameters.py` and add in the correct data source and outputs.
-This will allow the library to automatically generate filepaths.
-
-| Variable        | Explanation                                                                    |
-|-----------------|--------------------------------------------------------------------------------|
-| `data_folder`   | Top level folder where raw data is stored (can be a folder connected over VPN) |
-| `figure_folder` | Folder to place output images (default: `$USER\QudiHiraAnalysis`)              |
 
 ### Start the analysis
 
