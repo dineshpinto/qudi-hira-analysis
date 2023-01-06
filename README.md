@@ -33,8 +33,7 @@ individual licenses in the file header docstring.
 
 ```mermaid
 flowchart TD;
-    IOHandler<-- Handle all IO operations -->DataLoaders;
-    DataLoaders<-- Mapping IO callables to measurement data -->DataHandler;
+    IOHandler<-- Handle all IO operations -->DataHandler;
     DataHandler-- Structure extracted data -->MeasurementDataclass;
     MeasurementDataclass-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
@@ -44,32 +43,34 @@ flowchart TD;
 ### Measurement Dataclass
 
 ```mermaid
-flowchart TD;
+flowchart LR;
     subgraph Standard Data
-        MeasurementDataclass-->filepath1[filepath];
-        MeasurementDataclass-->data1[data];
-        MeasurementDataclass-->params1[params];
-        MeasurementDataclass-->timestamp1[timestamp];
+        MeasurementDataclass-->filepath1[filepath: Path];
+        MeasurementDataclass-->data1[data: DataFrame];
+        MeasurementDataclass-->params1[params: dict];
+        MeasurementDataclass-->timestamp1[timestamp: datetime];
         MeasurementDataclass-- analysis --oAnalysisLogic;
     end
     subgraph Pulsed Data
         MeasurementDataclass-- pulsed --oPulsedMeasurementDataclass;
         PulsedMeasurementDataclass-- measurement --oPulsedMeasurement;
-        PulsedMeasurement--> filepath2[filepath];
-        PulsedMeasurement--> data2[data];
-        PulsedMeasurement--> params2[params];
+        PulsedMeasurement--> filepath2[filepath: Path];
+        PulsedMeasurement--> data2[data: DataFrame];
+        PulsedMeasurement--> params2[params: dict];
         PulsedMeasurementDataclass-- laser_pulses --oLaserPulses; 
-        LaserPulses--> filepath3[filepath];
-        LaserPulses--> data3[data];
-        LaserPulses--> params3[params];
+        LaserPulses--> filepath3[filepath: Path];
+        LaserPulses--> data3[data: DataFrame];
+        LaserPulses--> params3[params: dict];
         PulsedMeasurementDataclass-- timetrace --oRawTimetrace;
-        RawTimetrace--> filepath4[filepath];
-        RawTimetrace--> data4[data];
-        RawTimetrace--> params4[params];
+        RawTimetrace--> filepath4[filepath: Path];
+        RawTimetrace--> data4[data: DataFrame];
+        RawTimetrace--> params4[params: dict];
     end
 ```
 
-### AnalysisLogic fits
+## Supports common fitting routines
+
+Fit routines included in `AnalysisLogic`
 
 | Dimension | Fit                           |
 |-----------|-------------------------------|
@@ -95,7 +96,32 @@ flowchart TD;
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
 
-## Example: Plot all rabi oscillations in a timeframe and fit to exponentially decaying double sinusoid
+## Inbuilt measurement tree visualizer
+
+```ipython
+tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
+                      measurement_folder="20220621_FR0612-F2-2S6_uhv")
+tip_2S6.data_folder_tree()
+
+# Output
+├── 20211116_NetworkAnalysis_SampleIn_UpperPin.csv
+├── 20211116_NetworkAnalysis_SampleOut_UpperPin.csv
+├── 20211116_NetworkAnalysis_TipIn_LowerPin.csv
+├── 20211116_NetworkAnalysis_TipIn_UpperPin.csv
+├── 20211116_NetworkAnalysis_TipOut_LowerPin.csv
+├── 20211116_NetworkAnalysis_TipOut_UpperPin.csv
+├── ContactTestingMeasurementHead
+│   ├── C2_Reference.txt
+│   ├── C2_SampleLowerPin.txt
+│   ├── C2_SampleUpperPin.txt
+│   ├── C2_TipLowerPin.txt
+│   └── C2_TipUpperPin.txt
+├── Sample_MW_Pin_comparision.png
+├── Tip_MW_Pin_comparision.png
+└── Tip_Sample_MW_Pin_comparision.png
+```
+
+## Automated data extraction from qudi folder structure
 
 ```python
 from dateutil.parser import parse
@@ -103,6 +129,8 @@ import matplotlib.pyplot as plt
 
 from src.data_handler import DataHandler
 from src.analysis_logic import FitMethods
+
+# Eg: Plot all rabi oscillations measured in one afternoon and fit them to exponentially decaying double sinusoids
 
 tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
                       measurement_folder="20220621_FR0612-F2-2S6_uhv")
@@ -193,11 +221,11 @@ Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
 
 ## Makefile
 
-The Makefile is configured to generate a variety of outputs:
+The Makefile located in `notebooks/` is configured to generate a variety of outputs:
 
 + `make pdf` : Converts all notebooks to PDF (requires LaTeX backend)
-+ `make html`: Converts all notebooks to HTML files
-+ `make py`  : Converts all notebooks to Python files (useful for VCS)
++ `make html`: Converts all notebooks to HTML
++ `make py`  : Converts all notebooks to Python (can be useful for VCS)
 + `make all` : Sequentially runs all the notebooks in folder
 
 To use the `make` command on Windows you can install [Chocolatey](https://chocolatey.org/install), then
