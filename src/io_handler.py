@@ -8,7 +8,6 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from dateutil import parser
 
 
 def _check_extension(filepath: str, extension: str) -> str:
@@ -85,6 +84,11 @@ class IOHandler:
             *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
             names = names[1:].strip().split("\t")
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
+
+    def read_csv(self, filepath: str, **kwargs) -> pd.DataFrame:
+        """ Read a csv file into a pd DataFrame. """
+        filepath = os.path.join(self.base_read_path, filepath)
+        return pd.read_csv(filepath, **kwargs)
 
     def read_confocal_into_dataframe(self, filepath) -> pd.DataFrame:
         filepath = os.path.join(self.base_read_path, filepath)
@@ -217,17 +221,18 @@ class IOHandler:
 
         filepath = _check_extension(filepath, ".txt")
 
-        # Extract only the header to check which gauges are connected
-        file_header = pd.read_csv(filepath, sep="\t", skiprows=1, nrows=1)
+        # Extract rows including the header
+        df = pd.read_csv(filepath, sep="\t", skiprows=[0, 2, 3, 4])
+        # Combine data and time columns together
+        df["Date"] = df["Date"] + " " + df["Time"]
+        df = df.drop("Time", axis=1)
 
-        header = _channel_to_gauge_names(file_header)
+        # Infer datetime format and convert to datetime objects
+        df["Date"] = pd.to_datetime(df["Date"], infer_datetime_format=True)
 
-        # Create DataFrame with new header
-        df = pd.read_csv(filepath, sep="\t", skiprows=5, names=header)
+        # Set datetime as index
+        df = df.set_index("Date", drop=True)
 
-        df['Datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'])
-        df = df.set_index('Datetime')
-        df = df.drop(['Date', 'Time'], axis=1)
         return df
 
     def read_lakeshore_data(self, filepath: str) -> pd.DataFrame:
@@ -236,15 +241,21 @@ class IOHandler:
 
         filepath = _check_extension(filepath, ".xls")
 
-        # Extract only the timestamp
-        timestamp = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=1, header=None)[1][0]
+        # Extract only the origin timestamp
+        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+        # Remove any tzinfo to prevent future exceptions in pandas
+        origin = origin.replace("CET", "")
         # Parse datetime object from timestamp
-        timestamp_dt = parser.parse(timestamp, tzinfos={"CET": 0 * 3600})
+        origin = pd.to_datetime(origin)
 
-        # Create DataFrame
+        # Create DataFrame and drop empty cols
         df = pd.read_excel(filepath, skiprows=3)
-        # Add matplotlib datetimes to DataFrame
-        df["Datetime"] = [timestamp_dt + datetime.timedelta(milliseconds=ms) for ms in df["Time"]]
+        df = df.dropna(axis=1, how="all")
+        # Add datetimes to DataFrame
+        df["Datetime"] = pd.to_datetime(df["Time"], unit="ms", origin=origin)
+        df = df.drop("Time", axis=1)
+        # Set datetime as index
+        df = df.set_index("Datetime", drop=True)
         return df
 
     def read_oceanoptics_data(self, filepath: str) -> pd.DataFrame:
@@ -260,9 +271,15 @@ class IOHandler:
         """ Saves figures from matplotlib plot data. """
         filepath = os.path.join(self.base_write_path, filepath)
 
+        extensions = None
         if "only_jpg" in kwargs:
-            extensions = [".jpg"]
+            if kwargs.get("only_jpg"):
+                extensions = [".jpg"]
             kwargs.pop("only_jpg", None)
+        elif "only_pdf" in kwargs:
+            if kwargs.get("only_pdf"):
+                extensions = [".pdf"]
+            kwargs.pop("only_pdf", None)
         else:
             extensions = [".jpg", ".pdf", ".svg", ".png"]
 
