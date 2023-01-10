@@ -21,9 +21,9 @@ logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=log
 class DataHandler(IOHandler):
     def __init__(
             self,
-            data_folder: str,
-            figure_folder: str,
-            measurement_folder: str,
+            data_folder: Path,
+            figure_folder: Path,
+            measurement_folder: Path,
             copy_measurement_folder_structure: bool = True
     ):
         """
@@ -44,46 +44,41 @@ class DataHandler(IOHandler):
         super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
 
         # Create callables used in measurement dataclasses
-        self.default_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (
+        self.default_loader: (Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
             self.read_into_dataframe,
             self.read_qudi_parameters
         )
-        self.confocal_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (
+        self.confocal_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
             self.read_confocal_into_dataframe,
             self.read_qudi_parameters
         )
-        self.trace_loader: (Callable[[str, ...], np.ndarray], Callable[[str], dict]) = (
+        self.trace_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
             self.read_into_ndarray_transposed,
             self.read_qudi_parameters
         )
-        self.nanonis_loader: (Callable[[str], pd.DataFrame], Callable[[str], dict]) = (
+        self.nanonis_loader: (Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
             self.read_nanonis_data,
             self.read_nanonis_parameters
         )
-        self.figure_loader: Callable[[plt.Figure, str, ...], None] = self.save_figures
+        self.figure_loader: Callable[[plt.Figure, Path, ...], None] = self.save_figures
 
-    def __get_data_folder_path(self, data_folder: str, folder_name: str) -> str:
+    def __get_data_folder_path(self, data_folder: Path, folder_name: Path) -> Path:
         """ Check if folder exists and return absolute folder paths. """
-        path = os.path.join(data_folder, folder_name)
+        path = data_folder / folder_name
 
-        if not os.path.exists(path):
+        if not path.exists():
             raise IOError("Data folder path does not exist.")
 
         self.log.info(f"Data folder path is {path}")
         return path
 
-    def __get_figure_folder_path(self, figure_folder: str, folder_name: str) -> str:
+    def __get_figure_folder_path(self, figure_folder: Path, folder_name: Path) -> Path:
         """ Check if folder exists, if not, create it and return absolute folder paths. """
+        path = figure_folder / folder_name
 
-        if not os.path.exists(figure_folder):
-            self.log.info(f"Creating new output folder {figure_folder}")
-            os.mkdir(figure_folder)
-
-        path = os.path.join(figure_folder, folder_name)
-
-        if not os.path.exists(path):
+        if not path.exists():
+            path.mkdir()
             self.log.info(f"Creating new output folder path {path}")
-            os.makedirs(path)
         else:
             self.log.info(f"Figure folder path is {path}")
         return path
@@ -113,36 +108,39 @@ class DataHandler(IOHandler):
 
     def data_folder_tree(self):
         """ Print a tree of the data folder. """
-        for line in self.__tree(Path(self.data_folder_path)):
+        for line in self.__tree(self.data_folder_path):
             print(line)
 
     def figure_folder_tree(self):
         """ Print a tree of the figure folder. """
-        for line in self.__tree(Path(self.figure_folder_path)):
+        for line in self.__tree(self.figure_folder_path):
             print(line)
 
-    def get_measurement_filepaths(self, measurement: str, extension: str = ".dat",
-                                  exclude_str: str = "image_1.dat") -> list:
+    def get_measurement_filepaths(
+            self,
+            measurement: str,
+            extension: str = ".dat",
+            exclude_str: str = "image_1.dat"
+    ) -> list:
         """
         List all measurement files for a single measurement type, regardless of date
         within a similar set (i.e. top level folder).
         """
-        filepaths: List[str] = []
-        for root, dirs, files in os.walk(self.data_folder_path):
-            for file in files:
-                # Check if measurement string is in the root of the folder walk
-                if (measurement in root or measurement in file) and (exclude_str not in file):
-                    if extension:
-                        if file.endswith(extension):
-                            filepaths.append(os.path.join(root, file))
-                    else:
-                        filepaths.append(os.path.join(root, file))
+        filepaths: List[Path] = []
+
+        for path in self.data_folder_path.rglob("*"):
+            if path.is_file() and measurement in str(path) and exclude_str not in str(path):
+                if extension:
+                    if path.suffix == extension:
+                        filepaths.append(path)
+                else:
+                    filepaths.append(path)
         return filepaths
 
     def __load_pulsed_measurements_dataclass_list(self, pulsed_measurement_str: str) -> List[MeasurementDataclass]:
         measurement_filepaths, timestamps = [], []
         for filepath in self.get_measurement_filepaths(measurement="PulsedMeasurement", extension=".dat"):
-            filename = os.path.basename(filepath)
+            filename = filepath.name
             if pulsed_measurement_str in filename:
                 timestamps.append(filename[:16])
                 measurement_filepaths.append(filepath)
@@ -152,7 +150,7 @@ class DataHandler(IOHandler):
         for timestamp in timestamps:
             pm, lp, rt = None, None, None
             for filepath in measurement_filepaths:
-                filename = os.path.basename(filepath)
+                filename = filepath.name
                 if filename.startswith(timestamp):
                     if "laser_pulses" in filename:
                         lp = LaserPulses(filepath=filepath, loaders=self.trace_loader)
