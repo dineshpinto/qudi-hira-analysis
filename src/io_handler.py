@@ -88,7 +88,7 @@ class IOHandler:
         filepath = _check_extension(filepath, ".dat")
 
         confocal_params = self.read_qudi_parameters(filepath)
-        data = self.read_into_ndarray(filepath)
+        data = self.read_into_ndarray(filepath, delimiter="\t")
 
         # Use the confocal parameters to generate the index and columns for the DataFrame
         index = np.linspace(
