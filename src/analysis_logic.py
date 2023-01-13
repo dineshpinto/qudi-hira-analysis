@@ -105,6 +105,22 @@ class AnalysisLogic(FitLogic):
         fit_x, fit_y, result = fc.do_fit(x, y)
         return fit_x, fit_y, result
 
+    def fit(
+            self,
+            x: str,
+            y: str,
+            data: pd.DataFrame,
+            fit_function: str | FitMethods,
+            estimator: str = "generic",
+    ) -> Tuple[np.ndarray, np.ndarray, ModelResult]:
+        return self.perform_fit(
+            x=data[x],
+            y=data[y],
+            fit_function=fit_function,
+            estimator=estimator,
+            dims="1d"
+        )
+
     def get_all_fits(self) -> Tuple[list, list]:
         one_d_fits = list(self.fit_list['1d'].keys())
         two_d_fits = list(self.fit_list['2d'].keys())

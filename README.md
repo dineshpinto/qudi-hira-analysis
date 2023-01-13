@@ -33,7 +33,8 @@ individual licenses in the file header docstring.
 
 ```mermaid
 flowchart TD;
-    IOHandler<-- Handle all IO operations -->DataHandler;
+    IOHandler<-- Handle all IO operations -->DataLoader;
+    DataLoader<-- Map IO callables to data -->DataHandler;
     DataHandler-- Structure extracted data -->MeasurementDataclass;
     MeasurementDataclass-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
     Plot-- Save plotted data --> DataHandler;
@@ -121,39 +122,48 @@ tip_2S6.data_folder_tree()
 └── Tip_Sample_MW_Pin_comparision.png
 ```
 
-## Automated data extraction from qudi folder structure
+## Automated data extraction
+
+### Example 1: Extract, fit and plot all Rabi measurements
 
 ```python
-from dateutil.parser import parse
-import matplotlib.pyplot as plt
-
+from pathlib import Path
+import seaborn as sns
 from src.data_handler import DataHandler
-from src.analysis_logic import FitMethods
 
-# Eg: Plot all rabi oscillations measured in one afternoon and fit them to exponentially decaying double sinusoids
+nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
+                          measurement_folder=Path("20230101_NV1"))
 
-tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
-                      measurement_folder="20220621_FR0612-F2-2S6_uhv")
+rabi_measurements = nv1_handler.load_measurements(measurement_str="rabi", qudi=True, pulsed=True)
 
-tip_2S6_rabi_list = tip_2S6.load_measurements_into_dataclass_list(measurement_str="Rabi")
-filtered_rabi_list = [rabi for rabi in tip_2S6_rabi_list if
-                      parse("10 July 2022 13:30") < rabi.timestamp < parse("10 July 2022 17:30")]
-
-fig, ax = plt.subplots(nrows=len(filtered_rabi_list))
-
-for idx, rabi in enumerate(filtered_rabi_list):
-    x, y, yerr = rabi.data["Controlled variable(s)"], rabi.data["Signal"], rabi.data["Error"]
-    fit_x, fit_y, result = rabi.analysis.perform_fit(x=x, y=y, fit_function=FitMethods.sinedoublewithexpdecay)
-
-    ax[idx].errorbar(x, y, yerr=yerr, fmt=".")
-    ax[idx].plot(fit_x, fit_y, "-")
-    ax[idx].set_title(f"Power = {rabi.get_param_from_filename(unit='dBm')}, "
-                      f"T1rho = {result.params['Lifetime'].value}")
-
-tip_2S6.save_figures(fig, "compare_rabi_oscillations_at different_powers")
+for rabi in rabi_measurements:
+  sns.lineplot(x="Controlled variable(s)", y="Signal", data=rabi.data)
+  fit_x, fit_y, result = rabi.analysis.fit(x="Controlled variable(s)", y="Signal",
+                                           data=rabi.data, fit_function=rabi_measurements.sineexponentialdecay)
+  sns.lineplot(x=fit_x, y=fit_y)
 ```
 
-For more examples see [ExampleNotebook.ipynb](ExampleNotebook.ipynb)
+### Example 2: Combine all temperature data, plot and save
+
+```python
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from src.data_handler import DataHandler
+
+nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
+                          measurement_folder=Path("20230101_NV1"))
+
+temperature_measurements = nv1_handler.load_measurements(measurement_str="temperature-monitoring")
+
+dft = pd.concat([t.data for t in temperature_measurements.values()])
+
+fig, ax = plt.subplots()
+sns.lineplot(x="Time", y="Temperature", data=dft, ax=ax)
+nv1_handler.save_figures(fig, "temperature-monitoring")
+```
 
 ## Getting Started
 
@@ -170,7 +180,7 @@ Latest version of:
 git clone https://github.com/dineshpinto/qudi-hira-analysis.git
 ```
 
-### Installing dependencies with Poetry (recommended)
+### Installing dependencies with Poetry
 ```bash
 poetry install
 ```
@@ -181,7 +191,7 @@ poetry install
 poetry run python -m ipykernel install --user --name=qudi-hira-analysis
 ```
 
-### OR installing dependencies with conda (not recommended)
+### OR installing dependencies with conda
 
 #### Creating the conda environment
 
