@@ -44,6 +44,7 @@ class AnalysisLogic(FitLogic):
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger(__name__)
+        self.fit_methods = FitMethods
 
     def perform_fit(
             self,
@@ -113,8 +114,8 @@ class AnalysisLogic(FitLogic):
     @staticmethod
     def analyse_mean(
             laser_data: np.ndarray,
-            signal_start: float = 0.0,
-            signal_end: float = 200e-9,
+            signal_start: float = 100e-9,
+            signal_end: float = 300e-9,
             bin_width: float = 1e-9) -> Tuple[np.ndarray, np.ndarray]:
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -150,10 +151,10 @@ class AnalysisLogic(FitLogic):
     @staticmethod
     def analyse_mean_reference(
             laser_data: np.ndarray,
-            signal_start: float = 0.0,
-            signal_end: float = 200e-9,
-            norm_start: float = 300e-9,
-            norm_end: float = 500e-9,
+            signal_start: float = 100e-9,
+            signal_end: float = 300e-9,
+            norm_start: float = 1000e-9,
+            norm_end: float = 2000e-9,
             bin_width: float = 1e-9) -> Tuple[np.ndarray, np.ndarray]:
         """
         This method takes the mean of the signal window.
@@ -198,10 +199,10 @@ class AnalysisLogic(FitLogic):
     @staticmethod
     def analyse_mean_norm(
             laser_data: np.ndarray,
-            signal_start: float = 0.0,
-            signal_end: float = 200e-9,
-            norm_start: float = 300e-9,
-            norm_end=500e-9,
+            signal_start: float = 100e-9,
+            signal_end: float = 300e-9,
+            norm_start: float = 1000e-9,
+            norm_end=2000e-9,
             bin_width: float = 1e-9) -> Tuple[np.ndarray, np.ndarray]:
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
