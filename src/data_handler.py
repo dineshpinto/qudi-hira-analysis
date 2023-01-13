@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import datetime
 import logging
+import os
 from pathlib import Path
 from typing import List, TYPE_CHECKING, Callable
-from warnings import warn
 
 from src.analysis_logic import AnalysisLogic
 from src.io_handler import IOHandler
@@ -31,9 +31,16 @@ class DataHandler(IOHandler):
         This class is specific for qudi-hira measurements. To support adding new measurement types to the dataclass
         the callable needs to be added into `DataLoader` and corresponding functions need to be added into
         `DataHandler`.
-        :param data_folder: Path to the base data folder
-        :param figure_folder: Path where figures should be saved
-        :param measurement_folder: Path to the specific measurement folder inside data folder
+
+        Args:
+            data_folder: pathlib.Path
+                Path to the data folder.
+            figure_folder: pathlib.Path
+                Path to the figure folder.
+            measurement_folder: str or pathlib.Path
+                Path to the measurement folder.
+            copy_measurement_folder_structure: bool
+                Copy measurement folder structure into figure folder. (default: True)
         """
         self.log = logging.getLogger(__name__)
         self.analysis = AnalysisLogic()
@@ -65,10 +72,18 @@ class DataHandler(IOHandler):
             self.read_nanonis_data,
             self.read_nanonis_parameters
         )
+        self.temperature_loader: (Callable[[Path], pd.DataFrame], None) = (
+            self.read_lakeshore_data,
+            None
+        )
+        self.pressure_loader: (Callable[[Path], pd.DataFrame], None) = (
+            self.read_pfeiffer_data,
+            None
+        )
         self.figure_loader: Callable[[plt.Figure, Path, ...], None] = self.save_figures
 
     def __get_data_folder_path(self, data_folder: Path, folder_name: Path) -> Path:
-        """ Check if folder exists and return absolute folder paths. """
+        """ Check if folder exists, if not, create it and return absolute folder paths. """
         path = data_folder / folder_name
 
         if not path.exists():
@@ -90,9 +105,9 @@ class DataHandler(IOHandler):
 
     def __tree(self, dir_path: Path, prefix: str = ''):
         """
-        A recursive generator, given a directory Path object
-        will yield a visual tree structure line by line
-        with each line prefixed by the same characters
+            A recursive generator, given a directory Path object
+            will yield a visual tree structure line by line
+            with each line prefixed by the same characters
         """
         # prefix components:
         space = '    '
@@ -124,8 +139,8 @@ class DataHandler(IOHandler):
     def get_measurement_filepaths(
             self,
             measurement: str,
-            extension: str = ".dat",
-            exclude_str: str = "image_1.dat"
+            extension: str,
+            exclude_str: str | None = None
     ) -> list:
         """
         List all measurement files for a single measurement type, regardless of date
@@ -134,94 +149,170 @@ class DataHandler(IOHandler):
         filepaths: List[Path] = []
 
         for path in self.data_folder_path.rglob("*"):
-            if path.is_file() and measurement in str(path).lower() and exclude_str not in str(path):
-                if extension:
-                    if path.suffix == extension:
+            if path.is_file() and measurement in str(path).lower():
+                if exclude_str is None or exclude_str not in str(path):
+                    if extension:
+                        if path.suffix == extension:
+                            filepaths.append(path)
+                    else:
                         filepaths.append(path)
-                else:
-                    filepaths.append(path)
         return filepaths
 
-    def __load_pulsed_measurements_dataclass_list(self, pulsed_measurement_str: str) -> dict[str: MeasurementDataclass]:
-        filtered_filepaths = []
-        timestamps = set()
+    def __load_qudi_measurements_into_dataclass(
+            self,
+            measurement_str: str,
+            pulsed: bool,
+            extension: str
+    ) -> dict[str: MeasurementDataclass]:
 
-        # Get set of unique timestamps containing pulsed_measurement_str
-        for filepath in self.get_measurement_filepaths(measurement=pulsed_measurement_str):
-            filename = filepath.name
-            if pulsed_measurement_str in filename:
-                timestamps.add(filename[:16])
-                filtered_filepaths.append(filepath)
+        if pulsed:
+            filtered_filepaths = []
+            timestamps = set()
 
-        pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
-
-        for ts in timestamps:
-            pm, lp, rt = None, None, None
-
-            for filepath in filtered_filepaths:
+            # Get set of unique timestamps containing pulsed_measurement_str
+            for filepath in self.get_measurement_filepaths(measurement=measurement_str, extension=extension,
+                                                           exclude_str="image_1.dat"):
                 filename = filepath.name
-                if filename.startswith(ts):
-                    if str(filename).endswith("laser_pulses.dat"):
-                        lp = LaserPulses(filepath=filepath, loaders=self.trace_loader)
-                    elif str(filename).endswith("pulsed_measurement.dat"):
-                        pm = PulsedMeasurement(filepath=filepath, loaders=self.default_loader)
-                    elif str(filename).endswith("raw_timetrace.dat"):
-                        rt = RawTimetrace(filepath=filepath, loaders=self.trace_loader)
+                if measurement_str in filename:
+                    timestamps.add(filename[:16])
+                    filtered_filepaths.append(filepath)
 
-                if lp and pm and rt:
-                    break
+            pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
 
-            pulsed_measurement_data[ts] = (
-                MeasurementDataclass(
-                    timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
-                    pulsed=PulsedMeasurementDataclass(
-                        measurement=pm,
-                        laser_pulses=lp,
-                        timetrace=rt
+            for ts in timestamps:
+                pm, lp, rt = None, None, None
+
+                for filepath in filtered_filepaths:
+                    filename = filepath.name
+                    if filename.startswith(ts):
+                        if str(filename).endswith("laser_pulses.dat"):
+                            lp = LaserPulses(filepath=filepath, loaders=self.trace_loader)
+                        elif str(filename).endswith("pulsed_measurement.dat"):
+                            pm = PulsedMeasurement(filepath=filepath, loaders=self.default_loader)
+                        elif str(filename).endswith("raw_timetrace.dat"):
+                            rt = RawTimetrace(filepath=filepath, loaders=self.trace_loader)
+
+                    if lp and pm and rt:
+                        break
+
+                pulsed_measurement_data[ts] = (
+                    MeasurementDataclass(
+                        timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                        pulsed=PulsedMeasurementDataclass(
+                            measurement=pm,
+                            laser_pulses=lp,
+                            timetrace=rt
+                        )
                     )
                 )
-            )
+            return pulsed_measurement_data
+        else:
+            if measurement_str.lower() == "confocal":
+                loaders = self.confocal_loader
+                exclude_str = "xy_data.dat"
+            else:
+                loaders = self.default_loader
+                exclude_str = None
 
-        return pulsed_measurement_data
+            measurement_data: dict[str: MeasurementDataclass] = {}
 
-    def __load_standard_measurements_dataclass_list(self, standard_measurement_str: str) -> dict[
-                                                                                            str: MeasurementDataclass]:
-        standard_measurement_list: dict[str: MeasurementDataclass] = {}
+            for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
+                ts = filepath.name[:16]
+                measurement_data[ts] = (
+                    MeasurementDataclass(
+                        filepath=filepath,
+                        timestamp=datetime.datetime.strptime(ts, "%Y%m%d-%H%M-%S"),
+                        loaders=loaders
+                    )
+                )
+            return measurement_data
 
-        if standard_measurement_str.lower() == "confocal":
-            loaders = self.confocal_loader
-            exclude_str = "xy_data.dat"
-        elif standard_measurement_str == "frq-sweep":
+    def __load_standard_measurements_into_dataclass(
+            self,
+            measurement_str: str,
+            extension: str
+    ) -> dict[str: MeasurementDataclass]:
+        measurement_list: dict[str: MeasurementDataclass] = {}
+
+        if measurement_str.lower() == "temperature-monitoring":
+            loaders = self.temperature_loader
+            extension = ".xls"
+            exclude_str = None
+        elif measurement_str.lower() == "pressure-monitoring":
+            loaders = self.pressure_loader
+            extension = ".txt"
+            exclude_str = None
+        elif measurement_str == "frq-sweep":
             loaders = self.nanonis_loader
-            exclude_str: str = "image_1.dat"
+            exclude_str: str = None
         else:
             loaders = self.default_loader
-            exclude_str: str = "image_1.dat"
+            exclude_str: str = None
 
-        for filepath in self.get_measurement_filepaths(standard_measurement_str, extension=".dat",
-                                                       exclude_str=exclude_str):
-            ts = filepath.name[:16]
-            standard_measurement_list[ts] = (
+        for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
+            timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
+            ts = datetime.datetime.strftime(timestamp, "%Y%m%d-%H%M-%S")
+            measurement_list[ts] = (
                 MeasurementDataclass(
                     filepath=filepath,
-                    timestamp=datetime.datetime.strptime(ts, "%Y%m%d-%H%M-%S"),
+                    timestamp=timestamp,
                     loaders=loaders
                 )
             )
-        return standard_measurement_list
+        return measurement_list
 
-    def load_measurements(self, measurement_str: str, pulsed: bool = False) -> dict[str: MeasurementDataclass]:
+    def load_measurements(
+            self,
+            measurement_str: str,
+            qudi: bool = False,
+            pulsed: bool = False,
+            extension: str = ".dat"
+    ) -> dict[str: MeasurementDataclass]:
+        """
+        Lazy load all measurements of a given type into a dictionary of dataclasses.
+
+        Parameters
+        ----------
+            measurement_str: str
+                The name of the measurement type to load e.g. t1, t2,
+                confocal etc. Recursively searches through the path
+                defined by data_folder and measurement_folder
+            qudi: bool
+                Whether the measurement is a qudi measurement
+                (default: False).
+            pulsed: bool
+                Whether the measurement is a pulsed measurement
+                (default: False).
+            extension: str
+                The file extension of the measurement files.
+                (default: .dat)
+
+        Returns
+        -------
+            measurement_list: dict[str: MeasurementDataclass]
+                A dictionary of dataclasses containing the measurement data.
+
+        Examples
+        --------
+        Load all T1 measurements measured using qudi:
+
+        >>> handler.load_measurements(measurement_str="t1", qudi=True, pulsed=True)
+
+        Load all confocal data measured using qudi:
+
+        >>> handler.load_measurements(measurement_str="confocal", qudi=True)
+
+        Load all temperature monitoring data measured using a Lakeshore monitor:
+
+        >>> handler.load_measurements(measurement_str="temperature-monitoring", extension=".xls")
+
+        Load all pressure monitoring data measured using a Pfeiffer monitor:
+
+        >>> handler.load_measurements(measurement_str="pressure-monitoring", extension=".txt")
+        """
+
         measurement_str = measurement_str.lower()
-        if pulsed:
-            return self.__load_pulsed_measurements_dataclass_list(measurement_str)
+        if qudi:
+            return self.__load_qudi_measurements_into_dataclass(measurement_str, pulsed=pulsed, extension=".dat")
         else:
-            return self.__load_standard_measurements_dataclass_list(measurement_str)
-
-    def load_measurements_into_dataclass_list(self, measurement_str: str) -> dict[str: MeasurementDataclass]:
-        warn('This method is deprecated, "use load_measurements" instead', DeprecationWarning)
-        if "PulsedMeasurement" in measurement_str:
-            measurement_str = measurement_str.split("/")[1].lower()
-            pulsed = True
-        else:
-            pulsed = False
-        return self.load_measurements(measurement_str, pulsed=pulsed)
+            return self.__load_standard_measurements_into_dataclass(measurement_str, extension=extension)
