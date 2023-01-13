@@ -12,59 +12,31 @@ from src.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMea
     LaserPulses, MeasurementDataclass
 
 if TYPE_CHECKING:
-    import matplotlib.pyplot as plt
     import pandas as pd
     import numpy as np
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
-class DataHandler(IOHandler):
-    def __init__(
-            self,
-            data_folder: Path,
-            figure_folder: Path,
-            measurement_folder: Path,
-            copy_measurement_folder_structure: bool = True
-    ):
-        """
-        This class is specific for qudi-hira measurements. To support adding new measurement types to the dataclass
-        the callable needs to be added into `DataLoader` and corresponding functions need to be added into
-        `DataHandler`.
+class DataLoader(IOHandler):
+    """
+    Interface to map measurement data loading methods in IOHandler to the automated data
+    methods in DataHandler. Also provides a direct passthrough of the IOHandler methods.
+    """
 
-        Args:
-            data_folder: pathlib.Path
-                Path to the data folder.
-            figure_folder: pathlib.Path
-                Path to the figure folder.
-            measurement_folder: str or pathlib.Path
-                Path to the measurement folder.
-            copy_measurement_folder_structure: bool
-                Copy measurement folder structure into figure folder. (default: True)
-        """
-        self.log = logging.getLogger(__name__)
-        self.analysis = AnalysisLogic()
-
-        self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
-        if copy_measurement_folder_structure:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
-        else:
-            self.figure_folder_path = figure_folder
-
-        super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
-
-        self.timestamp_format_str = "%Y%m%d-%H%M-%S"
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         # Create callables used in measurement dataclasses
-        self.default_loader: (Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
+        self.default_qudi_loader: (Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
             self.read_into_dataframe,
             self.read_qudi_parameters
         )
-        self.confocal_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
+        self.confocal_qudi_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
             self.read_confocal_into_dataframe,
             self.read_qudi_parameters
         )
-        self.trace_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
+        self.trace_qudi_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
             self.read_into_ndarray_transposed,
             self.read_qudi_parameters
         )
@@ -80,7 +52,57 @@ class DataHandler(IOHandler):
             self.read_pfeiffer_data,
             None
         )
-        self.figure_loader: Callable[[plt.Figure, Path, ...], None] = self.save_figures
+
+
+class DataHandler(DataLoader):
+    """
+    Handles automated data searching and extraction into dataclasses.
+
+    Parameters
+    ----------
+        data_folder: pathlib.Path
+            Path to the data folder.
+        figure_folder: pathlib.Path
+            Path to the figure folder.
+        measurement_folder: str or pathlib.Path
+            Path to the measurement folder.
+        copy_measurement_folder_structure: bool
+            Copy measurement folder structure into figure folder. (default: True)
+
+    Examples
+    --------
+    Create an instance of the DataHandler class:
+
+    Set up the source data folder, the figure folder and the measurement folder.
+
+    >>> from pathlib import Path
+    >>> from src.data_handler import DataHandler
+    >>> bakeout_handler = DataHandler(
+    >>>     data_folder=Path('C:\\'', 'Data'),
+    >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
+    >>>     measurement_folder=Path('20230101_Bakeout'),
+    >>> )
+    """
+
+    def __init__(
+            self,
+            data_folder: Path,
+            figure_folder: Path,
+            measurement_folder: Path,
+            copy_measurement_folder_structure: bool = True
+    ):
+        self.log = logging.getLogger(__name__)
+        self.analysis = AnalysisLogic()
+
+        self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
+        if copy_measurement_folder_structure:
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+        else:
+            self.figure_folder_path = figure_folder
+
+        super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
+
+        self.timestamp_format_str = "%Y%m%d-%H%M-%S"
 
     def __get_data_folder_path(self, data_folder: Path, folder_name: Path) -> Path:
         """ Check if folder exists, if not, create it and return absolute folder paths. """
@@ -105,9 +127,9 @@ class DataHandler(IOHandler):
 
     def __tree(self, dir_path: Path, prefix: str = ''):
         """
-            A recursive generator, given a directory Path object
-            will yield a visual tree structure line by line
-            with each line prefixed by the same characters
+        A recursive generator, given a directory Path object
+        will yield a visual tree structure line by line
+        with each line prefixed by the same characters
         """
         # prefix components:
         space = '    '
@@ -186,11 +208,11 @@ class DataHandler(IOHandler):
                     filename = filepath.name
                     if filename.startswith(ts):
                         if str(filename).endswith("laser_pulses.dat"):
-                            lp = LaserPulses(filepath=filepath, loaders=self.trace_loader)
+                            lp = LaserPulses(filepath=filepath, loaders=self.trace_qudi_loader)
                         elif str(filename).endswith("pulsed_measurement.dat"):
-                            pm = PulsedMeasurement(filepath=filepath, loaders=self.default_loader)
+                            pm = PulsedMeasurement(filepath=filepath, loaders=self.default_qudi_loader)
                         elif str(filename).endswith("raw_timetrace.dat"):
-                            rt = RawTimetrace(filepath=filepath, loaders=self.trace_loader)
+                            rt = RawTimetrace(filepath=filepath, loaders=self.trace_qudi_loader)
 
                     if lp and pm and rt:
                         break
@@ -208,10 +230,10 @@ class DataHandler(IOHandler):
             return pulsed_measurement_data
         else:
             if measurement_str.lower() == "confocal":
-                loaders = self.confocal_loader
+                loaders = self.confocal_qudi_loader
                 exclude_str = "xy_data.dat"
             else:
-                loaders = self.default_loader
+                loaders = self.default_qudi_loader
                 exclude_str = None
 
             measurement_data: dict[str: MeasurementDataclass] = {}
@@ -221,7 +243,7 @@ class DataHandler(IOHandler):
                 measurement_data[ts] = (
                     MeasurementDataclass(
                         filepath=filepath,
-                        timestamp=datetime.datetime.strptime(ts, "%Y%m%d-%H%M-%S"),
+                        timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
                         loaders=loaders
                     )
                 )
@@ -246,12 +268,12 @@ class DataHandler(IOHandler):
             loaders = self.nanonis_loader
             exclude_str: str = None
         else:
-            loaders = self.default_loader
+            loaders = self.default_qudi_loader
             exclude_str: str = None
 
         for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
             timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
-            ts = datetime.datetime.strftime(timestamp, "%Y%m%d-%H%M-%S")
+            ts = datetime.datetime.strftime(timestamp, self.timestamp_format_str)
             measurement_list[ts] = (
                 MeasurementDataclass(
                     filepath=filepath,

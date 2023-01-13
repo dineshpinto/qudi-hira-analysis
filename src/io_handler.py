@@ -262,7 +262,25 @@ class IOHandler:
         df.to_csv(filepath, sep='\t', encoding='utf-8')
 
     def save_figures(self, fig: plt.Figure, filepath: Path, **kwargs):
-        """ Saves figures from matplotlib plot data. """
+        """
+        Saves figures from matplotlib plot data. By default, saves as jpg, png, pdf and svg.
+
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure
+            Figure to save.
+        filepath : pathlib.Path
+            Path to save figure to. If called with DataHandler, only the filename is required.
+
+        Keyword Arguments
+        -----------------
+        only_jpg : bool
+            If True, only save as jpg. Default is False.
+        only_pdf : bool
+            If True, only save as pdf. Default is False.
+        **kwargs
+            Keyword arguments passed to fig.savefig().
+        """
         if self.base_write_path:
             filepath = self.base_write_path / filepath
         filepath.parent.mkdir(exist_ok=True)
