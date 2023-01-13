@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import os
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
-
-from src.analysis_logic import AnalysisLogic
 
 if TYPE_CHECKING:
     import datetime
@@ -17,13 +15,10 @@ if TYPE_CHECKING:
 
 @dataclass
 class PulsedMeasurement:
-    filepath: str
+    filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
-
-    def __post_init__(self):
-        self.filename = os.path.basename(self.filepath)
 
     @property
     def data(self) -> pd.DataFrame:
@@ -42,13 +37,10 @@ class PulsedMeasurement:
 
 @dataclass
 class LaserPulses:
-    filepath: str
+    filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
-
-    def __post_init__(self):
-        self.filename = os.path.basename(self.filepath)
 
     @property
     def data(self) -> np.ndarray:
@@ -67,13 +59,10 @@ class LaserPulses:
 
 @dataclass
 class RawTimetrace:
-    filepath: str
+    filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
     __params: dict = field(default=None)
-
-    def __post_init__(self):
-        self.filename = os.path.basename(self.filepath)
 
     @property
     def data(self) -> np.ndarray:
@@ -97,27 +86,30 @@ class PulsedMeasurementDataclass:
     timetrace: RawTimetrace = field(default=None)
 
     def __post_init__(self):
-        self.base_filename = self.measurement.filename.replace("_pulsed_measurement.dat", "")
+        self.base_filename = self.measurement.filepath.name.replace("_pulsed_measurement.dat", "")
 
     def show_image(self) -> Image:
         """ Use PIL to open the measurement image saved on the disk """
-        return Image.open(self.measurement.filepath.replace(".dat", "_fig.png"))
+        return Image.open(str(self.measurement.filepath).replace(".dat", "_fig.png"))
 
 
 @dataclass
 class MeasurementDataclass:
     timestamp: datetime.datetime
-    filepath: str = field(default=None)
+    filepath: Path = field(default=None)
     loaders: (Callable, Callable) = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
 
     def __post_init__(self):
-        self.analysis = AnalysisLogic()
-        self.filename = os.path.basename(self.filepath)
+        if self.pulsed:
+            self.filename = self.pulsed.base_filename
+        else:
+            self.filename = self.filepath.name
 
     def __repr__(self) -> str:
+
         return f"Measurement(timestamp='{self.timestamp}', filename='{self.filename}')"
 
     @property
