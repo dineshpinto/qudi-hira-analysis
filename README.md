@@ -128,7 +128,9 @@ tip_2S6.data_folder_tree()
 
 ```python
 from pathlib import Path
+
 import seaborn as sns
+
 from src.data_handler import DataHandler
 
 nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
@@ -147,8 +149,9 @@ for rabi in rabi_measurements:
 
 ```python
 from pathlib import Path
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
 from src.data_handler import DataHandler
