@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -11,6 +12,8 @@ if TYPE_CHECKING:
     import datetime
     import numpy as np
     from PIL import Image
+
+logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
 @dataclass
@@ -103,6 +106,8 @@ class MeasurementDataclass:
     __params: dict = field(default=None)
 
     def __post_init__(self):
+        self.log = logging.getLogger(__name__)
+
         if self.pulsed:
             self.filename = self.pulsed.base_filename
         else:
@@ -132,18 +137,37 @@ class MeasurementDataclass:
                 self.__params = self.loaders[1](self.filepath)
             return self.__params
 
-    def get_param_from_filename(self, unit: str) -> float:
-        """ Extract param from filename with format <param><unit>, e.g. 12dBm -> 12, 2e-6mbar -> 2e-6 """
+    def get_param_from_filename(self, unit: str) -> float | None:
+        """
+        Extract param from filename with format <param><unit>, e.g. 12dBm -> 12, 2e-6mbar -> 2e-6
+
+        Args:
+            unit: str
+                unit of param to extract, e.g. dBm, mbar, V, etc.
+
+        Returns: float
+            extracted param from filename
+
+        Examples:
+            # filename = "rabi_12dBm.txt"
+
+            >>> get_param_from_filename(filename, 'dBm')
+            12.0
+        """
         params = re.search(rf"(-?\d+\.?\d*)(?={unit})", self.filename)
 
-        # Handle exponents in filename
-        if self.filename[params.start() - 1] == "e":
-            try:
-                params = re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:]
-                return float(params)
-            except AttributeError:
-                raise Exception(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
-        return float(params.group(0))
+        if params:
+            # Handle exponents in filename
+            if self.filename[params.start() - 1] == "e":
+                try:
+                    params = re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:]
+                    return float(params)
+                except AttributeError:
+                    raise Exception(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
+            return float(params.group(0))
+        else:
+            self.log.warning("Unable to extract parameter from filename")
+            return None
 
     def set_datetime_index(self) -> pd.DataFrame:
         if 'Start counting time' not in self.__params:
