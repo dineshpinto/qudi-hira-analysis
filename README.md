@@ -100,9 +100,9 @@ Fit routines included in `AnalysisLogic`
 ## Inbuilt measurement tree visualizer
 
 ```ipython
-tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
+>>> tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
                       measurement_folder="20220621_FR0612-F2-2S6_uhv")
-tip_2S6.data_folder_tree()
+>>> tip_2S6.data_folder_tree()
 
 # Output
 ├── 20211116_NetworkAnalysis_SampleIn_UpperPin.csv
