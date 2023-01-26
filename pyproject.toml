@@ -17,7 +17,8 @@ seaborn = "^0.12.1"
 jupyterlab = "^3.5.2"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
-pyspm = "^0.2.23"
+tqdm = "^4.64.1"
+pyspm = { git = "https://github.com/dineshpinto/pySPM.git" }
 
 
 [build-system]
