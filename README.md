@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/288670453.svg)](https://zenodo.org/badge/latestdoi/288670453)
+
 # Qudi Hira Analysis
 
 This toolkit automates a large portion of the work surrounding data analysis on quantum sensing experiments where the

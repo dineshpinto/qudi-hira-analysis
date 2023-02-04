@@ -1,8 +1,8 @@
 {
     "description": "A Python toolkit to analyze photon timetrace data from qubit sensors",
     "license": "MIT", 
-    "title": "dineshpinto/qudi-hira-analysis: v1.0.0", 
-    "version": "v1.0.0", 
+    "title": "dineshpinto/qudi-hira-analysis: v1.0.1",
+    "version": "v1.0.1",
     "upload_type": "software", 
     "publication_date": "2023-02-04", 
     "creators": [
@@ -14,7 +14,7 @@
     "related_identifiers": [
         {
             "scheme": "url", 
-            "identifier": "https://github.com/dineshpinto/qudi-hira-analysis/tree/v1.0.0", 
+            "identifier": "https://github.com/dineshpinto/qudi-hira-analysis/tree/v1.0.1",
             "relation": "isSupplementTo"
         }, 
         {
