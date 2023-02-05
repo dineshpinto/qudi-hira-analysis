@@ -234,6 +234,10 @@ jupyter lab
 
 Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
 
+## Citation
+
+If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
+
 ## Makefile
 
 The Makefile located in `notebooks/` is configured to generate a variety of outputs:
