@@ -7,20 +7,9 @@
     "publication_date": "2023-02-04", 
     "creators": [
         {
-            "name": "dinesh pinto"
-        }
-    ], 
-    "access_right": "open", 
-    "related_identifiers": [
-        {
-            "scheme": "url", 
-            "identifier": "https://github.com/dineshpinto/qudi-hira-analysis/tree/v1.0.1",
-            "relation": "isSupplementTo"
-        }, 
-        {
-            "scheme": "doi", 
-            "identifier": "10.5281/zenodo.7604669", 
-            "relation": "isVersionOf"
+            "name": "Dinesh Pinto",
+            "orcid": "0000-0002-1604-2200",
+            "affiliation": "EPFL"
         }
     ]
 }
