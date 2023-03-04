@@ -153,6 +153,10 @@ class MeasurementDataclass:
 
             >>> get_param_from_filename(filename, 'dBm')
             12.0
+
+            # filename = "pixelscan_minus100nm.dat"
+            >>> get_param_from_filename(filename, 'dBm')
+            -100.0
         """
         params = re.search(rf"(-?\d+\.?\d*)(?={unit})", self.filename)
 
@@ -161,10 +165,12 @@ class MeasurementDataclass:
             if self.filename[params.start() - 1] == "e":
                 try:
                     params = re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:]
-                    return float(params)
                 except AttributeError:
                     raise Exception(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
-            return float(params.group(0))
+            if "minus" in self.filename:
+                return -float(params.group(0))
+            else:
+                return float(params.group(0))
         else:
             self.log.warning("Unable to extract parameter from filename")
             return None
