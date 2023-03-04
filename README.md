@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/288670453.svg)](https://zenodo.org/badge/latestdoi/288670453)
+
 # Qudi Hira Analysis
 
 This toolkit automates a large portion of the work surrounding data analysis on quantum sensing experiments where the
@@ -231,6 +233,10 @@ jupyter lab
 ```
 
 Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
+
+## Citation
+
+If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
 
 ## Makefile
 
