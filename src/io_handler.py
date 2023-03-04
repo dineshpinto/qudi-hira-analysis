@@ -299,3 +299,29 @@ class IOHandler:
 
         for ext in extensions:
             fig.savefig(filepath.with_suffix(ext), dpi=200, **kwargs)
+
+    @staticmethod
+    def __get_forward_backward_counts(count_rates, num_pixels):
+        split_array = np.split(count_rates, 2 * num_pixels)
+
+        # Extract forward scan array as every second element
+        forward_counts = np.stack(split_array[::2])
+        # Extract backward scan array as every shifted second element
+        # Flip scan so that backward and forward scans represent the same data
+        backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
+        return forward_counts, backward_counts
+
+    def read_pixelscanner_data(self, filepath, num_pixels=None):
+        df = self.read_into_dataframe(filepath)
+        if num_pixels is None:
+            num_pixels = int(np.sqrt(len(df)) // 2)
+
+        try:
+            forward, backward = self.__get_forward_backward_counts(df["count_rates"], num_pixels)
+            forward /= 1e3
+            backward /= 1e3
+        except KeyError:
+            forward = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
+            backward = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
+
+        return forward, backward
