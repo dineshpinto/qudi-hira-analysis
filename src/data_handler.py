@@ -171,7 +171,7 @@ class DataHandler(DataLoader):
         filepaths: List[Path] = []
 
         for path in self.data_folder_path.rglob("*"):
-            if path.is_file() and measurement in str(path).lower():
+            if path.is_file() and measurement.lower() in str(path).lower():
                 if exclude_str is None or exclude_str not in str(path):
                     if extension:
                         if path.suffix == extension:
