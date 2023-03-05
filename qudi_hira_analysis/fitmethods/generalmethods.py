@@ -21,12 +21,14 @@ top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi
 """
 
 
-import numpy as np
-import lmfit
-from scipy.signal import gaussian
-from scipy.ndimage import filters
-from lmfit import Parameters
 from collections import OrderedDict
+
+import lmfit
+import numpy as np
+from lmfit import Parameters
+from scipy.ndimage import filters
+from scipy.signal import gaussian
+
 
 ############################################################################
 #                                                                          #

@@ -21,16 +21,16 @@ Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
 top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
 """
 
-import numpy as np
-from lmfit.models import Model
-from lmfit import Parameters
-from scipy.signal import gaussian
-from scipy.ndimage import filters
-from scipy.interpolate import InterpolatedUnivariateSpline
 from collections import OrderedDict
 
-
+import numpy as np
+from lmfit import Parameters
+from lmfit.models import Model
+from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.ndimage import filters
+from scipy.signal import gaussian
 from scipy.special import gammaln, xlogy
+
 
 ################################################################################
 #                                                                              #

@@ -21,8 +21,8 @@ top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi
 """
 
 
-from lmfit.models import Model
 import numpy as np
+from lmfit.models import Model
 
 
 ################################################################################

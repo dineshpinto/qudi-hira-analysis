@@ -6,9 +6,9 @@ import os
 from pathlib import Path
 from typing import List, TYPE_CHECKING, Callable
 
-from src.analysis_logic import AnalysisLogic
-from src.io_handler import IOHandler
-from src.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
+from qudi_hira_analysis.analysis_logic import AnalysisLogic
+from qudi_hira_analysis.io_handler import IOHandler
+from qudi_hira_analysis.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
     LaserPulses, MeasurementDataclass
 
 if TYPE_CHECKING:
@@ -80,7 +80,7 @@ class DataHandler(DataLoader):
     Set up the source data folder, the figure folder and the measurement folder.
 
     >>> from pathlib import Path
-    >>> from src.data_handler import DataHandler
+    >>> from qudi_hira_analysis.src import DataHandler
     >>> bakeout_handler = DataHandler(
     >>>     data_folder=Path('C:\\'', 'Data'),
     >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),

@@ -7,7 +7,7 @@ from typing import Tuple, TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
-from src.qudi_fit_logic import FitLogic
+from qudi_hira_analysis.qudi_fit_logic import FitLogic
 
 if TYPE_CHECKING:
     from lmfit.model import ModelResult

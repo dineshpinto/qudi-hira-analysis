@@ -22,13 +22,13 @@ top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi
 """
 
 
-import numpy as np
-from lmfit.models import Model, GaussianModel, ConstantModel
-from lmfit import Parameters
 from collections import OrderedDict
 
-from scipy.interpolate import InterpolatedUnivariateSpline
+import numpy as np
+from lmfit import Parameters
+from lmfit.models import Model
 from scipy.ndimage import filters
+
 
 ############################################################################
 #                                                                          #

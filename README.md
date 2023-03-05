@@ -133,7 +133,7 @@ from pathlib import Path
 
 import seaborn as sns
 
-from src.data_handler import DataHandler
+from qudi_hira_analysis import DataHandler
 
 nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
                           measurement_folder=Path("20230101_NV1"))
@@ -141,10 +141,10 @@ nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\
 rabi_measurements = nv1_handler.load_measurements(measurement_str="rabi", qudi=True, pulsed=True)
 
 for rabi in rabi_measurements:
-  sns.lineplot(x="Controlled variable(s)", y="Signal", data=rabi.data)
-  fit_x, fit_y, result = rabi.analysis.fit(x="Controlled variable(s)", y="Signal",
-                                           data=rabi.data, fit_function=rabi_measurements.sineexponentialdecay)
-  sns.lineplot(x=fit_x, y=fit_y)
+    sns.lineplot(x="Controlled variable(s)", y="Signal", data=rabi.data)
+    fit_x, fit_y, result = rabi.analysis.fit(x="Controlled variable(s)", y="Signal",
+                                             data=rabi.data, fit_function=rabi_measurements.sineexponentialdecay)
+    sns.lineplot(x=fit_x, y=fit_y)
 ```
 
 ### Example 2: Combine all temperature data, plot and save
@@ -156,7 +156,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from src.data_handler import DataHandler
+from qudi_hira_analysis import DataHandler
 
 nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
                           measurement_folder=Path("20230101_NV1"))

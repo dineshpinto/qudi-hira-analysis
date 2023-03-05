@@ -1241,16 +1241,16 @@ files = [
     {file = "kiwisolver-1.4.4-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:1d1573129aa0fd901076e2bfb4275a35f5b7aa60fbfb984499d661ec950320b0"},
     {file = "kiwisolver-1.4.4-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:ad881edc7ccb9d65b0224f4e4d05a1e85cf62d73aab798943df6d48ab0cd79a1"},
     {file = "kiwisolver-1.4.4-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:b428ef021242344340460fa4c9185d0b1f66fbdbfecc6c63eff4b7c29fad429d"},
-    {file = "kiwisolver-1.4.4-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:2e407cb4bd5a13984a6c2c0fe1845e4e41e96f183e5e5cd4d77a857d9693494c"},
-    {file = "kiwisolver-1.4.4-cp38-cp38-win32.whl", hash = "sha256:75facbe9606748f43428fc91a43edb46c7ff68889b91fa31f53b58894503a191"},
-    {file = "kiwisolver-1.4.4-cp38-cp38-win_amd64.whl", hash = "sha256:5bce61af018b0cb2055e0e72e7d65290d822d3feee430b7b8203d8a855e78766"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:8c808594c88a025d4e322d5bb549282c93c8e1ba71b790f539567932722d7bd8"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f0a71d85ecdd570ded8ac3d1c0f480842f49a40beb423bb8014539a9f32a5897"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:b533558eae785e33e8c148a8d9921692a9fe5aa516efbdff8606e7d87b9d5824"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:efda5fc8cc1c61e4f639b8067d118e742b812c930f708e6667a5ce0d13499e29"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:7c43e1e1206cd421cd92e6b3280d4385d41d7166b3ed577ac20444b6995a445f"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bc8d3bd6c72b2dd9decf16ce70e20abcb3274ba01b4e1c96031e0c4067d1e7cd"},
-    {file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:4ea39b0ccc4f5d803e3337dd46bcce60b702be4d86fd0b3d7531ef10fd99a1ac"},
+    { file = "kiwisolver-1.4.4-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:2e407cb4bd5a13984a6c2c0fe1845e4e41e96f183e5e5cd4d77a857d9693494c" },
+    { file = "kiwisolver-1.4.4-cp38-cp38-win32.whl", hash = "sha256:75facbe9606748f43428fc91a43edb46c7ff68889b91fa31f53b58894503a191" },
+    { file = "kiwisolver-1.4.4-cp38-cp38-win_amd64.whl", hash = "sha256:5bce61af018b0cb2055e0e72e7d65290d822d3feee430b7b8203d8a855e78766" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:8c808594c88a025d4e322d5bb549282c93c8e1ba71b790f539567932722d7bd8" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:f0a71d85ecdd570ded8ac3d1c0f480842f49a40beb423bb8014539a9f32a5897" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:b533558eae785e33e8c148a8d9921692a9fe5aa516efbdff8606e7d87b9d5824" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:efda5fc8cc1c61e4f639b8067d118e742b812c930f708e6667a5ce0d13499e29" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:7c43e1e1206cd421cd92e6b3280d4385d41d7166b3ed577ac20444b6995a445f" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bc8d3bd6c72b2dd9decf16ce70e20abcb3274ba01b4e1c96031e0c4067d1e7cd" },
+    { file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:4ea39b0ccc4f5d803e3337dd46bcce60b702be4d86fd0b3d7531ef10fd99a1ac" },
     { file = "kiwisolver-1.4.4-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:968f44fdbf6dd757d12920d63b566eeb4d5b395fd2d00d29d7ef00a00582aac9" },
     { file = "kiwisolver-1.4.4-cp39-cp39-win32.whl", hash = "sha256:da7e547706e69e45d95e116e6939488d62174e033b763ab1496b4c29b76fabea" },
     { file = "kiwisolver-1.4.4-cp39-cp39-win_amd64.whl", hash = "sha256:ba59c92039ec0a66103b1d5fe588fa546373587a7d68f5c96f743c3396afc04b" },
@@ -2110,7 +2110,7 @@ tqdm = "*"
 type = "git"
 url = "https://github.com/dineshpinto/pySPM.git"
 reference = "HEAD"
-resolved_reference = "b35cdd326b1c12db1d04e2ffd8d699485e76e9d9"
+resolved_reference = "a76c38e819f1a695baf95dd7b09b804b3de61ec7"
 
 [[package]]
 name = "python-dateutil"
