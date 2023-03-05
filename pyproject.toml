@@ -13,13 +13,14 @@ lmfit = "^1.1.0"
 matplotlib = "^3.6.2"
 numpy = "^1.24.0"
 pandas = "^1.5.2"
-seaborn = "^0.12.1"
-jupyterlab = "^3.5.2"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
 pyspm = { git = "https://github.com/dineshpinto/pySPM.git" }
 
+[tool.poetry.dev-dependencies]
+seaborn = "^0.12.1"
+jupyterlab = "^3.5.2"
 
 [build-system]
 requires = ["poetry-core"]
