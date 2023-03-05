@@ -139,7 +139,9 @@ class MeasurementDataclass:
 
     def get_param_from_filename(self, unit: str) -> float | None:
         """
-        Extract param from filename with format <param><unit>, e.g. 12dBm -> 12, 2e-6mbar -> 2e-6
+        Extract param from filename with format <param><unit>, where param
+        is a float or integer and unit is a string. The param can be negative
+        with keyword 'minus' or a decimal point with keyword 'point'.
 
         Args:
             unit: str
@@ -149,26 +151,35 @@ class MeasurementDataclass:
             extracted param from filename
 
         Examples:
-            # filename = "rabi_12dBm.txt"
-
-            >>> get_param_from_filename(filename, 'dBm')
+            filename = "rabi_12dBm"
+            >>> get_param_from_filename(filename, unit='dBm')
             12.0
 
-            # filename = "pixelscan_minus100nm.dat"
-            >>> get_param_from_filename(filename, 'dBm')
+            filename = "pixelscan_minus100nm"
+            >>> get_param_from_filename(filename, unit='dBm')
             -100.0
+
+            filename = "rabi_2e-6mbar"
+            >>> get_param_from_filename(filename, unit='mbar')
+            2e-6
+
+            filename = "rabi_2point3uW"
+            >>> get_param_from_filename(filename, unit='uW')
+            2.5
         """
-        params = re.search(rf"(-?\d+\.?\d*)(?={unit})", self.filename)
+        filename = self.filename
+        filename = filename.replace("point", ".")
+        filename = filename.replace("minus", "-")
+        params = re.search(rf"(-?\d+\.?\d*)(?={unit})", filename)
 
         if params:
             # Handle exponents in filename
-            if self.filename[params.start() - 1] == "e":
+            if filename[params.start() - 1] == "e":
                 try:
-                    params = re.search(rf"(?=_\d)[^a]+?(?={unit})", self.filename).group(0)[1:]
+                    params = re.search(rf"(-?_\d)[^a]+?(?={unit})", filename).group(0)[1:]
+                    return float(params)
                 except AttributeError:
-                    raise Exception(f"Parameter with unit '{unit}' not found in filename '{self.filename}'")
-            if "minus" in self.filename:
-                return -float(params.group(0))
+                    raise Exception(f"Parameter with unit '{unit}' not found in filename '{filename}'")
             else:
                 return float(params.group(0))
         else:
