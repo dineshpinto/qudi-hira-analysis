@@ -253,9 +253,12 @@ class IOHandler:
         try:
             forward, backward = self.__get_forward_backward_counts(df["count_rates"], num_pixels)
         except KeyError:
-            # Support old data format
-            forward = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
-            backward = df["backward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
+            try:
+                forward, backward = self.__get_forward_backward_counts(df["Count Rates (cps)"], num_pixels)
+            except KeyError:
+                # Support old data format
+                forward = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
+                backward = df["backward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
         return forward, backward
 
     def save_pkl(self, obj: object, filepath: Path):

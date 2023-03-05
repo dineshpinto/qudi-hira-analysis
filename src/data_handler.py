@@ -36,6 +36,10 @@ class DataLoader(IOHandler):
             self.read_confocal_into_dataframe,
             self.read_qudi_parameters
         )
+        self.pixelscanner_qudi_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
+            self.read_pixelscanner_data,
+            self.read_qudi_parameters
+        )
         self.trace_qudi_loader: (Callable[[Path, ...], np.ndarray], Callable[[Path], dict]) = (
             self.read_into_ndarray_transposed,
             self.read_qudi_parameters
@@ -232,6 +236,9 @@ class DataHandler(DataLoader):
             if measurement_str.lower() == "confocal":
                 loaders = self.confocal_qudi_loader
                 exclude_str = "xy_data.dat"
+            elif measurement_str.lower() == "pixelscanner":
+                loaders = self.pixelscanner_qudi_loader
+                exclude_str = None
             else:
                 loaders = self.default_qudi_loader
                 exclude_str = None
