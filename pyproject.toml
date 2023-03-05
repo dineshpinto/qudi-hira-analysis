@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "qudi-hira-analysis"
-version = "1.1.0"
+version = "1.2.0"
 description = "A Python toolkit to analzye photon timetrace data from qubit sensors"
-authors = ["dineshpinto <dkpinto95@gmail.com>"]
+authors = ["dineshpinto <annual.fallout_0z@icloud.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "qudi-hira-analysis"}]
