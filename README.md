@@ -32,7 +32,6 @@ pip install qudi-hira-analysis
 
 If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
 
-
 ## Schema
 
 The visual structure of the toolkit is shown in the schema below. It largely consists of three portions:
@@ -142,21 +141,31 @@ Fit routines included in `AnalysisLogic`
 
 ```python
 from pathlib import Path
-
+import matplotlib.pyplot as plt
 import seaborn as sns
 
 from qudi_hira_analysis import DataHandler
 
-nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
-                          measurement_folder=Path("20230101_NV1"))
+nv1 = DataHandler(
+  data_folder=Path("C:\\", "Data"),
+  figure_folder=Path("C:\\", "QudiHiraAnalysis"),
+  measurement_folder=Path("20230101_NV1")
+)
 
-rabi_measurements = nv1_handler.load_measurements(measurement_str="rabi", qudi=True, pulsed=True)
+rabi_measurements = nv1.load_measurements(measurement_str="rabi", qudi=True, pulsed=True)
+
+fig, ax = plt.subplots()
 
 for rabi in rabi_measurements:
-    sns.lineplot(x="Controlled variable(s)", y="Signal", data=rabi.data)
-    fit_x, fit_y, result = rabi.analysis.fit(x="Controlled variable(s)", y="Signal",
-                                             data=rabi.data, fit_function=rabi_measurements.sineexponentialdecay)
-    sns.lineplot(x=fit_x, y=fit_y)
+  sns.lineplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
+  fit_x, fit_y, result = rabi.analysis.fit(
+    x="Controlled variable(s)", y="Signal",
+    data=rabi.data,
+    fit_function=rabi_measurements.sineexponentialdecay
+  )
+  sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+
+nv1.save_figures(filepath="rabi_variation", fig=fig)
 ```
 
 #### Example 2: Combine all temperature data, plot and save
@@ -170,16 +179,20 @@ import seaborn as sns
 
 from qudi_hira_analysis import DataHandler
 
-nv1_handler = DataHandler(data_folder=Path("C:\\Data"), figure_folder=Path("C:\\QudiHiraAnalysis"),
-                          measurement_folder=Path("20230101_NV1"))
+nv1 = DataHandler(
+  data_folder=Path("C:\\", "Data"),
+  figure_folder=Path("C:\\", "QudiHiraAnalysis"),
+  measurement_folder=Path("20230101_NV1"),
+  copy_measurement_folder_structure=False
+)
 
-temperature_measurements = nv1_handler.load_measurements(measurement_str="temperature-monitoring")
+temperature_measurements = nv1.load_measurements(measurement_str="temperature-monitoring")
 
 dft = pd.concat([t.data for t in temperature_measurements.values()])
 
 fig, ax = plt.subplots()
-sns.lineplot(x="Time", y="Temperature", data=dft, ax=ax)
-nv1_handler.save_figures(fig, "temperature-monitoring")
+sns.lineplot(data=dft, x="Time", y="Temperature", ax=ax)
+nv1.save_figures(filepath="temperature-monitoring", fig=fig)
 ```
 
 ## Build
@@ -188,7 +201,8 @@ nv1_handler.save_figures(fig, "temperature-monitoring")
 
 Latest version of:
 
-- [Poetry](https://python-poetry.org) (recommended) or [conda](https://docs.conda.io/en/latest/miniconda.html) package manager
+- [Poetry](https://python-poetry.org) (recommended) or [conda](https://docs.conda.io/en/latest/miniconda.html) package
+  manager
 - [git](https://git-scm.com/downloads) version control system
 
 ### Clone the repository
@@ -198,6 +212,7 @@ git clone https://github.com/dineshpinto/qudi-hira-analysis.git
 ```
 
 ### Installing dependencies with Poetry
+
 ```bash
 poetry install
 ```
@@ -245,7 +260,6 @@ jupyter lab
 ```
 
 Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
-
 
 ## Makefile
 
