@@ -1,4 +1,7 @@
 [![DOI](https://zenodo.org/badge/288670453.svg)](https://zenodo.org/badge/latestdoi/288670453)
+[![PyPi version](https://img.shields.io/pypi/v/qudi-hira-analysis)](https://pypi.python.org/pypi/qudi-hira-analysis/)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100//)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110//)
 
 # Qudi Hira Analysis
 
@@ -19,6 +22,19 @@ transparent structure to the data to
 reduce errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
 sidestepped by lazy loading data and storing metadata instead wherever possible.
 
+## Installation
+
+```bash
+pip install qudi-hira-analysis
+```
+
+## Citation
+
+If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
+
+
+## Schema
+
 The visual structure of the toolkit is shown in the schema below. It largely consists of three portions:
 
 - `IOHandler` assumes a central store of raw data, which is never modified (read-only)
@@ -28,10 +44,6 @@ The visual structure of the toolkit is shown in the schema below. It largely con
 
 This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their
 individual licenses in the file header docstring.
-
-## Schema
-
-### Overall
 
 ```mermaid
 flowchart TD;
@@ -71,7 +83,7 @@ flowchart LR;
     end
 ```
 
-## Supports common fitting routines
+### Supports common fitting routines
 
 Fit routines included in `AnalysisLogic`
 
@@ -99,7 +111,7 @@ Fit routines included in `AnalysisLogic`
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
 
-## Inbuilt measurement tree visualizer
+### Inbuilt measurement tree visualizer
 
 ```ipython
 >>> tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
@@ -124,9 +136,9 @@ Fit routines included in `AnalysisLogic`
 └── Tip_Sample_MW_Pin_comparision.png
 ```
 
-## Automated data extraction
+### Automated data extraction
 
-### Example 1: Extract, fit and plot all Rabi measurements
+#### Example 1: Extract, fit and plot all Rabi measurements
 
 ```python
 from pathlib import Path
@@ -147,7 +159,7 @@ for rabi in rabi_measurements:
     sns.lineplot(x=fit_x, y=fit_y)
 ```
 
-### Example 2: Combine all temperature data, plot and save
+#### Example 2: Combine all temperature data, plot and save
 
 ```python
 from pathlib import Path
@@ -170,7 +182,7 @@ sns.lineplot(x="Time", y="Temperature", data=dft, ax=ax)
 nv1_handler.save_figures(fig, "temperature-monitoring")
 ```
 
-## Getting Started
+## Build
 
 ### Prerequisites
 
@@ -234,9 +246,6 @@ jupyter lab
 
 Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
 
-## Citation
-
-If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
 
 ## Makefile
 
