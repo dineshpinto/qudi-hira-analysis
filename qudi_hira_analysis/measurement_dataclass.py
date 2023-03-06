@@ -183,7 +183,7 @@ class MeasurementDataclass:
             else:
                 return float(params.group(0))
         else:
-            self.log.warning("Unable to extract parameter from filename")
+            self.log.warning(f"Unable to extract parameter from filename: {filename}")
             return None
 
     def set_datetime_index(self) -> pd.DataFrame:
