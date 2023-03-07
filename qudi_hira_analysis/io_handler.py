@@ -23,7 +23,7 @@ class IOHandler:
         """ Decorator to add the base_read_path to the filepath if it is not None """
 
         def wrapper(self, filepath: Path, **kwargs):
-            if self.base_read_path is not None:
+            if self.base_read_path:
                 filepath = self.base_read_path / filepath
             return func(self, filepath, **kwargs)
 
@@ -34,7 +34,7 @@ class IOHandler:
         """ Decorator to add the base_write_path to the filepath if it is not None """
 
         def wrapper(self, filepath: Path, **kwargs):
-            if self.base_write_path is not None:
+            if self.base_write_path:
                 filepath = self.base_write_path / filepath
             filepath.parent.mkdir(exist_ok=True)
             return func(self, filepath, **kwargs)

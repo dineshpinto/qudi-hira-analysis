@@ -273,10 +273,10 @@ class DataHandler(DataLoader):
             exclude_str = None
         elif measurement_str == "frq-sweep":
             loaders = self.nanonis_loader
-            exclude_str: str = None
+            exclude_str = None
         else:
             loaders = self.default_qudi_loader
-            exclude_str: str = None
+            exclude_str = None
 
         for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
             timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
