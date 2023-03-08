@@ -71,7 +71,7 @@ class DataHandler(DataLoader):
         measurement_folder: str or pathlib.Path
             Path to the measurement folder.
         copy_measurement_folder_structure: bool
-            Copy measurement folder structure into figure folder. (default: True)
+            Replicate the measurement folder structure into the figure folder. (default: True)
 
     Examples
     --------
@@ -80,7 +80,7 @@ class DataHandler(DataLoader):
     Set up the source data folder, the figure folder and the measurement folder.
 
     >>> from pathlib import Path
-    >>> from qudi_hira_analysis.src import DataHandler
+    >>> from qudi_hira_analysis import DataHandler
     >>> bakeout_handler = DataHandler(
     >>>     data_folder=Path('C:\\'', 'Data'),
     >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
