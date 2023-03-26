@@ -208,7 +208,7 @@ class IOHandler:
     def read_lakeshore_data(self, filepath: Path) -> pd.DataFrame:
         """ Read data stored by Lakeshore temperature monitor software. """
         # Extract only the origin timestamp
-        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=1, header=None)[1][0]
+        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
         # Remove any tzinfo to prevent future exceptions in pandas
         origin = origin.replace("CET", "")
         # Parse datetime object from timestamp
