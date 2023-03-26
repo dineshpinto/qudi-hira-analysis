@@ -9,8 +9,11 @@ def get_list_of_empty_folders(root_folder: str) -> list:
     for root, dirs, files in os.walk(root_folder):
         extensions = set()
         for file in files:
-            ext = file.split(".")[1]
-            extensions.add(ext)
+            try:
+                ext = file.split(".")[1]
+                extensions.add(ext)
+            except IndexError:
+                pass
 
         if len(extensions) == 1 and len(dirs) == 0 and "log" in extensions:
             empty_folders.append(root)
@@ -51,6 +54,10 @@ if __name__ == "__main__":
         - use a set to store all extensions
             - if the length of the set > 2, keep folder
             - else delete folder
+            
+    Examples
+    --------
+    python remove_empty_data_folders.py --path "C:\\Data"
     """
     parser = argparse.ArgumentParser(description='Delete folders with only log files in them.')
     parser.add_argument('--path', type=dir_path, help="Path to measurement folder")
