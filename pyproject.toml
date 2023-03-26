@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qudi-hira-analysis"
-version = "1.3.2"
+version = "1.3.3"
 repository = "https://github.com/dineshpinto/qudi-hira-analysis"
 homepage = "https://github.com/dineshpinto/qudi-hira-analysis"
 keywords = ["python", "qubit", "analysis", "nv centers", "photon timetrace"]
@@ -19,11 +19,12 @@ pandas = "^1.5.2"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
-pyspm = "^0.2.23"
+notebook = "^6.5.3"
 
-[tool.poetry.dev-dependencies]
-seaborn = "^0.12.1"
-jupyterlab = "^3.5.2"
+[tool.poetry.group.dev.dependencies]
+seaborn = "^0.12.2"
+jupyterlab = "^3.6.2"
+pyspm = { git = "https://github.com/scholi/pySPM.git" }
 
 [build-system]
 requires = ["poetry-core"]
