@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qudi-hira-analysis"
-version = "1.3.5"
+version = "1.4.0"
 repository = "https://github.com/dineshpinto/qudi-hira-analysis"
 homepage = "https://github.com/dineshpinto/qudi-hira-analysis"
 keywords = ["python", "qubit", "analysis", "nv centers", "photon timetrace"]
