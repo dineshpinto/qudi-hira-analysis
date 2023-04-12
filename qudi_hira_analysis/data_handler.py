@@ -70,16 +70,12 @@ class DataHandler(DataLoader, AnalysisLogic):
             Path to the figure folder.
         measurement_folder: str or pathlib.Path
             Path to the measurement folder.
-        copy_measurement_folder_structure: bool
-            Replicate the measurement folder structure into the figure folder. (default: True)
 
     Examples
     --------
     Create an instance of the DataHandler class:
 
-    Set up the source data folder, the figure folder and the measurement folder.
-
-    >>> data = DataHandler(
+    >>> dh = DataHandler(
     >>>     data_folder=Path('C:\\'', 'Data'),
     >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
     >>>     measurement_folder=Path('20230101_Bakeout'),
@@ -90,16 +86,12 @@ class DataHandler(DataLoader, AnalysisLogic):
             self,
             data_folder: Path,
             figure_folder: Path,
-            measurement_folder: Path,
-            copy_measurement_folder_structure: bool = True
+            measurement_folder: Path = Path(),
     ):
         self.log = logging.getLogger(__name__)
 
         self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
-        if copy_measurement_folder_structure:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
-        else:
-            self.figure_folder_path = figure_folder
+        self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
 
         super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
 
@@ -320,23 +312,23 @@ class DataHandler(DataLoader, AnalysisLogic):
 
         Examples
         --------
-        `data` is an instance of the `DataHandler` class.
+        `dh` is an instance of the `DataHandler` class.
 
         Load all T1 measurements:
 
-        >>> data.load_measurements(measurement_str="ODMR", qudi=True, pulsed=True)
+        >>> dh.load_measurements(measurement_str="ODMR", pulsed=True)
 
         Load all confocal data:
 
-        >>> data.load_measurements(measurement_str="Confocal", qudi=True)
+        >>> dh.load_measurements(measurement_str="Confocal")
 
         Load all temperature monitoring data:
 
-        >>> data.load_measurements(measurement_str="Temperature", extension=".xls")
+        >>> dh.load_measurements(measurement_str="Temperature")
 
         Load all pressure monitoring data:
 
-        >>> data.load_measurements(measurement_str="Pressure", qudi=True)
+        >>> dh.load_measurements(measurement_str="Pressure")
         """
 
         measurement_str = measurement_str.lower()

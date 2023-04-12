@@ -33,59 +33,152 @@ pip install qudi-hira-analysis
 
 If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
 
-## Schema
+## Examples
 
-The visual structure of the toolkit is shown in the schema below. It largely consists of three portions:
+First set up the `DataHandler` object (henceforth referred to as `dh`) with the correct paths to the data and figure
+folders.
 
-- `IOHandler` assumes a central store of raw data, which is never modified (read-only)
-- `DataHandler` automates the extraction of large amounts of data from the `IOHandler` interface
-- `AnalysisLogic` contains a set of automated fitting routines using `lmfit` internally (built on top of fitting
-  routines from the [qudi](https://github.com/Ulm-IQO/qudi) project)
+Everything revolves around the `dh` object. It is the main interface to the toolkit and is initialized with the
+following required arguments:
 
-This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their
-individual licenses in the file header docstring.
+- `data_folder` is the main folder where all the data is stored, it can be the direct path to the data, or composed of
+  several sub-folders, each containing the data for a specific measurement
+- `figure_folder` is the folder where the output figures will be saved
 
-```mermaid
-flowchart TD;
-    IOHandler<-- Handle all IO operations -->DataLoader;
-    DataLoader<-- Map IO callables to data -->DataHandler;
-    DataHandler-- Structure extracted data -->MeasurementDataclass;
-    MeasurementDataclass-- Plot fitted data --> Plot[Visualize data and add context in JupyterLab];
-    Plot-- Save plotted data --> DataHandler;
-    style MeasurementDataclass fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
+Optional arguments:
+
+- `measurement_folder` is the specific sub-folder in `data_folder` where the data for a specific measurement is stored
+
+```python
+from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from qudi_hira_analysis import DataHandler
+
+dh = DataHandler(
+    data_folder=Path("C:\\", "Data"),
+    figure_folder=Path("C:\\", "QudiHiraAnalysis"),
+    measurement_folder=Path("20230101_NV1")
+)
 ```
 
-### Measurement Dataclass
+To load a specific set of measurements from the data folder, use the `dh.load_measurements()` method, which takes the
+following required arguments:
+
+- `measurement_str` is the string that is used to identify the measurement. It is used to filter the data files in the
+  `data_folder` and `measurement_folder` (if specified)
+
+Optional arguments:
+
+- `qudi` is a boolean. If `True`, the data is assumed to be in the format used by Qudi (default: True)
+- `pulsed` is a boolean. If `True`, the data is assumed to be in the format used by Qudi for pulsed measurements (
+  default: False)
+- `extension` is the extension of the data files (default: ".dat")
+
+The `load_measurements` function returns a dictionary containing the measurement data filtered by `measurement_str`.
+
+- The dictionary keys are measurement timestamps in "(year)(month)(day)-(hour)(minute)-(second)" format.
+
+- The dictionary values are `MeasurementDataclass` objects whose schema is shown
+  visually [here](#measurement-dataclass-schema).
+
+### Example 1: Autocorrelation measurements (Antibunching fit)
+
+```python
+autocorrelation_measurements = dh.load_measurements(measurement_str="Autocorrelation")
+
+fig, ax = plt.subplots()
+
+for autocorrelation in autocorrelation_measurements.values():
+    # Plot the data
+    sns.lineplot(data=autocorrelation.data, x="Controlled variable(s)", y="g2(t)", ax=ax)
+    # Fit the data using the antibunching function
+    fit_x, fit_y, result = dh.fit(x="Controlled variable(s)", y="g2(t)", data=autocorrelation.data,
+                                  fit_function=dh.fit_function.antibunching)
+    # Plot the fit
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath="autocorrelation_variation", fig=fig)
+```
+
+### Example 2: ODMR measurements (double Lorentzian 15N fit)
+
+```python
+odmr_measurements = dh.load_measurements(measurement_str="ODMR", pulsed=True)
+
+fig, ax = plt.subplots()
+
+for odmr in odmr_measurements.values():
+    sns.scatterplot(data=odmr.data, x="Controlled variable(Hz)", y="Signal", ax=ax)
+    fit_x, fit_y, result = dh.fit(x="Controlled variable(Hz)", y="Signal", data=odmr.data,
+                                  fit_function=dh.fit_function.lorentzian_double)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+
+dh.save_figures(filepath="odmr_variation", fig=fig)
+```
+
+### Example 3: Rabi measurements (sine exponential decay fit)
+
+```python
+rabi_measurements = dh.load_measurements(measurement_str="Rabi", pulsed=True)
+
+fig, ax = plt.subplots()
+
+for rabi in rabi_measurements.values():
+    sns.scatterplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
+    fit_x, fit_y, result = dh.fit(x="Controlled variable(s)", y="Signal", data=rabi.data,
+                                  fit_function=dh.fit_function.sineexponentialdecay)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+
+dh.save_figures(filepath="rabi_variation", fig=fig)
+```
+
+### Example 4: Temperature data
+
+```python
+temperature_measurements = dh.load_measurements(measurement_str="Temperature")
+
+temperature = pd.concat([t.data for t in temperature_measurements.values()])
+
+fig, ax = plt.subplots()
+sns.lineplot(data=temperature, x="Time", y="Temperature", ax=ax)
+dh.save_figures(filepath="temperature_monitoring", fig=fig)
+```
+
+## Measurement Dataclass Schema
 
 ```mermaid
-flowchart LR;
+flowchart LR
     subgraph Standard Data
-        MeasurementDataclass-->filepath1[filepath: Path];
-        MeasurementDataclass-->data1[data: DataFrame];
-        MeasurementDataclass-->params1[params: dict];
-        MeasurementDataclass-->timestamp1[timestamp: datetime];
-        MeasurementDataclass-- analysis --oAnalysisLogic;
+        MeasurementDataclass --o filepath1[filepath: Path];
+        MeasurementDataclass --o data1[data: DataFrame];
+        MeasurementDataclass --o params1[params: dict];
+        MeasurementDataclass --o timestamp1[timestamp: datetime.datetime];
+        MeasurementDataclass --o methods1[get_param_from_filename: Callable];
+        MeasurementDataclass --o methods2[set_datetime_index: Callable];
     end
     subgraph Pulsed Data
-        MeasurementDataclass-- pulsed --oPulsedMeasurementDataclass;
-        PulsedMeasurementDataclass-- measurement --oPulsedMeasurement;
-        PulsedMeasurement--> filepath2[filepath: Path];
-        PulsedMeasurement--> data2[data: DataFrame];
-        PulsedMeasurement--> params2[params: dict];
-        PulsedMeasurementDataclass-- laser_pulses --oLaserPulses; 
-        LaserPulses--> filepath3[filepath: Path];
-        LaserPulses--> data3[data: DataFrame];
-        LaserPulses--> params3[params: dict];
-        PulsedMeasurementDataclass-- timetrace --oRawTimetrace;
-        RawTimetrace--> filepath4[filepath: Path];
-        RawTimetrace--> data4[data: DataFrame];
-        RawTimetrace--> params4[params: dict];
+        MeasurementDataclass -- pulsed --> PulsedMeasurementDataclass;
+        PulsedMeasurementDataclass -- measurement --> PulsedMeasurement;
+        PulsedMeasurement --o filepath2[filepath: Path];
+        PulsedMeasurement --o data2[data: DataFrame];
+        PulsedMeasurement --o params2[params: dict];
+        PulsedMeasurementDataclass -- laser_pulses --> LaserPulses;
+        LaserPulses --o filepath3[filepath: Path];
+        LaserPulses --o data3[data: DataFrame];
+        LaserPulses --o params3[params: dict];
+        PulsedMeasurementDataclass -- timetrace --> RawTimetrace;
+        RawTimetrace --o filepath4[filepath: Path];
+        RawTimetrace --o data4[data: DataFrame];
+        RawTimetrace --o params4[params: dict];
     end
 ```
 
-### Supports common fitting routines
+## Supports common fitting routines
 
-Fit routines included in `AnalysisLogic`
+To get the full list of available fit routines, use the `dh.fit_function` attribute. The fit functions are:
 
 | Dimension | Fit                           |
 |-----------|-------------------------------|
@@ -111,12 +204,12 @@ Fit routines included in `AnalysisLogic`
 |           | sinetriplewiththreeexpdecay   |
 | 2d        | twoDgaussian                  |
 
-### Inbuilt measurement tree visualizer
+## Inbuilt measurement tree visualizer
 
 ```ipython
->>> tip_2S6 = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
+>>> data = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
                       measurement_folder="20220621_FR0612-F2-2S6_uhv")
->>> tip_2S6.data_folder_tree()
+>>> data.data_folder_tree()
 
 # Output
 ├── 20211116_NetworkAnalysis_SampleIn_UpperPin.csv
@@ -136,86 +229,25 @@ Fit routines included in `AnalysisLogic`
 └── Tip_Sample_MW_Pin_comparision.png
 ```
 
-### Automated data extraction
+## Overall Schema
 
-First set up the `DataHandler` object with the correct paths to the data and figure folders.
-
-```python
-from pathlib import Path
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-from qudi_hira_analysis import DataHandler
-
-data = DataHandler(
-  data_folder=Path("C:\\", "Data"), 
-  figure_folder=Path("C:\\", "QudiHiraAnalysis"),
-  measurement_folder=Path("20230101_NV1")
-)
+```mermaid
+flowchart TD
+    IOHandler <-- Handle IO operations --> DataLoader;
+    DataLoader <-- Map IO callables --> DataHandler;
+    Qudi[Qudi FitLogic] --> AnalysisLogic;
+    AnalysisLogic -- Inject fit functions --> DataHandler;
+    DataHandler -- Fit data --> Plot;
+    DataHandler -- Structure data --> MeasurementDataclass;
+    MeasurementDataclass -- Plot data --> Plot[JupyterLab Notebook];
+    Plot -- Save plotted data --> DataHandler;
+    style MeasurementDataclass fill: #bbf, stroke: #f66, stroke-width: 2px, color: #fff, stroke-dasharray: 5 5
 ```
 
-#### Example 1: Extract autocorrelation measurements, fit and save
+## License
 
-```python
-autocorrelation_measurements = data.load_measurements(measurement_str="Autocorrelation")
-
-fig, ax = plt.subplots()
-
-for autocorrelation in autocorrelation_measurements.values():
-  sns.lineplot(data=autocorrelation.data, x="Controlled variable(s)", y="g2(t)", ax=ax)
-  fit_x, fit_y, result = data.fit(
-    x="Controlled variable(s)", y="g2(t)", data=autocorrelation.data, fit_function=data.fit_function.antibunching
-  )
-  sns.lineplot(x=fit_x, y=fit_y, ax=ax)
-  
-data.save_figures(filepath="autocorrelation_variation", fig=fig)
-```
-
-#### Example 2: Extract ODMR measurements, fit and save
-
-```python
-odmr_measurements = data.load_measurements(measurement_str="ODMR", pulsed=True)
-
-fig, ax = plt.subplots()
-
-for odmr in odmr_measurements.values():
-  sns.scatterplot(data=odmr.data, x="Controlled variable(Hz)", y="Signal", ax=ax)
-  fit_x, fit_y, result = data.fit(
-    x="Controlled variable(Hz)", y="Signal", data=odmr.data, fit_function=data.fit_function.lorentzian_double
-  )
-  sns.lineplot(x=fit_x, y=fit_y, ax=ax)
-
-data.save_figures(filepath="odmr_variation", fig=fig)
-```
-
-#### Example 3: Extract Rabi measurements, fit and save
-
-```python
-rabi_measurements = data.load_measurements(measurement_str="Rabi", pulsed=True)
-
-fig, ax = plt.subplots()
-
-for rabi in rabi_measurements.values():
-  sns.scatterplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
-  fit_x, fit_y, result = data.fit(
-    x="Controlled variable(s)", y="Signal", data=rabi.data, fit_function=data.fit_function.sineexponentialdecay
-  )
-  sns.lineplot(x=fit_x, y=fit_y, ax=ax)
-
-data.save_figures(filepath="rabi_variation", fig=fig)
-```
-
-#### Example 4: Extract all temperature data, plot and save
-
-```python
-temperature_measurements = data.load_measurements(measurement_str="Temperature")
-
-dft = pd.concat([t.data for t in temperature_measurements.values()])
-
-fig, ax = plt.subplots()
-sns.lineplot(data=dft, x="Time", y="Temperature", ax=ax)
-data.save_figures(filepath="temperature_monitoring", fig=fig)
-```
+This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their
+individual licenses in the file header docstring.
 
 ## Build
 
