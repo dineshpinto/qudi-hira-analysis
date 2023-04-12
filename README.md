@@ -207,9 +207,7 @@ To get the full list of available fit routines, use the `dh.fit_function` attrib
 ## Inbuilt measurement tree visualizer
 
 ```ipython
->>> data = DataHandler(data_folder="C:\\Data", figure_folder="C:\\QudiHiraAnalysis",
-                      measurement_folder="20220621_FR0612-F2-2S6_uhv")
->>> data.data_folder_tree()
+>>> dh.data_folder_tree()
 
 # Output
 ├── 20211116_NetworkAnalysis_SampleIn_UpperPin.csv
