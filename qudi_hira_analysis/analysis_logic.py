@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from enum import Enum
 from typing import Tuple, TYPE_CHECKING
 
 import numpy as np
@@ -15,43 +14,45 @@ if TYPE_CHECKING:
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
 
-class FitMethods(Enum):
-    decayexponential: str = "decayexponential"
-    biexponential: str = "biexponential"
-    decayexponentialstretched: str = "decayexponentialstretched"
-    gaussian: str = "gaussian"
-    gaussiandouble: str = "gaussiandouble"
-    gaussianlinearoffset: str = "gaussianlinearoffset"
-    hyperbolicsaturation: str = "hyperbolicsaturation"
-    linear: str = "linear"
-    lorentzian: str = "lorentzian"
-    lorentziandouble: str = "lorentziandouble"
-    lorentziantriple: str = "lorentziantriple"
-    sine: str = "sine"
-    sinedouble: str = "sinedouble"
-    sinedoublewithexpdecay: str = "sinedoublewithexpdecay"
-    sinedoublewithtwoexpdecay: str = "sinedoublewithtwoexpdecay"
-    sineexponentialdecay: str = "sineexponentialdecay"
-    sinestretchedexponentialdecay: str = "sinestretchedexponentialdecay"
-    sinetriple: str = "sinetriple"
-    sinetriplewithexpdecay: str = "sinetriplewithexpdecay"
-    sinetriplewiththreeexpdecay: str = "sinetriplewiththreeexpdecay"
-    twoDgaussian: str = "twoDgaussian"
-    antibunching: str = "antibunching"
+class FitMethodsAndEstimators:
+    # Fit methods with corresponding estimators
+    antibunching: tuple = ("antibunching", "dip")
+    hyperbolicsaturation: tuple = ("hyperbolicsaturation", "generic")
+    lorentzian: tuple = ("lorentzian", "dip")
+    lorentziandouble: tuple = ("lorentziandouble", "N15")
+    sineexponentialdecay: tuple = ("sineexponentialdecay", "generic")
+    decayexponential: tuple = ("decayexponential", "generic")
+    gaussian: tuple = ("gaussian", "dip")
+    gaussiandouble: tuple = ("gaussiandouble", "dip")
+    gaussianlinearoffset: tuple = ("gaussianlinearoffset", "dip")
+    lorentziantriple: tuple = ("lorentziantriple", "N14")
+    biexponential: tuple = ("biexponential", "generic")
+    decayexponentialstretched: tuple = ("decayexponentialstretched", "generic")
+    linear: tuple = ("linear", "generic")
+    sine: tuple = ("sine", "generic")
+    sinedouble: tuple = ("sinedouble", "generic")
+    sinedoublewithexpdecay: tuple = ("sinedoublewithexpdecay", "generic")
+    sinedoublewithtwoexpdecay: tuple = ("sinedoublewithtwoexpdecay", "generic")
+    sinestretchedexponentialdecay: tuple = ("sinestretchedexponentialdecay", "generic")
+    sinetriple: tuple = ("sinetriple", "generic")
+    sinetriplewithexpdecay: tuple = ("sinetriplewithexpdecay", "generic")
+    sinetriplewiththreeexpdecay: tuple = ("sinetriplewiththreeexpdecay", "generic")
+    twoDgaussian: tuple = ("twoDgaussian", "generic")
 
 
 class AnalysisLogic(FitLogic):
+    fit_function = FitMethodsAndEstimators
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger(__name__)
-        self.fit_methods = FitMethods
 
     def perform_fit(
             self,
             x: pd.Series,
             y: pd.Series,
-            fit_function: str | FitMethods,
-            estimator: str = "generic",
+            fit_function: str,
+            estimator: str,
             dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         """
         Fits available:
@@ -87,8 +88,6 @@ class AnalysisLogic(FitLogic):
             x = x.to_numpy()
         if isinstance(y, pd.Series):
             y = y.to_numpy()
-        if isinstance(fit_function, FitMethods):
-            fit_function = fit_function.name
 
         fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
         user_fit = self.validate_load_fits(fit)
@@ -110,15 +109,19 @@ class AnalysisLogic(FitLogic):
             x: str,
             y: str,
             data: pd.DataFrame,
-            fit_function: str | FitMethods,
-            estimator: str = "generic",
+            fit_function: FitMethodsAndEstimators,
     ) -> Tuple[np.ndarray, np.ndarray, ModelResult]:
+        if "twoD" in fit_function[0]:
+            dims = "2d"
+        else:
+            dims = "1d"
+
         return self.perform_fit(
             x=data[x],
             y=data[y],
-            fit_function=fit_function,
-            estimator=estimator,
-            dims="1d"
+            fit_function=fit_function[0],
+            estimator=fit_function[1],
+            dims=dims
         )
 
     def get_all_fits(self) -> Tuple[list, list]:

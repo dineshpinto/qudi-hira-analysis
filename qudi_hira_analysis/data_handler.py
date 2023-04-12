@@ -58,7 +58,7 @@ class DataLoader(IOHandler):
         )
 
 
-class DataHandler(DataLoader):
+class DataHandler(DataLoader, AnalysisLogic):
     """
     Handles automated data searching and extraction into dataclasses.
 
@@ -79,9 +79,7 @@ class DataHandler(DataLoader):
 
     Set up the source data folder, the figure folder and the measurement folder.
 
-    >>> from pathlib import Path
-    >>> from qudi_hira_analysis import DataHandler
-    >>> bakeout_handler = DataHandler(
+    >>> data = DataHandler(
     >>>     data_folder=Path('C:\\'', 'Data'),
     >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
     >>>     measurement_folder=Path('20230101_Bakeout'),
@@ -96,7 +94,6 @@ class DataHandler(DataLoader):
             copy_measurement_folder_structure: bool = True
     ):
         self.log = logging.getLogger(__name__)
-        self.analysis = AnalysisLogic()
 
         self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
         if copy_measurement_folder_structure:
@@ -293,7 +290,7 @@ class DataHandler(DataLoader):
     def load_measurements(
             self,
             measurement_str: str,
-            qudi: bool = False,
+            qudi: bool = True,
             pulsed: bool = False,
             extension: str = ".dat"
     ) -> dict[str: MeasurementDataclass]:
@@ -323,21 +320,23 @@ class DataHandler(DataLoader):
 
         Examples
         --------
-        Load all T1 measurements measured using qudi:
+        `data` is an instance of the `DataHandler` class.
 
-        >>> handler.load_measurements(measurement_str="t1", qudi=True, pulsed=True)
+        Load all T1 measurements:
 
-        Load all confocal data measured using qudi:
+        >>> data.load_measurements(measurement_str="ODMR", qudi=True, pulsed=True)
 
-        >>> handler.load_measurements(measurement_str="confocal", qudi=True)
+        Load all confocal data:
 
-        Load all temperature monitoring data measured using a Lakeshore monitor:
+        >>> data.load_measurements(measurement_str="Confocal", qudi=True)
 
-        >>> handler.load_measurements(measurement_str="temperature-monitoring", extension=".xls")
+        Load all temperature monitoring data:
 
-        Load all pressure monitoring data measured using a Pfeiffer monitor:
+        >>> data.load_measurements(measurement_str="Temperature", extension=".xls")
 
-        >>> handler.load_measurements(measurement_str="pressure-monitoring", extension=".txt")
+        Load all pressure monitoring data:
+
+        >>> data.load_measurements(measurement_str="Pressure", qudi=True)
         """
 
         measurement_str = measurement_str.lower()

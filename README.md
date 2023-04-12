@@ -138,7 +138,7 @@ Fit routines included in `AnalysisLogic`
 
 ### Automated data extraction
 
-#### Example 1: Extract, fit and plot all Rabi measurements
+First set up the `DataHandler` object with the correct paths to the data and figure folders.
 
 ```python
 from pathlib import Path
@@ -147,53 +147,74 @@ import seaborn as sns
 
 from qudi_hira_analysis import DataHandler
 
-nv1 = DataHandler(
-  data_folder=Path("C:\\", "Data"),
+data = DataHandler(
+  data_folder=Path("C:\\", "Data"), 
   figure_folder=Path("C:\\", "QudiHiraAnalysis"),
   measurement_folder=Path("20230101_NV1")
 )
+```
 
-rabi_measurements = nv1.load_measurements(measurement_str="rabi", qudi=True, pulsed=True)
+#### Example 1: Extract autocorrelation measurements, fit and save
+
+```python
+autocorrelation_measurements = data.load_measurements(measurement_str="Autocorrelation")
 
 fig, ax = plt.subplots()
 
-for rabi in rabi_measurements:
-  sns.lineplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
-  fit_x, fit_y, result = rabi.analysis.fit(
-    x="Controlled variable(s)", y="Signal",
-    data=rabi.data,
-    fit_function=rabi_measurements.sineexponentialdecay
+for autocorrelation in autocorrelation_measurements.values():
+  sns.lineplot(data=autocorrelation.data, x="Controlled variable(s)", y="g2(t)", ax=ax)
+  fit_x, fit_y, result = data.fit(
+    x="Controlled variable(s)", y="g2(t)", data=autocorrelation.data, fit_function=data.fit_function.antibunching
+  )
+  sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+  
+data.save_figures(filepath="autocorrelation_variation", fig=fig)
+```
+
+#### Example 2: Extract ODMR measurements, fit and save
+
+```python
+odmr_measurements = data.load_measurements(measurement_str="ODMR", pulsed=True)
+
+fig, ax = plt.subplots()
+
+for odmr in odmr_measurements.values():
+  sns.scatterplot(data=odmr.data, x="Controlled variable(Hz)", y="Signal", ax=ax)
+  fit_x, fit_y, result = data.fit(
+    x="Controlled variable(Hz)", y="Signal", data=odmr.data, fit_function=data.fit_function.lorentzian_double
   )
   sns.lineplot(x=fit_x, y=fit_y, ax=ax)
 
-nv1.save_figures(filepath="rabi_variation", fig=fig)
+data.save_figures(filepath="odmr_variation", fig=fig)
 ```
 
-#### Example 2: Combine all temperature data, plot and save
+#### Example 3: Extract Rabi measurements, fit and save
 
 ```python
-from pathlib import Path
+rabi_measurements = data.load_measurements(measurement_str="Rabi", pulsed=True)
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import seaborn as sns
+fig, ax = plt.subplots()
 
-from qudi_hira_analysis import DataHandler
+for rabi in rabi_measurements.values():
+  sns.scatterplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
+  fit_x, fit_y, result = data.fit(
+    x="Controlled variable(s)", y="Signal", data=rabi.data, fit_function=data.fit_function.sineexponentialdecay
+  )
+  sns.lineplot(x=fit_x, y=fit_y, ax=ax)
 
-nv1 = DataHandler(
-  data_folder=Path("C:\\", "Data"),
-  figure_folder=Path("C:\\", "QudiHiraAnalysis"),
-  measurement_folder=Path("20230101_NV1"),
-  copy_measurement_folder_structure=False
-)
+data.save_figures(filepath="rabi_variation", fig=fig)
+```
 
-temperature_measurements = nv1.load_measurements(measurement_str="temperature-monitoring")
+#### Example 4: Extract all temperature data, plot and save
+
+```python
+temperature_measurements = data.load_measurements(measurement_str="Temperature")
 
 dft = pd.concat([t.data for t in temperature_measurements.values()])
 
 fig, ax = plt.subplots()
 sns.lineplot(data=dft, x="Time", y="Temperature", ax=ax)
-nv1.save_figures(filepath="temperature-monitoring", fig=fig)
+data.save_figures(filepath="temperature_monitoring", fig=fig)
 ```
 
 ## Build
