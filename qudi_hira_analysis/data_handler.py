@@ -58,7 +58,7 @@ class DataLoader(IOHandler):
         )
 
 
-class DataHandler(DataLoader):
+class DataHandler(DataLoader, AnalysisLogic):
     """
     Handles automated data searching and extraction into dataclasses.
 
@@ -70,19 +70,12 @@ class DataHandler(DataLoader):
             Path to the figure folder.
         measurement_folder: str or pathlib.Path
             Path to the measurement folder.
-        copy_measurement_folder_structure: bool
-            Replicate the measurement folder structure into the figure folder. (default: True)
 
     Examples
     --------
     Create an instance of the DataHandler class:
 
-    Set up the source data folder, the figure folder and the measurement folder.
-
-    >>> from pathlib import Path
-    >>> from qudi_hira_analysis import DataHandler
-    >>>
-    >>> handler = DataHandler(
+    >>> dh = DataHandler(
     >>>     data_folder=Path('C:\\'', 'Data'),
     >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
     >>>     measurement_folder=Path('20230101_Bakeout'),
@@ -93,17 +86,12 @@ class DataHandler(DataLoader):
             self,
             data_folder: Path,
             figure_folder: Path,
-            measurement_folder: Path,
-            copy_measurement_folder_structure: bool = True
+            measurement_folder: Path = Path(),
     ):
         self.log = logging.getLogger(__name__)
-        self.analysis = AnalysisLogic()
 
         self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
-        if copy_measurement_folder_structure:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
-        else:
-            self.figure_folder_path = figure_folder
+        self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
 
         super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
 
@@ -294,12 +282,12 @@ class DataHandler(DataLoader):
     def load_measurements(
             self,
             measurement_str: str,
-            qudi: bool = False,
+            qudi: bool = True,
             pulsed: bool = False,
             extension: str = ".dat"
     ) -> dict[str: MeasurementDataclass]:
         """
-        Lazy load all measurements of a given type into a dictionary of MeasurementDataclass.
+        Lazy load all measurements of a given type into a dictionary of dataclasses.
 
         Parameters
         ----------
@@ -324,21 +312,23 @@ class DataHandler(DataLoader):
 
         Examples
         --------
-        Load all pulsed T1 measurements measured using qudi:
+        `dh` is an instance of the `DataHandler` class.
 
-        >>> load_measurements(measurement_str="t1", qudi=True, pulsed=True)
+        Load all T1 measurements:
 
-        Load all confocal data measured using qudi:
+        >>> dh.load_measurements(measurement_str="ODMR", pulsed=True)
 
-        >>> load_measurements(measurement_str="confocal", qudi=True)
+        Load all confocal data:
 
-        Load all temperature monitoring data measured using a Lakeshore monitor:
+        >>> dh.load_measurements(measurement_str="Confocal")
 
-        >>> load_measurements(measurement_str="temperature-monitoring", extension=".xls")
+        Load all temperature monitoring data:
 
-        Load all pressure monitoring data measured using a Pfeiffer monitor:
+        >>> dh.load_measurements(measurement_str="Temperature")
 
-        >>> load_measurements(measurement_str="pressure-monitoring", extension=".txt")
+        Load all pressure monitoring data:
+
+        >>> dh.load_measurements(measurement_str="Pressure")
         """
 
         measurement_str = measurement_str.lower()
