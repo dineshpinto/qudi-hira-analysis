@@ -81,7 +81,8 @@ class DataHandler(DataLoader):
 
     >>> from pathlib import Path
     >>> from qudi_hira_analysis import DataHandler
-    >>> bakeout_handler = DataHandler(
+    >>>
+    >>> handler = DataHandler(
     >>>     data_folder=Path('C:\\'', 'Data'),
     >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
     >>>     measurement_folder=Path('20230101_Bakeout'),
@@ -298,7 +299,7 @@ class DataHandler(DataLoader):
             extension: str = ".dat"
     ) -> dict[str: MeasurementDataclass]:
         """
-        Lazy load all measurements of a given type into a dictionary of dataclasses.
+        Lazy load all measurements of a given type into a dictionary of MeasurementDataclass.
 
         Parameters
         ----------
@@ -323,21 +324,21 @@ class DataHandler(DataLoader):
 
         Examples
         --------
-        Load all T1 measurements measured using qudi:
+        Load all pulsed T1 measurements measured using qudi:
 
-        >>> handler.load_measurements(measurement_str="t1", qudi=True, pulsed=True)
+        >>> load_measurements(measurement_str="t1", qudi=True, pulsed=True)
 
         Load all confocal data measured using qudi:
 
-        >>> handler.load_measurements(measurement_str="confocal", qudi=True)
+        >>> load_measurements(measurement_str="confocal", qudi=True)
 
         Load all temperature monitoring data measured using a Lakeshore monitor:
 
-        >>> handler.load_measurements(measurement_str="temperature-monitoring", extension=".xls")
+        >>> load_measurements(measurement_str="temperature-monitoring", extension=".xls")
 
         Load all pressure monitoring data measured using a Pfeiffer monitor:
 
-        >>> handler.load_measurements(measurement_str="pressure-monitoring", extension=".txt")
+        >>> load_measurements(measurement_str="pressure-monitoring", extension=".txt")
         """
 
         measurement_str = measurement_str.lower()
