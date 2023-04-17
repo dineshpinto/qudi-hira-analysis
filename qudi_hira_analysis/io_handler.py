@@ -3,6 +3,7 @@ import datetime
 import inspect
 import itertools
 import pickle
+from functools import wraps
 from pathlib import Path
 from typing import Callable
 
@@ -23,6 +24,7 @@ class IOHandler:
     def add_base_read_path(func: Callable) -> Callable:
         """ Decorator to add the base_read_path to the filepath if it is not None """
 
+        @wraps(func)
         def wrapper(self, filepath: Path, **kwargs):
             if self.base_read_path:
                 filepath = self.base_read_path / filepath
@@ -34,6 +36,7 @@ class IOHandler:
     def add_base_write_path(func: Callable) -> Callable:
         """ Decorator to add the base_write_path to the filepath if it is not None """
 
+        @wraps(func)
         def wrapper(self, filepath: Path, **kwargs):
             if self.base_write_path:
                 filepath = self.base_write_path / filepath
