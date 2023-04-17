@@ -15,6 +15,7 @@ class IOHandler:
     """ Handle all read and write operations. """
 
     def __init__(self, base_read_path: Path = None, base_write_path: Path = None):
+        super().__init__()
         self.base_read_path = base_read_path
         self.base_write_path = base_write_path
 

@@ -49,8 +49,8 @@ class FitLogic:
     # Optional additional paths to import from
     _additional_methods_import_path = False
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self):
+        super().__init__()
         # locking for thread safety
 
         filenames = []
