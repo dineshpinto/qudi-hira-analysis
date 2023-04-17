@@ -19,13 +19,13 @@ class FitMethodsAndEstimators:
     antibunching: tuple = ("antibunching", "dip")
     hyperbolicsaturation: tuple = ("hyperbolicsaturation", "generic")
     lorentzian: tuple = ("lorentzian", "dip")
-    lorentziandouble: tuple = ("lorentziandouble", "N15")
+    lorentziandouble: tuple = ("lorentziandouble", "dip")
     sineexponentialdecay: tuple = ("sineexponentialdecay", "generic")
     decayexponential: tuple = ("decayexponential", "generic")
     gaussian: tuple = ("gaussian", "dip")
     gaussiandouble: tuple = ("gaussiandouble", "dip")
     gaussianlinearoffset: tuple = ("gaussianlinearoffset", "dip")
-    lorentziantriple: tuple = ("lorentziantriple", "N14")
+    lorentziantriple: tuple = ("lorentziantriple", "dip")
     biexponential: tuple = ("biexponential", "generic")
     decayexponentialstretched: tuple = ("decayexponentialstretched", "generic")
     linear: tuple = ("linear", "generic")
@@ -47,10 +47,10 @@ class AnalysisLogic(FitLogic):
         super().__init__()
         self.log = logging.getLogger(__name__)
 
-    def perform_fit(
+    def _perform_fit(
             self,
-            x: pd.Series,
-            y: pd.Series,
+            x: np.ndarray,
+            y: np.ndarray,
             fit_function: str,
             estimator: str,
             dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
@@ -83,12 +83,6 @@ class AnalysisLogic(FitLogic):
             - generic
             - dip
         """
-
-        if isinstance(x, pd.Series) or isinstance(x, pd.Index):
-            x = x.to_numpy()
-        if isinstance(y, pd.Series):
-            y = y.to_numpy()
-
         fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
         user_fit = self.validate_load_fits(fit)
 
@@ -106,19 +100,30 @@ class AnalysisLogic(FitLogic):
 
     def fit(
             self,
-            x: str,
-            y: str,
-            data: pd.DataFrame,
+            x: str | np.ndarray | pd.Series,
+            y: str | np.ndarray | pd.Series,
             fit_function: FitMethodsAndEstimators,
+            data: pd.DataFrame = None,
     ) -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         if "twoD" in fit_function[0]:
             dims = "2d"
         else:
             dims = "1d"
 
-        return self.perform_fit(
-            x=data[x],
-            y=data[y],
+        if data is None:
+            if isinstance(x, pd.Series) or isinstance(x, pd.Index):
+                x = x.to_numpy()
+            if isinstance(y, pd.Series):
+                y = y.to_numpy()
+        elif isinstance(data, pd.DataFrame):
+            x = data[x].to_numpy(),
+            y = data[y].to_numpy(),
+        else:
+            raise TypeError("Data must be a pandas DataFrame or None")
+
+        return self._perform_fit(
+            x=x,
+            y=y,
             fit_function=fit_function[0],
             estimator=fit_function[1],
             dims=dims
