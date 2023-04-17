@@ -87,11 +87,16 @@ class DataHandler(DataLoader, AnalysisLogic):
             data_folder: Path,
             figure_folder: Path,
             measurement_folder: Path = Path(),
+            copy_measurement_folder_structure: bool = True,
     ):
         self.log = logging.getLogger(__name__)
 
         self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
-        self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+
+        if copy_measurement_folder_structure:
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+        else:
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, Path())
 
         super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
 
