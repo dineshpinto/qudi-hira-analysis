@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from typing import List, TYPE_CHECKING, Callable
 
+import pySPM
+
 from qudi_hira_analysis.analysis_logic import AnalysisLogic
 from qudi_hira_analysis.io_handler import IOHandler
 from qudi_hira_analysis.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
@@ -48,8 +50,20 @@ class DataLoader(IOHandler):
             self.read_nanonis_data,
             self.read_nanonis_parameters
         )
+        self.nanonis_spm_loader: (Callable[[Path], pySPM.SXM], None) = (
+            self.read_nanonis_spm_data,
+            None
+        )
+        self.bruker_spm_loader: (Callable[[Path], pySPM.Bruker], None) = (
+            self.read_bruker_spm_data,
+            None
+        )
         self.temperature_loader: (Callable[[Path], pd.DataFrame], None) = (
             self.read_lakeshore_data,
+            None
+        )
+        self.pys_loader: (Callable[[Path], dict], None) = (
+            self.read_pys,
             None
         )
         self.pressure_loader: (Callable[[Path], pd.DataFrame], None) = (
@@ -257,6 +271,7 @@ class DataHandler(DataLoader, AnalysisLogic):
     ) -> dict[str: MeasurementDataclass]:
         measurement_list: dict[str: MeasurementDataclass] = {}
 
+        # Try and infer measurement type
         if measurement_str.lower() == "temperature-monitoring":
             loaders = self.temperature_loader
             extension = ".xls"
@@ -267,6 +282,15 @@ class DataHandler(DataLoader, AnalysisLogic):
             exclude_str = None
         elif measurement_str == "frq-sweep":
             loaders = self.nanonis_loader
+            exclude_str = None
+        elif extension == ".sxm":
+            loaders = self.nanonis_spm_loader
+            exclude_str = None
+        elif extension == ".pys":
+            loaders = self.pys_loader
+            exclude_str = None
+        elif extension == ".001":
+            loaders = self.bruker_spm_loader
             exclude_str = None
         else:
             loaders = self.default_qudi_loader

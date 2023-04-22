@@ -10,6 +10,7 @@ from typing import Callable
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pySPM
 
 
 class IOHandler:
@@ -138,9 +139,11 @@ class IOHandler:
 
     @add_base_read_path
     @check_extension(".pys")
-    def read_pys(self, filepath: Path) -> np.ndarray:
+    def read_pys(self, filepath: Path) -> dict:
         """ Loads raw pys data files. Wraps around numpy.load. """
-        return np.load(str(filepath), encoding="bytes", allow_pickle=True)
+        byte_dict = np.load(str(filepath), encoding="bytes", allow_pickle=True)
+        # Convert byte string keys to normal strings
+        return {key.decode('utf8'): byte_dict.get(key) for key in byte_dict.keys()}
 
     @add_base_read_path
     @check_extension(".pkl")
@@ -191,6 +194,18 @@ class IOHandler:
                         label = label.replace("Oscillation Control>", "")
                     parameters[label] = value
         return parameters
+
+    @add_base_read_path
+    @check_extension(".sxm")
+    def read_nanonis_spm_data(self, filepath: Path) -> pySPM.SXM:
+        """ Read a Nanonis SPM data file. """
+        return pySPM.SXM(filepath)
+
+    @add_base_read_path
+    @check_extension(".001")
+    def read_bruker_spm_data(self, filepath: Path) -> pySPM.Bruker:
+        """ Read a Bruker SPM data file. """
+        return pySPM.Bruker(filepath)
 
     @add_base_read_path
     @check_extension(".txt")
