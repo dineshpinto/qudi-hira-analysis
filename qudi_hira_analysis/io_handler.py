@@ -259,7 +259,7 @@ class IOHandler:
         backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
         return forward_counts, backward_counts
 
-    def read_pixelscanner_data(self, filepath: Path) -> (np.ndarray, np.ndarray):
+    def read_pixelscanner_data(self, filepath: Path) -> (pySPM.SPM_image, pySPM.SPM_image):
         df = self.read_into_dataframe(filepath)
         num_pixels = int(np.sqrt(len(df) // 2))
 
@@ -267,15 +267,18 @@ class IOHandler:
             raise ValueError("Number of pixels does not match data length.")
 
         try:
-            forward, backward = self.__get_forward_backward_counts(df["count_rates"], num_pixels)
+            fwd, bwd = self.__get_forward_backward_counts(df["count_rates"], num_pixels)
         except KeyError:
             try:
-                forward, backward = self.__get_forward_backward_counts(df["Count Rates (cps)"], num_pixels)
+                fwd, bwd = self.__get_forward_backward_counts(df["Count Rates (cps)"], num_pixels)
             except KeyError:
                 # Support old data format
-                forward = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
-                backward = df["backward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
-        return forward, backward
+                fwd = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
+                bwd = df["backward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
+
+        fwd = pySPM.SPM_image(fwd, channel="Forward", _type="NV-PL")
+        bwd = pySPM.SPM_image(bwd, channel="Backward", _type="NV-PL")
+        return fwd, bwd
 
     @add_base_write_path
     @check_extension(".pkl")

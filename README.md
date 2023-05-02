@@ -83,7 +83,60 @@ The `load_measurements` function returns a dictionary containing the measurement
 - The dictionary values are `MeasurementDataclass` objects whose schema is shown
   visually [here](#measurement-dataclass-schema).
 
-### Example 1: Autocorrelation measurements (Antibunching fit)
+### Example 0: NV-PL measurements
+
+```python
+pixel_scanner_measurements = dh.load_measurements(measurement_str="PixelScanner")
+
+fwd, bwd = pixel_scanner_measurements["20230101-0420-00"].data
+
+# If size is known, it can be specified here
+fwd.size["real"] = {"x": 1e-6, "y": 1e-6, "unit": "m"}
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+fwd.filter_gaussian(sigma=0.5)
+
+# Add scale bar, color bar and plot the data
+img = fwd.show(cmap="inferno", ax=ax)
+fwd.add_scale(length=1e-6, ax=ax, height=1)
+cbar = fig.colorbar(img)
+cbar.set_label("NV-PL (kcps)")
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath="nv_pl_scan", fig=fig, only_jpg=True)
+```
+
+### Example 1: Nanonis AFM measurements
+
+```python
+afm_measurements = dh.load_measurements(measurement_str="Scan", extension=".sxm")
+
+afm = afm_measurements["20230101-0420-00"].data
+
+# Print the channels available in the data
+afm.list_channels()
+topo = afm.get_channel("Z")
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+topo.correct_lines()
+topo.correct_plane()
+topo.filter_lowpass(fft_radius=20)
+topo.zero_min()
+
+# Add scale bar, color bar and plot the data
+img = topo.show(cmap="inferno", ax=ax)
+topo.add_scale(length=1e-6, ax=ax, height=1, fontsize=10)
+cbar = fig.colorbar(img)
+cbar.set_label("Height (nm)")
+
+dh.save_figures(filepath="afm_topo", fig=fig, only_jpg=True)
+``` 
+
+### Example 2: Autocorrelation measurements (Antibunching fit)
 
 ```python
 autocorrelation_measurements = dh.load_measurements(measurement_str="Autocorrelation")
@@ -103,7 +156,7 @@ for autocorrelation in autocorrelation_measurements.values():
 dh.save_figures(filepath="autocorrelation_variation", fig=fig)
 ```
 
-### Example 2: ODMR measurements (double Lorentzian 15N fit)
+### Example 3: ODMR measurements (double Lorentzian fit)
 
 ```python
 odmr_measurements = dh.load_measurements(measurement_str="ODMR", pulsed=True)
@@ -119,7 +172,7 @@ for odmr in odmr_measurements.values():
 dh.save_figures(filepath="odmr_variation", fig=fig)
 ```
 
-### Example 3: Rabi measurements (sine exponential decay fit)
+### Example 4: Rabi measurements (sine exponential decay fit)
 
 ```python
 rabi_measurements = dh.load_measurements(measurement_str="Rabi", pulsed=True)
@@ -135,7 +188,7 @@ for rabi in rabi_measurements.values():
 dh.save_figures(filepath="rabi_variation", fig=fig)
 ```
 
-### Example 4: Temperature data
+### Example 5: Temperature data
 
 ```python
 temperature_measurements = dh.load_measurements(measurement_str="Temperature")
