@@ -144,13 +144,14 @@ autocorrelation_measurements = dh.load_measurements(measurement_str="Autocorrela
 fig, ax = plt.subplots()
 
 for autocorrelation in autocorrelation_measurements.values():
-    # Plot the data
-    sns.lineplot(data=autocorrelation.data, x="Controlled variable(s)", y="g2(t)", ax=ax)
-    # Fit the data using the antibunching function
-    fit_x, fit_y, result = dh.fit(x="Controlled variable(s)", y="g2(t)", data=autocorrelation.data,
-                                  fit_function=dh.fit_function.antibunching)
-    # Plot the fit
-    sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+  autocorrelation.data["Time (ns)"] = autocorrelation.data["Time (ps)"] * 1e-3
+  # Plot the data
+  sns.lineplot(data=autocorrelation.data, x="Time (ns)", y="g2(t) norm", ax=ax)
+  # Fit the data using the antibunching function
+  fit_x, fit_y, result = dh.fit(x="Time (ns)", y="g2(t) norm", data=autocorrelation.data,
+                                fit_function=dh.fit_function.antibunching)
+  # Plot the fit
+  sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
 # Save the figure to the figure folder specified earlier
 dh.save_figures(filepath="autocorrelation_variation", fig=fig)
@@ -167,7 +168,7 @@ for odmr in odmr_measurements.values():
     sns.scatterplot(data=odmr.data, x="Controlled variable(Hz)", y="Signal", ax=ax)
     fit_x, fit_y, result = dh.fit(x="Controlled variable(Hz)", y="Signal", data=odmr.data,
                                   fit_function=dh.fit_function.lorentzian_double)
-    sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
 dh.save_figures(filepath="odmr_variation", fig=fig)
 ```
@@ -183,7 +184,7 @@ for rabi in rabi_measurements.values():
     sns.scatterplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
     fit_x, fit_y, result = dh.fit(x="Controlled variable(s)", y="Signal", data=rabi.data,
                                   fit_function=dh.fit_function.sineexponentialdecay)
-    sns.lineplot(x=fit_x, y=fit_y, ax=ax)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
 dh.save_figures(filepath="rabi_variation", fig=fig)
 ```

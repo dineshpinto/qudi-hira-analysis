@@ -116,8 +116,8 @@ class AnalysisLogic(FitLogic):
             if isinstance(y, pd.Series):
                 y = y.to_numpy()
         elif isinstance(data, pd.DataFrame):
-            x = data[x].to_numpy(),
-            y = data[y].to_numpy(),
+            x = data[x].to_numpy()
+            y = data[y].to_numpy()
         else:
             raise TypeError("Data must be a pandas DataFrame or None")
 
