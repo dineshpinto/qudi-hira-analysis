@@ -167,7 +167,7 @@ fig, ax = plt.subplots()
 for odmr in odmr_measurements.values():
     sns.scatterplot(data=odmr.data, x="Controlled variable(Hz)", y="Signal", ax=ax)
     fit_x, fit_y, result = dh.fit(x="Controlled variable(Hz)", y="Signal", data=odmr.data,
-                                  fit_function=dh.fit_function.lorentzian_double)
+                                  fit_function=dh.fit_function.lorentziandouble)
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
 dh.save_figures(filepath="odmr_variation", fig=fig)
