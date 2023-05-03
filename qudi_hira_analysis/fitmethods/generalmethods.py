@@ -26,7 +26,7 @@ from collections import OrderedDict
 import lmfit
 import numpy as np
 from lmfit import Parameters
-from scipy.ndimage import filters
+from scipy.ndimage import convolve1d
 from scipy.signal import gaussian
 
 
@@ -474,9 +474,9 @@ def find_offset_parameter(self, x_values=None, data=None):
         len_x = int(len(x_values)/10.)+1
 
     lorentz = mod.eval(x=np.linspace(0, len_x, len_x), amplitude=1, offset=0.,
-                       sigma=len_x/4., center=len_x/2.)
-    data_smooth = filters.convolve1d(data, lorentz/lorentz.sum(),
-                                     mode='constant', cval=data.max())
+                       sigma=len_x / 4., center=len_x / 2.)
+    data_smooth = convolve1d(data, lorentz / lorentz.sum(),
+                             mode='constant', cval=data.max())
 
     # finding most frequent value which is supposed to be the offset
     hist = np.histogram(data_smooth, bins=10)
@@ -513,7 +513,7 @@ def gaussian_smoothing(self, data=None, filter_len=None, filter_sigma=None):
         filter_sigma = filter_len
 
     gaus = gaussian(filter_len, filter_sigma)
-    return filters.convolve1d(data, gaus / gaus.sum(), mode='mirror')
+    return convolve1d(data, gaus / gaus.sum(), mode='mirror')
 
 
 

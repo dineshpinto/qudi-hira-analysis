@@ -109,6 +109,11 @@ class IOHandler:
         return pd.read_csv(filepath, **kwargs)
 
     @add_base_read_path
+    def read_excel(self, filepath: Path, **kwargs) -> pd.DataFrame:
+        """ Read a csv file into a pd DataFrame. """
+        return pd.read_excel(filepath, **kwargs)
+
+    @add_base_read_path
     @check_extension(".dat")
     def read_confocal_into_dataframe(self, filepath: Path) -> pd.DataFrame:
         confocal_params = self.read_qudi_parameters(filepath)
