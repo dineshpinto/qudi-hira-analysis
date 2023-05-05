@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qudi-hira-analysis"
-version = "1.4.5"
+version = "1.4.6"
 repository = "https://github.com/dineshpinto/qudi-hira-analysis"
 homepage = "https://github.com/dineshpinto/qudi-hira-analysis"
 keywords = ["python", "qubit", "analysis", "nv centers", "photon timetrace"]
@@ -25,6 +25,10 @@ pyspm = "^0.3.0"
 seaborn = "^0.12.2"
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
+
+
+[tool.poetry.group.test.dependencies]
+coverage = "^7.2.5"
 
 [build-system]
 requires = ["poetry-core"]
