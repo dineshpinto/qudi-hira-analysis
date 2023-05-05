@@ -34,8 +34,10 @@ class TestLoading(unittest.TestCase):
 
     def test_frq_sweep_load(self):
         frq_sweeps = dh.load_measurements(measurement_str="frq-sweep", qudi=False)
-        frq_sweep = frq_sweeps['20230227-1426-53']
-
+        # Generally this would be the exact timestamp
+        # But since the timestamp is not stored in the filename,
+        # we have to use the first key of the dictionary
+        frq_sweep = frq_sweeps[list(frq_sweeps)[0]]
         self.assertAlmostEqual(frq_sweep.data["Frequency Shift (Hz)"][0], -38.1000)
         self.assertAlmostEqual(frq_sweep.data["Amplitude (m)"][0], 5.205450e-10)
         self.assertEqual(frq_sweep.params["f_res (Hz)"], 30281.5211)
@@ -51,7 +53,7 @@ class TestLoading(unittest.TestCase):
 
     def test_nanonis_afm_load(self):
         afm_scans = dh.load_measurements(measurement_str="Scan", extension=".sxm", qudi=False)
-        afm = afm_scans['20230228-1530-43'].data
+        afm = afm_scans[list(afm_scans)[0]].data
 
         topo = afm.get_channel("Z")
         self.assertAlmostEqual(topo.pixels[0][0], 9.72290422396327e-07)

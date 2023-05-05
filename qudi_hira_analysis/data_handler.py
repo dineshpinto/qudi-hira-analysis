@@ -175,7 +175,7 @@ class DataHandler(DataLoader, AnalysisLogic):
             measurement: str,
             extension: str,
             exclude_str: str | None = None
-    ) -> list:
+    ) -> list[Path]:
         """
         List all measurement files for a single measurement type, regardless of date
         within a similar set (i.e. top level folder).

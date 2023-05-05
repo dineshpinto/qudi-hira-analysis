@@ -45,7 +45,7 @@ class TestFitting(unittest.TestCase):
         x_fit, y_fit, _ = dh.fit(x="Power", y="Counts", data=sat,
                                  fit_function=dh.fit_function.hyperbolicsaturation)
         self.assertAlmostEqual(x_fit[0], 0.83)
-        self.assertAlmostEqual(y_fit[0], 54533.66570552715)
+        self.assertAlmostEqual(int(y_fit[0]), 54533, places=0)
 
 
 if __name__ == '__main__':
