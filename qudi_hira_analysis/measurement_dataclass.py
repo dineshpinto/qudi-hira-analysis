@@ -70,7 +70,7 @@ class RawTimetrace:
     @property
     def data(self) -> np.ndarray:
         """ Read measurement data from file into pandas DataFrame """
-        if self.__data.size is None:
+        if self.__data is None:
             self.__data = self.loaders[0](self.filepath)
         return self.__data
 

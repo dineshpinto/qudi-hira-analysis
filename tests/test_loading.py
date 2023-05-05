@@ -61,6 +61,33 @@ class TestLoading(unittest.TestCase):
         exc = afm.get_channel("Excitation")
         self.assertAlmostEqual(exc.pixels[0][0], 1.499999761581421)
 
+    def test_measurement_dataclass(self):
+        odmr_list = dh.load_measurements(measurement_str="ODMR", pulsed=True)
+        odmr = odmr_list["20220315-2050-39"]
+
+        self.assertAlmostEqual(odmr.data["Controlled variable(Hz)"][0], 2.850000000000000e+09)
+        self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e+00)
+
+        sig, err = dh.analyse_mean(odmr.pulsed.laser_pulses.data)
+        self.assertAlmostEqual(sig[0], 694.41)
+        self.assertAlmostEqual(err[0], 1.8633437686052456)
+
+        sig, err = dh.analyse_mean_norm(odmr.pulsed.laser_pulses.data)
+        self.assertAlmostEqual(sig[0], 1.1218563353113091)
+        self.assertAlmostEqual(err[0], 0.0033309708217416473)
+
+        sig, err = dh.analyse_mean_reference(odmr.pulsed.laser_pulses.data)
+        self.assertAlmostEqual(sig[0], 75.42700000000002)
+        self.assertAlmostEqual(err[0], 0.22395482225608515)
+
+        self.assertAlmostEqual(odmr.pulsed.timetrace.data[0][0], 6.0)
+
+        self.assertIn("bin width (s)", odmr.pulsed.laser_pulses.params)
+        self.assertIn("bin width (s)", odmr.pulsed.timetrace.params)
+        self.assertIn("Approx. measurement time (s)", odmr.pulsed.measurement.params)
+
+        self.assertEqual(odmr.get_param_from_filename(unit="dBm"), 22.0)
+
 
 if __name__ == '__main__':
     unittest.main()
