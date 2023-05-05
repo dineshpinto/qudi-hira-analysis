@@ -32,4 +32,4 @@ jobs:
     - name: Install dependencies
       run: poetry install
     - name: Test with unittests
-      run: poetry run python -m unittests
+      run: poetry run python -m unittest
