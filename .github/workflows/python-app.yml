@@ -20,7 +20,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.10", "3.11"]
-        
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -32,6 +34,12 @@ jobs:
     - name: Install dependencies
       run: poetry install --with test
     - name: Test with unittests
-      run: poetry run coverage run -m unittest
+      run: |
+        poetry run coverage run -m unittest
+        poetry run coverage xml
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
+      with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS, PYTHON
+          fail_ci_if_error: true
