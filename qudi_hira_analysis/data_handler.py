@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime
 import logging
-import os
 from pathlib import Path
 from typing import List, TYPE_CHECKING, Callable
 
@@ -38,7 +37,8 @@ class DataLoader(IOHandler):
             self.read_confocal_into_dataframe,
             self.read_qudi_parameters
         )
-        self.pixelscanner_qudi_loader: (Callable[[Path], (pySPM.SPM_image, pySPM.SPM_image)], Callable[[Path], dict]) = (
+        self.pixelscanner_qudi_loader: (
+            Callable[[Path], (pySPM.SPM_image, pySPM.SPM_image)], Callable[[Path], dict]) = (
             self.read_pixelscanner_data,
             self.read_qudi_parameters
         )
@@ -297,7 +297,8 @@ class DataHandler(DataLoader, AnalysisLogic):
             exclude_str = None
 
         for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
-            timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
+            timestamp = datetime.datetime.fromtimestamp(filepath.stat().st_mtime)
+            self.log.warning("Extracting timestamp from file modified time, may not be accurate.")
             ts = datetime.datetime.strftime(timestamp, self.timestamp_format_str)
             measurement_list[ts] = (
                 MeasurementDataclass(
