@@ -61,6 +61,24 @@ class TestLoading(unittest.TestCase):
         exc = afm.get_channel("Excitation")
         self.assertAlmostEqual(exc.pixels[0][0], 1.499999761581421)
 
+    def test_pys_load(self):
+        pys_measurements = dh.load_measurements(measurement_str="ndmin", extension=".pys", qudi=False)
+        pys = pys_measurements[list(pys_measurements)[0]].data
+
+        self.assertAlmostEqual(pys["time_bins"][0], -298.0)
+        self.assertAlmostEqual(pys["counts"][0], 1210)
+
+    def test_confocal_load(self):
+        confocal_scans = dh.load_measurements(measurement_str="Confocal")
+        confocal = confocal_scans["20230330-1113-04"].data
+        self.assertAlmostEqual(confocal.iloc[0][0], 600.0)
+
+    def test_temperature_monitoring_load(self):
+        temps = dh.load_measurements(measurement_str="temperature-monitoring", qudi=False)
+        temp = temps[list(temps)[0]].data
+        self.assertIn("Tip Holder", temp.columns)
+        self.assertAlmostEqual(temp.iloc[0][0], 119.403)
+
     def test_measurement_dataclass(self):
         odmr_list = dh.load_measurements(measurement_str="ODMR", pulsed=True)
         odmr = odmr_list["20220315-2050-39"]
