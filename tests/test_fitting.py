@@ -10,6 +10,14 @@ dh = DataHandler(
 
 
 class TestFitting(unittest.TestCase):
+    def test_all_fits(self):
+        one_d_fits, two_d_fits = dh.get_all_fits()
+
+        self.assertIn("antibunching", one_d_fits)
+        self.assertIn("decayexponential", one_d_fits)
+        self.assertIn("lorentziandouble", one_d_fits)
+        self.assertIn("twoDgaussian", two_d_fits)
+
     def test_autocorrelation_antibunching_fit(self):
         autocorrs = dh.load_measurements(measurement_str="Autocorrelation")
         autocorr = autocorrs['20230306-1732-05']
