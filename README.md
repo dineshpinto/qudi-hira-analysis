@@ -29,6 +29,12 @@ sidestepped by lazy loading data and storing metadata instead wherever possible.
 pip install qudi-hira-analysis
 ```
 
+### Update to latest version
+
+```bash
+pip install --upgrade qudi-hira-analysis
+```
+
 ## Citation
 
 If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
@@ -192,13 +198,24 @@ dh.save_figures(filepath="rabi_variation", fig=fig)
 ### Example 5: Temperature data
 
 ```python
-temperature_measurements = dh.load_measurements(measurement_str="Temperature")
+temperature_measurements = dh.load_measurements(measurement_str="Temperature", qudi=False)
 
 temperature = pd.concat([t.data for t in temperature_measurements.values()])
 
 fig, ax = plt.subplots()
 sns.lineplot(data=temperature, x="Time", y="Temperature", ax=ax)
 dh.save_figures(filepath="temperature_monitoring", fig=fig)
+```
+
+### Example 6: PYS data (pi3diamond compatibility)
+
+```python
+pys_measurements = dh.load_measurements(measurement_str="ndmin", extension=".pys", qudi=False)
+pys = pys_measurements[list(pys_measurements)[0]].data
+
+fig, ax = plt.subplots()
+sns.lineplot(x=pys["time_bins"], y=pys["counts"], ax=ax)
+dh.save_figures(filepath="pys_measurement", fig=fig)
 ```
 
 ## Measurement Dataclass Schema
@@ -232,7 +249,8 @@ flowchart LR
 
 ## Supports common fitting routines
 
-To get the full list of available fit routines, use the `dh.fit_function` attribute. The fit functions are:
+To get the full list of available fit routines, explore the `dh.fit_function` attribute or call `dh.get_all_fits()`. The
+fit functions are:
 
 | Dimension | Fit                           |
 |-----------|-------------------------------|
