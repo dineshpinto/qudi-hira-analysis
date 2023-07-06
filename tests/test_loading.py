@@ -65,7 +65,7 @@ class TestLoading(TestCase):
     def test_bruker_mfm_load(self):
         bruker_measurements = self.dh.load_measurements(measurement_str="", extension=".001", qudi=False)
 
-        bruker_data = bruker_measurements["20230324-1256-11"].data
+        bruker_data = bruker_measurements[list(bruker_measurements)[0]].data
         mfm = bruker_data.get_channel("Phase", mfm=True)
 
         self.assertEqual(mfm.channel, "Phase")
