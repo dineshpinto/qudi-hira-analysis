@@ -117,7 +117,7 @@ dh.save_figures(filepath="nv_pl_scan", fig=fig, only_jpg=True)
 ### Example 1: Nanonis AFM measurements
 
 ```python
-afm_measurements = dh.load_measurements(measurement_str="Scan", extension=".sxm")
+afm_measurements = dh.load_measurements(measurement_str="Scan", extension=".sxm", qudi=False)
 
 afm = afm_measurements["20230101-0420-00"].data
 
@@ -218,18 +218,30 @@ sns.lineplot(x=pys["time_bins"], y=pys["counts"], ax=ax)
 dh.save_figures(filepath="pys_measurement", fig=fig)
 ```
 
-### Example 7: Bruker MFM data (PySPM integration)
+### Example 7: Bruker MFM data
 
 ```python
 bruker_measurements = dh.load_measurements(measurement_str="", extension=".001", qudi=False)
-bruker_data = bruker_measurements[list(bruker_measurements)[0]].data
 
+bruker_data = bruker_measurements["20230101-0420-00"].data
+
+# Print the channels available in the data
+bruker_data.list_channels()
 mfm = bruker_data.get_channel("Phase", mfm=True)
 
 fig, ax = plt.subplots()
-mfm.show(cmap="inferno", ax=ax, title="", vmin=1, vmax=3)
-mfm.add_scale(length=1, ax=ax, color="white", height=1, fontsize=10, edge_width=0, loc=1)
-dh.save_figures(filepath="mfm_measurement", fig=fig, only_pdf=True)
+
+# Perform (optional) image corrections
+mfm.correct_plane()
+mfm.zero_min()
+
+# Add scale bar, color bar and plot the data
+img = mfm.show(cmap="inferno", ax=ax)
+mfm.add_scale(length=1, ax=ax, height=1, fontsize=10)
+cbar = fig.colorbar(img)
+cbar.set_label("MFM contrast (deg)")
+
+dh.save_figures(filepath="MFM", fig=fig, only_jpg=True)
 ```
 
 ## Measurement Dataclass Schema
