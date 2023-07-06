@@ -218,6 +218,20 @@ sns.lineplot(x=pys["time_bins"], y=pys["counts"], ax=ax)
 dh.save_figures(filepath="pys_measurement", fig=fig)
 ```
 
+### Example 7: Bruker MFM data (PySPM integration)
+
+```python
+bruker_measurements = dh.load_measurements(measurement_str="", extension=".001", qudi=False)
+bruker_data = bruker_measurements[list(bruker_measurements)[0]].data
+
+mfm = bruker_data.get_channel("Phase", mfm=True)
+
+fig, ax = plt.subplots()
+mfm.show(cmap="inferno", ax=ax, title="", vmin=1, vmax=3)
+mfm.add_scale(length=1, ax=ax, color="white", height=1, fontsize=10, edge_width=0, loc=1)
+dh.save_figures(filepath="mfm_measurement", fig=fig, only_pdf=True)
+```
+
 ## Measurement Dataclass Schema
 
 ```mermaid
