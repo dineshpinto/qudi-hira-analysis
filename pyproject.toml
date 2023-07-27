@@ -14,7 +14,7 @@ packages = [{ include = "qudi_hira_analysis" }]
 python = "^3.10"
 lmfit = "^1.1.0"
 matplotlib = "^3.6.2"
-numpy = "^1.24.0"
+numpy = "^1.25.0"
 pandas = "^2.0.0"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
