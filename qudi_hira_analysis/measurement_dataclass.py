@@ -4,11 +4,12 @@ import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Tuple
 
 import pandas as pd
 
 if TYPE_CHECKING:
+    import lmfit
     import datetime
     import numpy as np
     from PIL import Image
@@ -104,6 +105,9 @@ class MeasurementDataclass:
     pulsed: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
+    _fit_data: pd.DataFrame = field(default=None)
+    _fit_model: lmfit.Model = field(default=None)
+    _xy_position: Tuple[int, int] = field(default=None)
 
     def __post_init__(self):
         self.log = logging.getLogger(__name__)
@@ -114,7 +118,6 @@ class MeasurementDataclass:
             self.filename = self.filepath.name
 
     def __repr__(self) -> str:
-
         return f"Measurement(timestamp='{self.timestamp}', filename='{self.filename}')"
 
     @property
@@ -136,6 +139,32 @@ class MeasurementDataclass:
             if self.__params is None:
                 self.__params = self.loaders[1](self.filepath)
             return self.__params
+
+    @property
+    def fit_data(self) -> pd.DataFrame:
+        """ Fit data to a model """
+        return self._fit_data
+
+    @fit_data.setter
+    def fit_data(self, fit_data: pd.DataFrame):
+        """ Fit data to a model """
+        self._fit_data = fit_data
+
+    @property
+    def fit_model(self) -> Image:
+        return self._fit_model
+
+    @fit_model.setter
+    def fit_model(self, fit_model: lmfit.Model):
+        self._fit_model = fit_model
+
+    @property
+    def xy_position(self) -> Tuple[int, int]:
+        return self._xy_position
+
+    @xy_position.setter
+    def xy_position(self, xy_position: Tuple[int, int]):
+        self._xy_position = xy_position
 
     def get_param_from_filename(self, unit: str) -> float | None:
         """
