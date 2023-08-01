@@ -479,11 +479,17 @@ def make_lorentziandouble_fit(self, x_axis, data, estimator, units=None, add_par
                                      'error': result.params['l1_center'].stderr,
                                      'unit': units[0]}
 
-    result_str_dict['Splitting'] = {'value': (result.params['l1_center'].value -
-                                              result.params['l0_center'].value),
-                                    'error': (result.params['l0_center'].stderr +
-                                              result.params['l1_center'].stderr),
-                                    'unit': units[0]}
+    try:
+        result_str_dict['Splitting'] = {'value': (result.params['l1_center'].value -
+                                                  result.params['l0_center'].value),
+                                        'error': (result.params['l0_center'].stderr +
+                                                  result.params['l1_center'].stderr),
+                                        'unit': units[0]}
+    except TypeError:
+        result_str_dict['Splitting'] = {'value': (result.params['l1_center'].value -
+                                                  result.params['l0_center'].value),
+                                        'error': np.inf,
+                                        'unit': units[0]}
 
     result_str_dict['Contrast 0'] = {'value': abs(result.params['l0_contrast'].value),
                                      'error': result.params['l0_contrast'].stderr,

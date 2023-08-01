@@ -1,15 +1,21 @@
 from __future__ import annotations
 
 import logging
+import re
+import time
 from typing import Tuple, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed, cpu_count
+from tqdm import tqdm
 
+import qudi_hira_analysis.raster_odmr_fitting as rof
 from qudi_hira_analysis.qudi_fit_logic import FitLogic
 
 if TYPE_CHECKING:
     from lmfit.model import ModelResult, Parameter
+    from .measurement_dataclass import MeasurementDataclass
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
@@ -281,3 +287,79 @@ class AnalysisLogic(FitLogic):
                 error_data[ii] = 0.0
 
         return signal_data, error_data
+
+    def raster_odmr_fitting(
+            self,
+            odmr_measurements: dict[str, MeasurementDataclass],
+            r2_thresh: float = 0.95,
+            thresh_frac: float = 0.3,
+            min_thresh: float = 0.25,
+            sigma_thresh_frac: float = 0.3
+    ) -> dict[str, MeasurementDataclass]:
+        model1, base_params1 = rof.make_lorentzian_model()
+        model2, base_params2 = rof.make_lorentziandouble_model()
+
+        self.log.info("Estimating fit params...")
+
+        # Generate arguments for the parallel fitting
+        args = []
+        for odmr in tqdm(odmr_measurements.values()):
+            x = odmr.data["Freq(MHz)"].to_numpy()
+            y = odmr.data["Counts"].to_numpy()
+            _, params1 = rof.estimate_lorentzian_dip(x, y, base_params1)
+            _, params2 = rof.estimate_lorentziandouble_dip(x, y, base_params2, thresh_frac, min_thresh,
+                                                           sigma_thresh_frac)
+            args.append((x, y, model1, model2, params1, params2, r2_thresh))
+
+        self.log.info(f"Starting parallel fit with {cpu_count()} jobs...")
+
+        t1 = time.time()
+
+        # Parallel fitting
+        model_results = Parallel(n_jobs=cpu_count())(
+            delayed(rof.lorentzian_fitting)(
+                x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
+            in
+            tqdm(args)
+        )
+
+        self.log.info(f"Fitted {len(odmr_measurements)} ODMR scans in {int(time.time() - t1)} s")
+
+        x = list(odmr_measurements.values())[0].data["Freq(MHz)"].to_numpy()
+        x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
+
+        for odmr, res in zip(odmr_measurements.values(), model_results):
+            row, col = map(int, re.findall(r'(?<=\().*?(?=\))', odmr.filename)[0].split(","))
+
+            if len(res.params) == 6:
+                # Fit to a single Lorentzian
+                y_fit = model1.eval(x=x_fit, params=res.params)
+            else:
+                # Fit to a double Lorentzian
+                y_fit = model2.eval(x=x_fit, params=res.params)
+
+            # Plug results into the DataClass
+            odmr.fit_model = res
+            odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=["x_fit", "y_fit"])
+            odmr.xy_position = (row, col)
+
+        return odmr_measurements
+
+    @staticmethod
+    def pixel_average_nan(orig_image: np.ndarray) -> np.ndarray:
+        """ Average a nan pixel to its surrounding 8 points """
+        image = orig_image.copy()
+        for row, col in np.argwhere(np.isnan(image)):
+            if row == 0:
+                pixel_avg = np.nanmean(image[row + 1:row + 2, col - 1:col + 2])
+            elif row == image.shape[0] - 1:
+                pixel_avg = np.nanmean(image[row - 1:row, col - 1:col + 2])
+            elif col == 0:
+                pixel_avg = np.nanmean(image[row - 1:row + 2, col + 1:col + 2])
+            elif col == image.shape[1] - 1:
+                pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col])
+            else:
+                pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
+
+            image[row, col] = pixel_avg
+        return image
