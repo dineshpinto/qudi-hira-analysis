@@ -9,7 +9,7 @@ import pandas as pd
 from qudi_hira_analysis.qudi_fit_logic import FitLogic
 
 if TYPE_CHECKING:
-    from lmfit.model import ModelResult
+    from lmfit.model import ModelResult, Parameter
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
 
@@ -53,6 +53,7 @@ class AnalysisLogic(FitLogic):
             y: np.ndarray,
             fit_function: str,
             estimator: str,
+            parameters: list[Parameter] = None,
             dims: str = "1d") -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         """
         Fits available:
@@ -86,15 +87,23 @@ class AnalysisLogic(FitLogic):
         fit = {dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
         user_fit = self.validate_load_fits(fit)
 
+        if parameters:
+            user_fit[dims]["default"]["parameters"].add_many(*parameters)
+
         use_settings = {}
         for key in user_fit[dims]["default"]["parameters"].keys():
-            use_settings[key] = False
+            if parameters:
+                if key in [p.name for p in parameters]:
+                    use_settings[key] = True
+                else:
+                    use_settings[key] = False
+            else:
+                use_settings[key] = False
         user_fit[dims]["default"]["use_settings"] = use_settings
 
         fc = self.make_fit_container("test", dims)
         fc.set_fit_functions(user_fit[dims])
         fc.set_current_fit("default")
-        fc.use_settings = None
         fit_x, fit_y, result = fc.do_fit(x, y)
         return fit_x, fit_y, result
 
@@ -104,6 +113,7 @@ class AnalysisLogic(FitLogic):
             y: str | np.ndarray | pd.Series,
             fit_function: FitMethodsAndEstimators,
             data: pd.DataFrame = None,
+            parameters: list[Parameter] = None
     ) -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         if "twoD" in fit_function[0]:
             dims = "2d"
@@ -126,6 +136,7 @@ class AnalysisLogic(FitLogic):
             y=y,
             fit_function=fit_function[0],
             estimator=fit_function[1],
+            parameters=parameters,
             dims=dims
         )
 
