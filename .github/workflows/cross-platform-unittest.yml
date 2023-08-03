@@ -1,4 +1,4 @@
-name: Cross-platform unittest
+name: cross-platform unittest
 
 on:
   push:
