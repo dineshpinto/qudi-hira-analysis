@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>qudi_hira_analysis API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Analytics suite for qubit SPM using FPGA timetaggers …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,425 @@
 <h1 class="title">Package <code>qudi_hira_analysis</code></h1>
 </header>
 <section id="section-intro">
+<p>Analytics suite for qubit SPM using FPGA timetaggers</p>
+<h2 id="getting-started">Getting started</h2>
+<pre><code class="language-python">from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from qudi_hira_analysis import DataHandler
+
+dh = DataHandler(
+    data_folder=Path(&quot;C:\Data&quot;), # Path to the data folder
+    figure_folder=Path(&quot;C:\QudiHiraAnalysis&quot;), # Path to the figure folder
+    measurement_folder=Path(&quot;20230101_NV1&quot;) # Name of the measurement folder
+ )
+
+# Search and lazy-load files with &quot;odmr&quot; in the name
+odmr_measurements = dh.load_measurements(&quot;odmr&quot;)
+</code></pre>
+<p>To load a specific set of measurements from the data folder, use the <code>dh.load_measurements()</code> method, which takes the
+following required arguments:</p>
+<ul>
+<li><code>measurement_str</code> is the string that is used to identify the measurement. It is used to filter the data files in the
+<code>data_folder</code> and <code>measurement_folder</code> (if specified)</li>
+</ul>
+<p>Optional arguments:</p>
+<ul>
+<li><code>qudi</code> is a boolean. If <code>True</code>, the data is assumed to be in the format used by Qudi (default: True)</li>
+<li><code>pulsed</code> is a boolean. If <code>True</code>, the data is assumed to be in the format used by Qudi for pulsed measurements
+(default: False)</li>
+<li><code>extension</code> is the extension of the data files (default: ".dat")</li>
+</ul>
+<p>The <code>load_measurements</code> function returns a dictionary containing the measurement data filtered by <code>measurement_str</code>.
+The dictionary keys are measurement timestamps in "(year)(month)(day)-(hour)(minute)-(second)" format.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="nv-odmr-map">NV-ODMR map</h3>
+<pre><code class="language-python"># Extract ODMR measurements from the measurement folder
+odmr_measurements = dh.load_measurements(measurement_str=&quot;2d_odmr_map&quot;)
+odmr_measurements = dict(sorted(odmr_measurements.items()))
+
+# Perform parallel (=num CPU cores) ODMR fitting
+odmr_measurements = dh.fit_raster_odmr(odmr_measurements)
+
+# Calculate 2D ODMR map from the fitted ODMR measurements
+pixels = int(np.sqrt(len(odmr_measurements)))
+image = np.zeros((pixels, pixels))
+
+for idx, odmr in enumerate(odmr_measurements.values()):
+  row, col = odmr.xy_position
+  if len(odmr.fit_model.params) &gt; 6:
+    # Calculate double Lorentzian splitting
+    image[row, col] = np.abs(odmr.fit_model.best_values[&quot;l1_center&quot;]
+                             - odmr.fit_model.best_values[&quot;l0_center&quot;])
+
+
+map = sns.heatmap(image, cbar_kws={&quot;label&quot;: r&quot;$\Delta E$ (MHz)&quot;})
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=&quot;2d_odmr_map_with_residuals&quot;, fig=map.get_figure(), only_jpg=True)
+</code></pre>
+<h3 id="nv-pl-map">NV-PL map</h3>
+<pre><code class="language-python">pixel_scanner_measurements = dh.load_measurements(measurement_str=&quot;PixelScanner&quot;)
+
+fwd, bwd = pixel_scanner_measurements[&quot;20230101-0420-00&quot;].data
+
+# If size is known, it can be specified here
+fwd.size[&quot;real&quot;] = {&quot;x&quot;: 1e-6, &quot;y&quot;: 1e-6, &quot;unit&quot;: &quot;m&quot;}
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+fwd.filter_gaussian(sigma=0.5)
+
+# Add scale bar, color bar and plot the data
+img = fwd.show(cmap=&quot;inferno&quot;, ax=ax)
+fwd.add_scale(length=1e-6, ax=ax, height=1)
+cbar = fig.colorbar(img)
+cbar.set_label(&quot;NV-PL (kcps)&quot;)
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=&quot;nv_pl_scan&quot;, fig=fig, only_jpg=True)
+</code></pre>
+<h3 id="nanonis-afm-measurements">Nanonis AFM measurements</h3>
+<pre><code class="language-python">afm_measurements = dh.load_measurements(measurement_str=&quot;Scan&quot;, extension=&quot;.sxm&quot;, qudi=False)
+
+afm = afm_measurements[&quot;20230101-0420-00&quot;].data
+
+# Print the channels available in the data
+afm.list_channels()
+topo = afm.get_channel(&quot;Z&quot;)
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+topo.correct_lines()
+topo.correct_plane()
+topo.filter_lowpass(fft_radius=20)
+topo.zero_min()
+
+# Add scale bar, color bar and plot the data
+img = topo.show(cmap=&quot;inferno&quot;, ax=ax)
+topo.add_scale(length=1e-6, ax=ax, height=1, fontsize=10)
+cbar = fig.colorbar(img)
+cbar.set_label(&quot;Height (nm)&quot;)
+
+dh.save_figures(filepath=&quot;afm_topo&quot;, fig=fig, only_jpg=True)
+</code></pre>
+<h3 id="g2-measurements-anti-bunching-fit">g(2) measurements (anti-bunching fit)</h3>
+<pre><code class="language-python">autocorrelation_measurements = dh.load_measurements(measurement_str=&quot;Autocorrelation&quot;)
+
+fig, ax = plt.subplots()
+
+for autocorrelation in autocorrelation_measurements.values():
+    autocorrelation.data[&quot;Time (ns)&quot;] = autocorrelation.data[&quot;Time (ps)&quot;] * 1e-3
+    # Plot the data
+    sns.lineplot(data=autocorrelation.data, x=&quot;Time (ns)&quot;, y=&quot;g2(t) norm&quot;, ax=ax)
+    # Fit the data using the antibunching function
+    fit_x, fit_y, result = dh.fit(x=&quot;Time (ns)&quot;, y=&quot;g2(t) norm&quot;, data=autocorrelation.data,
+                                  fit_function=dh.fit_function.antibunching)
+    # Plot the fit
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&quot;C1&quot;)
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=&quot;autocorrelation_variation&quot;, fig=fig)
+</code></pre>
+<h3 id="odmr-measurements-double-lorentzian-fit">ODMR measurements (double Lorentzian fit)</h3>
+<pre><code class="language-python">odmr_measurements = dh.load_measurements(measurement_str=&quot;ODMR&quot;, pulsed=True)
+
+fig, ax = plt.subplots()
+
+for odmr in odmr_measurements.values():
+    sns.scatterplot(data=odmr.data, x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;, ax=ax)
+    fit_x, fit_y, result = dh.fit(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;, data=odmr.data,
+                                  fit_function=dh.fit_function.lorentziandouble)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&quot;C1&quot;)
+
+dh.save_figures(filepath=&quot;odmr_variation&quot;, fig=fig)
+</code></pre>
+<h3 id="rabi-measurements-sine-exp-decay-fit">Rabi measurements (sine exp. decay fit)</h3>
+<pre><code class="language-python">rabi_measurements = dh.load_measurements(measurement_str=&quot;Rabi&quot;, pulsed=True)
+
+fig, ax = plt.subplots()
+
+for rabi in rabi_measurements.values():
+    sns.scatterplot(data=rabi.data, x=&quot;Controlled variable(s)&quot;, y=&quot;Signal&quot;, ax=ax)
+    fit_x, fit_y, result = dh.fit(x=&quot;Controlled variable(s)&quot;, y=&quot;Signal&quot;, data=rabi.data,
+                                  fit_function=dh.fit_function.sineexponentialdecay)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&quot;C1&quot;)
+
+dh.save_figures(filepath=&quot;rabi_variation&quot;, fig=fig)
+</code></pre>
+<h3 id="temperature-measurements">Temperature measurements</h3>
+<pre><code class="language-python">temperature_measurements = dh.load_measurements(measurement_str=&quot;Temperature&quot;, qudi=False)
+
+temperature = pd.concat([t.data for t in temperature_measurements.values()])
+
+fig, ax = plt.subplots()
+sns.lineplot(data=temperature, x=&quot;Time&quot;, y=&quot;Temperature&quot;, ax=ax)
+dh.save_figures(filepath=&quot;temperature_monitoring&quot;, fig=fig)
+</code></pre>
+<h3 id="bruker-mfm-measurements">Bruker MFM measurements</h3>
+<pre><code class="language-python">bruker_measurements = dh.load_measurements(measurement_str=&quot;&quot;, extension=&quot;.001&quot;, qudi=False)
+
+bruker_data = bruker_measurements[&quot;20230101-0420-00&quot;].data
+
+# Print the channels available in the data
+bruker_data.list_channels()
+mfm = bruker_data.get_channel(&quot;Phase&quot;, mfm=True)
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+mfm.correct_plane()
+mfm.zero_min()
+
+# Add scale bar, color bar and plot the data
+img = mfm.show(cmap=&quot;inferno&quot;, ax=ax)
+mfm.add_scale(length=1, ax=ax, height=1, fontsize=10)
+cbar = fig.colorbar(img)
+cbar.set_label(&quot;MFM contrast (deg)&quot;)
+
+dh.save_figures(filepath=&quot;MFM&quot;, fig=fig, only_jpg=True)
+</code></pre>
+<h3 id="pys-data-pi3diamond-compatibility">PYS data (pi3diamond compatibility)</h3>
+<pre><code class="language-python">pys_measurements = dh.load_measurements(measurement_str=&quot;ndmin&quot;, extension=&quot;.pys&quot;, qudi=False)
+pys = pys_measurements[list(pys_measurements)[0]].data
+
+fig, ax = plt.subplots()
+sns.lineplot(x=pys[&quot;time_bins&quot;], y=pys[&quot;counts&quot;], ax=ax)
+dh.save_figures(filepath=&quot;pys_measurement&quot;, fig=fig)
+</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from .analysis_logic import AnalysisLogic
+<pre><code class="python">&#34;&#34;&#34;Analytics suite for qubit SPM using FPGA timetaggers
+
+## Getting started
+
+```python
+from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from qudi_hira_analysis import DataHandler
+
+dh = DataHandler(
+    data_folder=Path(&#34;C:\\Data&#34;), # Path to the data folder
+    figure_folder=Path(&#34;C:\\QudiHiraAnalysis&#34;), # Path to the figure folder
+    measurement_folder=Path(&#34;20230101_NV1&#34;) # Name of the measurement folder
+ )
+
+# Search and lazy-load files with &#34;odmr&#34; in the name
+odmr_measurements = dh.load_measurements(&#34;odmr&#34;)
+```
+
+To load a specific set of measurements from the data folder, use the `dh.load_measurements()` method, which takes the
+following required arguments:
+
+- `measurement_str` is the string that is used to identify the measurement. It is used to filter the data files in the
+  `data_folder` and `measurement_folder` (if specified)
+
+Optional arguments:
+
+- `qudi` is a boolean. If `True`, the data is assumed to be in the format used by Qudi (default: True)
+- `pulsed` is a boolean. If `True`, the data is assumed to be in the format used by Qudi for pulsed measurements
+(default: False)
+- `extension` is the extension of the data files (default: &#34;.dat&#34;)
+
+The `load_measurements` function returns a dictionary containing the measurement data filtered by `measurement_str`.
+The dictionary keys are measurement timestamps in &#34;(year)(month)(day)-(hour)(minute)-(second)&#34; format.
+
+
+## Examples
+
+### NV-ODMR map
+```python
+# Extract ODMR measurements from the measurement folder
+odmr_measurements = dh.load_measurements(measurement_str=&#34;2d_odmr_map&#34;)
+odmr_measurements = dict(sorted(odmr_measurements.items()))
+
+# Perform parallel (=num CPU cores) ODMR fitting
+odmr_measurements = dh.fit_raster_odmr(odmr_measurements)
+
+# Calculate 2D ODMR map from the fitted ODMR measurements
+pixels = int(np.sqrt(len(odmr_measurements)))
+image = np.zeros((pixels, pixels))
+
+for idx, odmr in enumerate(odmr_measurements.values()):
+  row, col = odmr.xy_position
+  if len(odmr.fit_model.params) &gt; 6:
+    # Calculate double Lorentzian splitting
+    image[row, col] = np.abs(odmr.fit_model.best_values[&#34;l1_center&#34;]
+                             - odmr.fit_model.best_values[&#34;l0_center&#34;])
+
+
+map = sns.heatmap(image, cbar_kws={&#34;label&#34;: r&#34;$\Delta E$ (MHz)&#34;})
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=&#34;2d_odmr_map_with_residuals&#34;, fig=map.get_figure(), only_jpg=True)
+```
+
+
+### NV-PL map
+
+```python
+pixel_scanner_measurements = dh.load_measurements(measurement_str=&#34;PixelScanner&#34;)
+
+fwd, bwd = pixel_scanner_measurements[&#34;20230101-0420-00&#34;].data
+
+# If size is known, it can be specified here
+fwd.size[&#34;real&#34;] = {&#34;x&#34;: 1e-6, &#34;y&#34;: 1e-6, &#34;unit&#34;: &#34;m&#34;}
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+fwd.filter_gaussian(sigma=0.5)
+
+# Add scale bar, color bar and plot the data
+img = fwd.show(cmap=&#34;inferno&#34;, ax=ax)
+fwd.add_scale(length=1e-6, ax=ax, height=1)
+cbar = fig.colorbar(img)
+cbar.set_label(&#34;NV-PL (kcps)&#34;)
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=&#34;nv_pl_scan&#34;, fig=fig, only_jpg=True)
+```
+
+### Nanonis AFM measurements
+
+```python
+afm_measurements = dh.load_measurements(measurement_str=&#34;Scan&#34;, extension=&#34;.sxm&#34;, qudi=False)
+
+afm = afm_measurements[&#34;20230101-0420-00&#34;].data
+
+# Print the channels available in the data
+afm.list_channels()
+topo = afm.get_channel(&#34;Z&#34;)
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+topo.correct_lines()
+topo.correct_plane()
+topo.filter_lowpass(fft_radius=20)
+topo.zero_min()
+
+# Add scale bar, color bar and plot the data
+img = topo.show(cmap=&#34;inferno&#34;, ax=ax)
+topo.add_scale(length=1e-6, ax=ax, height=1, fontsize=10)
+cbar = fig.colorbar(img)
+cbar.set_label(&#34;Height (nm)&#34;)
+
+dh.save_figures(filepath=&#34;afm_topo&#34;, fig=fig, only_jpg=True)
+```
+
+### g(2) measurements (anti-bunching fit)
+
+```python
+autocorrelation_measurements = dh.load_measurements(measurement_str=&#34;Autocorrelation&#34;)
+
+fig, ax = plt.subplots()
+
+for autocorrelation in autocorrelation_measurements.values():
+    autocorrelation.data[&#34;Time (ns)&#34;] = autocorrelation.data[&#34;Time (ps)&#34;] * 1e-3
+    # Plot the data
+    sns.lineplot(data=autocorrelation.data, x=&#34;Time (ns)&#34;, y=&#34;g2(t) norm&#34;, ax=ax)
+    # Fit the data using the antibunching function
+    fit_x, fit_y, result = dh.fit(x=&#34;Time (ns)&#34;, y=&#34;g2(t) norm&#34;, data=autocorrelation.data,
+                                  fit_function=dh.fit_function.antibunching)
+    # Plot the fit
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&#34;C1&#34;)
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=&#34;autocorrelation_variation&#34;, fig=fig)
+```
+
+### ODMR measurements (double Lorentzian fit)
+
+```python
+odmr_measurements = dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
+
+fig, ax = plt.subplots()
+
+for odmr in odmr_measurements.values():
+    sns.scatterplot(data=odmr.data, x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;, ax=ax)
+    fit_x, fit_y, result = dh.fit(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;, data=odmr.data,
+                                  fit_function=dh.fit_function.lorentziandouble)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&#34;C1&#34;)
+
+dh.save_figures(filepath=&#34;odmr_variation&#34;, fig=fig)
+```
+
+### Rabi measurements (sine exp. decay fit)
+
+```python
+rabi_measurements = dh.load_measurements(measurement_str=&#34;Rabi&#34;, pulsed=True)
+
+fig, ax = plt.subplots()
+
+for rabi in rabi_measurements.values():
+    sns.scatterplot(data=rabi.data, x=&#34;Controlled variable(s)&#34;, y=&#34;Signal&#34;, ax=ax)
+    fit_x, fit_y, result = dh.fit(x=&#34;Controlled variable(s)&#34;, y=&#34;Signal&#34;, data=rabi.data,
+                                  fit_function=dh.fit_function.sineexponentialdecay)
+    sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&#34;C1&#34;)
+
+dh.save_figures(filepath=&#34;rabi_variation&#34;, fig=fig)
+```
+
+### Temperature measurements
+
+```python
+temperature_measurements = dh.load_measurements(measurement_str=&#34;Temperature&#34;, qudi=False)
+
+temperature = pd.concat([t.data for t in temperature_measurements.values()])
+
+fig, ax = plt.subplots()
+sns.lineplot(data=temperature, x=&#34;Time&#34;, y=&#34;Temperature&#34;, ax=ax)
+dh.save_figures(filepath=&#34;temperature_monitoring&#34;, fig=fig)
+```
+
+### Bruker MFM measurements
+
+```python
+bruker_measurements = dh.load_measurements(measurement_str=&#34;&#34;, extension=&#34;.001&#34;, qudi=False)
+
+bruker_data = bruker_measurements[&#34;20230101-0420-00&#34;].data
+
+# Print the channels available in the data
+bruker_data.list_channels()
+mfm = bruker_data.get_channel(&#34;Phase&#34;, mfm=True)
+
+fig, ax = plt.subplots()
+
+# Perform (optional) image corrections
+mfm.correct_plane()
+mfm.zero_min()
+
+# Add scale bar, color bar and plot the data
+img = mfm.show(cmap=&#34;inferno&#34;, ax=ax)
+mfm.add_scale(length=1, ax=ax, height=1, fontsize=10)
+cbar = fig.colorbar(img)
+cbar.set_label(&#34;MFM contrast (deg)&#34;)
+
+dh.save_figures(filepath=&#34;MFM&#34;, fig=fig, only_jpg=True)
+```
+
+### PYS data (pi3diamond compatibility)
+
+```python
+pys_measurements = dh.load_measurements(measurement_str=&#34;ndmin&#34;, extension=&#34;.pys&#34;, qudi=False)
+pys = pys_measurements[list(pys_measurements)[0]].data
+
+fig, ax = plt.subplots()
+sns.lineplot(x=pys[&#34;time_bins&#34;], y=pys[&#34;counts&#34;], ax=ax)
+dh.save_figures(filepath=&#34;pys_measurement&#34;, fig=fig)
+```
+
+&#34;&#34;&#34;
+
+from .analysis_logic import AnalysisLogic
 from .data_handler import DataHandler
 from .io_handler import IOHandler
 
@@ -2673,7 +3087,21 @@ def save_pys(self, filepath: Path, dictionary: dict):
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#getting-started">Getting started</a></li>
+<li><a href="#examples">Examples</a><ul>
+<li><a href="#nv-odmr-map">NV-ODMR map</a></li>
+<li><a href="#nv-pl-map">NV-PL map</a></li>
+<li><a href="#nanonis-afm-measurements">Nanonis AFM measurements</a></li>
+<li><a href="#g2-measurements-anti-bunching-fit">g(2) measurements (anti-bunching fit)</a></li>
+<li><a href="#odmr-measurements-double-lorentzian-fit">ODMR measurements (double Lorentzian fit)</a></li>
+<li><a href="#rabi-measurements-sine-exp-decay-fit">Rabi measurements (sine exp. decay fit)</a></li>
+<li><a href="#temperature-measurements">Temperature measurements</a></li>
+<li><a href="#bruker-mfm-measurements">Bruker MFM measurements</a></li>
+<li><a href="#pys-data-pi3diamond-compatibility">PYS data (pi3diamond compatibility)</a></li>
+</ul>
+</li>
+</ul>
 </div>
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
