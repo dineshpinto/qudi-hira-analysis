@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
+import random
 import re
+from itertools import product
 from typing import Tuple, TYPE_CHECKING
 
 import numpy as np
@@ -287,13 +289,65 @@ class AnalysisLogic(FitLogic):
 
         return signal_data, error_data
 
-    def raster_odmr_fitting(
+    def optimize_hyperparameters(
             self,
+            measurements: dict[str, MeasurementDataclass],
+            num_samples: int = 10,
+            num_params: int = 3,
+    ) -> Tuple[float, Tuple[float, float, float]]:
+        """
+        This method optimizes the hyperparameters of the ODMR analysis.
+        It does so by randomly sampling a subset of the measurements and
+        then optimizing the hyperparameters for them.
+
+        Args:
+            measurements: A dictionary of measurements to optimize the hyperparameters for.
+            num_params: The number of parameters to optimize.
+            num_samples: The number of measurements to sample.
+
+        Returns:
+            The optimal hyperparameters.
+        """
+        r2_threshs = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
+        thresh_fracs = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
+        sigma_thresh_fracs = np.around(np.linspace(start=0.1, stop=0.2, num=num_params), decimals=1)
+
+        odmr_sample = {}
+        for k, v in random.sample(sorted(measurements.items()), k=num_samples):
+            odmr_sample[k] = v
+
+        highest_min_r2 = 0
+        optimal_params = (0, 0, 0)
+
+        for idx, (r2_thresh, thresh_frac, sigma_thresh_frac) in enumerate(
+                product(r2_threshs, thresh_fracs, sigma_thresh_fracs)):
+            odmr_sample = self.raster_odmr_fitting(
+                odmr_sample,
+                r2_thresh=r2_thresh,
+                thresh_frac=thresh_frac,
+                sigma_thresh_frac=sigma_thresh_frac,
+                min_thresh=0.01,
+                progress_bar=False
+            )
+
+            r2s = np.zeros(len(odmr_sample))
+            for _idx, odmr in enumerate(odmr_sample.values()):
+                r2s[_idx] = odmr.fit_model.rsquared
+            min_r2 = np.min(r2s)
+
+            if highest_min_r2 < min_r2:
+                highest_min_r2 = min_r2
+                optimal_params = (r2_thresh, thresh_frac, sigma_thresh_frac)
+
+        return highest_min_r2, optimal_params
+
+    @staticmethod
+    def raster_odmr_fitting(
             odmr_measurements: dict[str, MeasurementDataclass],
             r2_thresh: float = 0.95,
-            thresh_frac: float = 0.3,
-            min_thresh: float = 0.25,
-            sigma_thresh_frac: float = 0.3,
+            thresh_frac: float = 0.5,
+            sigma_thresh_frac: float = 0.15,
+            min_thresh: float = 0.01,
             extract_pixel_from_filename: bool = True,
             progress_bar: bool = True
     ) -> dict[str, MeasurementDataclass]:
@@ -307,7 +361,7 @@ class AnalysisLogic(FitLogic):
             min_thresh:
             sigma_thresh_frac:
             extract_pixel_from_filename: Extract `(row, col)` (in this format) from filename
-
+            progress_bar: Show progress bar
         Returns:
             List of ODMR data with fit, fit model and pixels in MeasurementDataclass
         """

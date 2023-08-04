@@ -39,7 +39,7 @@ pip install --upgrade qudi-hira-analysis
 
 If you are publishing scientific results, you can cite this work as:  https://doi.org/10.5281/zenodo.7604670
 
-## Examples
+## Usage
 
 First set up the `DataHandler` object (henceforth referred to as `dh`) with the correct paths to the data and figure
 folders.
@@ -89,7 +89,56 @@ The `load_measurements` function returns a dictionary containing the measurement
 - The dictionary values are `MeasurementDataclass` objects whose schema is shown
   visually [here](#measurement-dataclass-schema).
 
-### Example 0: NV-PL measurements
+### Example 0: 2D NV-ODMR measurements
+
+```python
+odmr_measurements = dh.load_measurements(measurement_str="2d_odmr_map")
+odmr_measurements = dict(sorted(odmr_measurements.items()))
+
+# Optional: Try and optimize the hyperparameters for the ODMR fitting
+highest_min_r2, optimal_parameters = dh.optimize_hyperparameters(odmr_measurements, num_samples=100, num_params=3)
+
+# Perform parallel (=num CPU cores) ODMR fitting
+odmr_measurements = dh.raster_odmr_fitting(
+    odmr_measurements,
+    r2_thresh=0.95,
+    thresh_frac=0.5,
+    sigma_thresh_frac=0.1,
+    min_thresh=0.01,
+)
+
+# Calculate residuals and 2D ODMR map
+pixels = int(np.sqrt(len(odmr_measurements)))
+image = np.zeros((pixels, pixels))
+residuals = np.zeros(len(odmr_measurements))
+
+for idx, odmr in enumerate(odmr_measurements.values()):
+    row, col = odmr.xy_position
+    residuals[idx] = odmr.fit_model.rsquared
+
+    if len(odmr.fit_model.params) == 6:
+        # Single Lorentzian, no splitting
+        image[row, col] = 0
+    else:
+        if odmr.fit_model.rsquared < 0.95:
+            # Bad fit, set to NaN
+            image[row, col] = np.nan
+        else:
+            # Calculate splitting
+            splitting = np.abs(odmr.fit_model.best_values["l1_center"] - odmr.fit_model.best_values["l0_center"])
+            image[row, col] = splitting
+
+fig, (ax, ax1) = plt.subplots(ncols=2)
+# Plot residuals
+sns.lineplot(residuals, ax=ax)
+# Plot 2D ODMR map
+sns.heatmap(image, cbar_kws={"label": r"$\Delta E$ (MHz)"}, ax=ax1)
+
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath="2d_odmr_map_with_residuals", fig=fig, only_jpg=True)
+```
+
+### Example 1: NV-PL measurements
 
 ```python
 pixel_scanner_measurements = dh.load_measurements(measurement_str="PixelScanner")
@@ -114,7 +163,7 @@ cbar.set_label("NV-PL (kcps)")
 dh.save_figures(filepath="nv_pl_scan", fig=fig, only_jpg=True)
 ```
 
-### Example 1: Nanonis AFM measurements
+### Example 2: Nanonis AFM measurements
 
 ```python
 afm_measurements = dh.load_measurements(measurement_str="Scan", extension=".sxm", qudi=False)
@@ -142,7 +191,7 @@ cbar.set_label("Height (nm)")
 dh.save_figures(filepath="afm_topo", fig=fig, only_jpg=True)
 ``` 
 
-### Example 2: Autocorrelation measurements (Antibunching fit)
+### Example 3: Autocorrelation measurements (Antibunching fit)
 
 ```python
 autocorrelation_measurements = dh.load_measurements(measurement_str="Autocorrelation")
@@ -163,7 +212,7 @@ for autocorrelation in autocorrelation_measurements.values():
 dh.save_figures(filepath="autocorrelation_variation", fig=fig)
 ```
 
-### Example 3: ODMR measurements (double Lorentzian fit)
+### Example 4: ODMR measurements (double Lorentzian fit)
 
 ```python
 odmr_measurements = dh.load_measurements(measurement_str="ODMR", pulsed=True)
@@ -179,7 +228,7 @@ for odmr in odmr_measurements.values():
 dh.save_figures(filepath="odmr_variation", fig=fig)
 ```
 
-### Example 4: Rabi measurements (sine exponential decay fit)
+### Example 5: Rabi measurements (sine exponential decay fit)
 
 ```python
 rabi_measurements = dh.load_measurements(measurement_str="Rabi", pulsed=True)
@@ -195,7 +244,7 @@ for rabi in rabi_measurements.values():
 dh.save_figures(filepath="rabi_variation", fig=fig)
 ```
 
-### Example 5: Temperature data
+### Example 6: Temperature data
 
 ```python
 temperature_measurements = dh.load_measurements(measurement_str="Temperature", qudi=False)
@@ -207,7 +256,7 @@ sns.lineplot(data=temperature, x="Time", y="Temperature", ax=ax)
 dh.save_figures(filepath="temperature_monitoring", fig=fig)
 ```
 
-### Example 6: PYS data (pi3diamond compatibility)
+### Example 7: PYS data (pi3diamond compatibility)
 
 ```python
 pys_measurements = dh.load_measurements(measurement_str="ndmin", extension=".pys", qudi=False)
@@ -218,7 +267,7 @@ sns.lineplot(x=pys["time_bins"], y=pys["counts"], ax=ax)
 dh.save_figures(filepath="pys_measurement", fig=fig)
 ```
 
-### Example 7: Bruker MFM data
+### Example 8: Bruker MFM data
 
 ```python
 bruker_measurements = dh.load_measurements(measurement_str="", extension=".001", qudi=False)
