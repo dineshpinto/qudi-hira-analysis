@@ -44,7 +44,7 @@ If you are publishing scientific results using this code, you should cite this w
 
 - Modular architecture (use only what you need)
 - Automated data import and handling
-- Works natively with data from [Qudi](https://github.com/Ulm-IQO/qudi)
+- Works natively with data from [Qudi](https://github.com/Ulm-IQO/qudi) and [Qudi-Hira](https://github.com/projecthira/qudi-hira)
 - Supports all fitting routines and file formats used in NV magnetometry, AFM, MFM and NV-SPM
 - Uses a Dataclass-centered design for easy access to data and metadata
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qudi-hira-analysis"
-version = "1.5.0"
+version = "1.5.1"
 repository = "https://github.com/dineshpinto/qudi-hira-analysis"
 homepage = "https://github.com/dineshpinto/qudi-hira-analysis"
 documentation = "https://dineshpinto.github.io/qudi-hira-analysis/qudi_hira_analysis/"
