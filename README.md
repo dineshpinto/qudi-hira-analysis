@@ -6,22 +6,7 @@
 
 # Qudi Hira Analysis
 
-This toolkit automates a large portion of the work surrounding data analysis on quantum sensing experiments where the
-primary raw data extracted is photon counts.
-
-The high level interface is abstracted, and provides a set of functions to automate data import, handling and analysis.
-It is designed to be exposed through Jupyter Notebooks, although the abstract interface allows it to be integrated into
-larger, more general frameworks as well (with only some pain). Using the toolkit itself should only require a
-beginner-level understanding of Python.
-
-It also aims to improve transparency and reproducibility in experimental data analysis. In an ideal scenario,
-two lines of code are sufficient to recreate all output data.
-
-Python offers some very handy features like dataclasses, which are heavily used by this toolkit. Dataclasses offer a
-full OOP (object-oriented programming) experience while analyzing complex data sets. They provide a solid and
-transparent structure to the data to
-reduce errors arising from data fragmentation. This generally comes at a large performance cost, but this is (largely)
-sidestepped by lazy loading data and storing metadata instead wherever possible.
+Analytics suite for qubit SPM using FPGA timetaggers
 
 ## Installation
 
@@ -37,17 +22,18 @@ pip install --upgrade qudi-hira-analysis
 
 ## Citation
 
-If you are publishing scientific results using this code, you should cite this work as:  https://doi.org/10.5281/zenodo.7604670
-
+If you are publishing scientific results that use this code, as good scientific practice you
+should cite [this work]((https://doi.org/10.5281/zenodo.7604670)).
 
 ## Features
 
-- Modular architecture (use only what you need)
+- Easy-to-use modular architecture
 - Automated data import and handling
-- Works natively with data from [Qudi](https://github.com/Ulm-IQO/qudi) and [Qudi-Hira](https://github.com/projecthira/qudi-hira)
+- Works natively with data from [Qudi](https://github.com/Ulm-IQO/qudi)
+  and [Qudi-Hira](https://github.com/projecthira/qudi-hira)
 - Supports all fitting routines and file formats used in NV magnetometry, AFM, MFM and NV-SPM
+- Fast and robust curve fitting for 2D ODMR data
 - Uses a Dataclass-centered design for easy access to data and metadata
-
 
 ## Usage
 
@@ -56,8 +42,8 @@ from pathlib import Path
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path("C:\\", "Data"),
-    figure_folder=Path("C:\\", "QudiHiraAnalysis"),
+    data_folder=Path("C:\\Data"),
+    figure_folder=Path("C:\\QudiHiraAnalysis"),
     measurement_folder=Path("20230101_NV1")
 )
 
@@ -69,7 +55,24 @@ odmr_measurements = dh.load_measurements("odmr")
 
 The full documentation is available [here](https://dineshpinto.github.io/qudi-hira-analysis/)
 
-## Dataclass Schema
+## Schema
+
+### Overall
+
+```mermaid
+flowchart TD
+    IOHandler <-- Handle IO operations --> DataLoader;
+    DataLoader <-- Map IO callables --> DataHandler;
+    Qudi[Qudi FitLogic] --> AnalysisLogic;
+    AnalysisLogic -- Inject fit functions --> DataHandler;
+    DataHandler -- Fit data --> Plot;
+    DataHandler -- Structure data --> MeasurementDataclass;
+    MeasurementDataclass -- Plot data --> Plot[JupyterLab Notebook];
+    Plot -- Save plotted data --> DataHandler;
+    style MeasurementDataclass fill: #bbf, stroke: #f66, stroke-width: 2px, color: #fff, stroke-dasharray: 5 5
+```
+
+### Dataclass
 
 ```mermaid
 flowchart LR
@@ -98,21 +101,6 @@ flowchart LR
     end
 ```
 
-## Overall Schema
-
-```mermaid
-flowchart TD
-    IOHandler <-- Handle IO operations --> DataLoader;
-    DataLoader <-- Map IO callables --> DataHandler;
-    Qudi[Qudi FitLogic] --> AnalysisLogic;
-    AnalysisLogic -- Inject fit functions --> DataHandler;
-    DataHandler -- Fit data --> Plot;
-    DataHandler -- Structure data --> MeasurementDataclass;
-    MeasurementDataclass -- Plot data --> Plot[JupyterLab Notebook];
-    Plot -- Save plotted data --> DataHandler;
-    style MeasurementDataclass fill: #bbf, stroke: #f66, stroke-width: 2px, color: #fff, stroke-dasharray: 5 5
-```
-
 ## License
 
 This license of this project is located in the top level folder under `LICENSE`. Some specific files contain their
@@ -122,34 +110,18 @@ individual licenses in the file header docstring.
 
 ### Prerequisites
 
-- [Poetry](https://python-poetry.org) 
+- [Poetry](https://python-poetry.org)
 - [git](https://git-scm.com/downloads)
 
-### Clone the repository
+### Clone repo, install deps and add environment to Jupyter
 
 ```shell
 git clone https://github.com/dineshpinto/qudi-hira-analysis.git
-```
-
-### Installing dependencies with Poetry
-
-```bash
+cd qudi-hira-analysis
 poetry install
-```
-
-#### Add Poetry environment to Jupyter kernel
-
-```bash
 poetry run python -m ipykernel install --user --name=qudi-hira-analysis
-```
-
-### Start the analysis
-
-```shell
 poetry run jupyter lab
 ```
-
-Don't forget to switch to the `qudi-hira-analysis` kernel in JupyterLab.
 
 ## Makefile
 
