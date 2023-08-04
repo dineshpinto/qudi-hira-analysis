@@ -89,6 +89,8 @@ The `load_measurements` function returns a dictionary containing the measurement
 - The dictionary values are `MeasurementDataclass` objects whose schema is shown
   visually [here](#measurement-dataclass-schema).
 
+[Documentation](https://dineshpinto.github.io/qudi-hira-analysis/).
+
 ### Example 0: 2D NV-ODMR measurements
 
 ```python
