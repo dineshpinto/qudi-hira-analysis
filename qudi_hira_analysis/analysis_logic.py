@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import re
-import time
 from typing import Tuple, TYPE_CHECKING
 
 import numpy as np
@@ -294,16 +293,31 @@ class AnalysisLogic(FitLogic):
             r2_thresh: float = 0.95,
             thresh_frac: float = 0.3,
             min_thresh: float = 0.25,
-            sigma_thresh_frac: float = 0.3
+            sigma_thresh_frac: float = 0.3,
+            extract_pixel_from_filename: bool = True,
+            progress_bar: bool = True
     ) -> dict[str, MeasurementDataclass]:
+        """
+        Fit a list of ODMR data to single and double Lorentzian functions
+
+        Args:
+            odmr_measurements: List of ODMR data in MeasurementDataclasses
+            r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
+            thresh_frac:
+            min_thresh:
+            sigma_thresh_frac:
+            extract_pixel_from_filename: Extract `(row, col)` (in this format) from filename
+
+        Returns:
+            List of ODMR data with fit, fit model and pixels in MeasurementDataclass
+        """
+
         model1, base_params1 = rof.make_lorentzian_model()
         model2, base_params2 = rof.make_lorentziandouble_model()
 
-        self.log.info("Estimating fit params...")
-
         # Generate arguments for the parallel fitting
         args = []
-        for odmr in tqdm(odmr_measurements.values()):
+        for odmr in tqdm(odmr_measurements.values(), disable=not progress_bar):
             x = odmr.data["Freq(MHz)"].to_numpy()
             y = odmr.data["Counts"].to_numpy()
             _, params1 = rof.estimate_lorentzian_dip(x, y, base_params1)
@@ -311,25 +325,18 @@ class AnalysisLogic(FitLogic):
                                                            sigma_thresh_frac)
             args.append((x, y, model1, model2, params1, params2, r2_thresh))
 
-        self.log.info(f"Starting parallel fit with {cpu_count()} jobs...")
-
-        t1 = time.time()
-
         # Parallel fitting
         model_results = Parallel(n_jobs=cpu_count())(
             delayed(rof.lorentzian_fitting)(
                 x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
             in
-            tqdm(args)
+            tqdm(args, disable=not progress_bar)
         )
-
-        self.log.info(f"Fitted {len(odmr_measurements)} ODMR scans in {int(time.time() - t1)} s")
 
         x = list(odmr_measurements.values())[0].data["Freq(MHz)"].to_numpy()
         x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
 
         for odmr, res in zip(odmr_measurements.values(), model_results):
-            row, col = map(int, re.findall(r'(?<=\().*?(?=\))', odmr.filename)[0].split(","))
 
             if len(res.params) == 6:
                 # Fit to a single Lorentzian
@@ -341,7 +348,10 @@ class AnalysisLogic(FitLogic):
             # Plug results into the DataClass
             odmr.fit_model = res
             odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=["x_fit", "y_fit"])
-            odmr.xy_position = (row, col)
+
+            if extract_pixel_from_filename:
+                row, col = map(int, re.findall(r'(?<=\().*?(?=\))', odmr.filename)[0].split(","))
+                odmr.xy_position = (row, col)
 
         return odmr_measurements
 

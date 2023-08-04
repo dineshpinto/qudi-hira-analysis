@@ -615,6 +615,7 @@ def make_lorentziandouble_fit(x_axis, data, model, params, units=None, **kwargs)
 
 
 def lorentzian_fitting(x, y, model1, model2, params1, params2, r2_thresh):
+    """ Make Lorentzian fitting for single and double Lorentzian model """
     res1 = make_lorentzian_fit(x, y, model1, params1)
     if res1.rsquared < r2_thresh:
         return make_lorentziandouble_fit(x, y, model2, params2)

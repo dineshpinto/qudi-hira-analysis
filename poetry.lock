@@ -3269,4 +3269,4 @@ test = ["mypy", "pre-commit", "pytest", "pytest-asyncio", "websockets (>=10.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "684792ccce43d1c7ab63b3980c2bbbe5dd66f016be68161455bf61ec9b9bf1ee"
+content-hash = "5a91ac26f46f17c1b8b8816b2a721d8fc465e6b8fa8f5409a630b969b14f5128"
