@@ -1,0 +1,2747 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>qudi_hira_analysis API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>qudi_hira_analysis</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .analysis_logic import AnalysisLogic
+from .data_handler import DataHandler
+from .io_handler import IOHandler
+
+__all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="qudi_hira_analysis.analysis_logic" href="analysis_logic.html">qudi_hira_analysis.analysis_logic</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="qudi_hira_analysis.data_handler" href="data_handler.html">qudi_hira_analysis.data_handler</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="qudi_hira_analysis.helper_functions" href="helper_functions.html">qudi_hira_analysis.helper_functions</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="qudi_hira_analysis.io_handler" href="io_handler.html">qudi_hira_analysis.io_handler</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="qudi_hira_analysis.measurement_dataclass" href="measurement_dataclass.html">qudi_hira_analysis.measurement_dataclass</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="qudi_hira_analysis.AnalysisLogic"><code class="flex name class">
+<span>class <span class="ident">AnalysisLogic</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for performing analysis on measurement data</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AnalysisLogic(FitLogic):
+    &#34;&#34;&#34;
+        Class for performing analysis on measurement data
+    &#34;&#34;&#34;
+    fit_function = FitMethodsAndEstimators
+
+    def __init__(self):
+        super().__init__()
+        self.log = logging.getLogger(__name__)
+
+    def _perform_fit(
+            self,
+            x: np.ndarray,
+            y: np.ndarray,
+            fit_function: str,
+            estimator: str,
+            parameters: list[Parameter] = None,
+            dims: str = &#34;1d&#34;) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
+        fit = {dims: {&#39;default&#39;: {&#39;fit_function&#39;: fit_function, &#39;estimator&#39;: estimator}}}
+        user_fit = self.validate_load_fits(fit)
+
+        if parameters:
+            user_fit[dims][&#34;default&#34;][&#34;parameters&#34;].add_many(*parameters)
+
+        use_settings = {}
+        for key in user_fit[dims][&#34;default&#34;][&#34;parameters&#34;].keys():
+            if parameters:
+                if key in [p.name for p in parameters]:
+                    use_settings[key] = True
+                else:
+                    use_settings[key] = False
+            else:
+                use_settings[key] = False
+        user_fit[dims][&#34;default&#34;][&#34;use_settings&#34;] = use_settings
+
+        fc = self.make_fit_container(&#34;test&#34;, dims)
+        fc.set_fit_functions(user_fit[dims])
+        fc.set_current_fit(&#34;default&#34;)
+        fit_x, fit_y, result = fc.do_fit(x, y)
+        return fit_x, fit_y, result
+
+    def fit(
+            self,
+            x: str | np.ndarray | pd.Series,
+            y: str | np.ndarray | pd.Series,
+            fit_function: FitMethodsAndEstimators,
+            data: pd.DataFrame = None,
+            parameters: list[Parameter] = None
+    ) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
+        &#34;&#34;&#34;
+        Args:
+            x: x data
+            y: y data
+            fit_function: fit function to use
+            data: pandas DataFrame containing x and y data
+            parameters: list of parameters to use in fit
+
+        Returns:
+            x_fit: x data of fit
+            y_fit: y data of fit
+            result: result of fit
+
+        &#34;&#34;&#34;
+        if &#34;twoD&#34; in fit_function[0]:
+            dims: str = &#34;2d&#34;
+        else:
+            dims: str = &#34;1d&#34;
+
+        if data is None:
+            if isinstance(x, pd.Series) or isinstance(x, pd.Index):
+                x: np.ndarray = x.to_numpy()
+            if isinstance(y, pd.Series):
+                y: np.ndarray = y.to_numpy()
+        elif isinstance(data, pd.DataFrame):
+            x: np.ndarray = data[x].to_numpy()
+            y: np.ndarray = data[y].to_numpy()
+        else:
+            raise TypeError(&#34;Data must be a pandas DataFrame or None&#34;)
+
+        return self._perform_fit(
+            x=x,
+            y=y,
+            fit_function=fit_function[0],
+            estimator=fit_function[1],
+            parameters=parameters,
+            dims=dims
+        )
+
+    def get_all_fits(self) -&gt; Tuple[list, list]:
+        one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
+        two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
+        self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
+        return one_d_fits, two_d_fits
+
+    @staticmethod
+    def analyse_mean(
+            laser_data: np.ndarray,
+            signal_start: float = 100e-9,
+            signal_end: float = 300e-9,
+            bin_width: float = 1e-9
+    ) -&gt; Tuple[np.ndarray, np.ndarray]:
+        &#34;&#34;&#34;
+        Calculate the mean of the signal window.
+
+        Args:
+            laser_data: 2D array of laser data
+            signal_start: start of the signal window in seconds
+            signal_end: end of the signal window in seconds
+            bin_width: width of a bin in seconds
+
+        Returns:
+            np.ndarray: mean of the signal window
+            np.ndarray: measurement error
+        &#34;&#34;&#34;
+        # Get number of lasers
+        num_of_lasers = laser_data.shape[0]
+
+        if not isinstance(bin_width, float):
+            return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+        # Convert the times in seconds to bins (i.e. array indices)
+        signal_start_bin = round(signal_start / bin_width)
+        signal_end_bin = round(signal_end / bin_width)
+
+        # initialize data arrays for signal and measurement error
+        signal_data = np.empty(num_of_lasers, dtype=float)
+        error_data = np.empty(num_of_lasers, dtype=float)
+
+        # loop over all laser pulses and analyze them
+        for ii, laser_arr in enumerate(laser_data):
+            # calculate the mean of the data in the signal window
+            signal = laser_arr[signal_start_bin:signal_end_bin].mean()
+            signal_sum = laser_arr[signal_start_bin:signal_end_bin].sum()
+            signal_error = np.sqrt(signal_sum) / (signal_end_bin - signal_start_bin)
+
+            # Avoid numpy C type variables overflow and NaN values
+            if signal &lt; 0 or signal != signal:
+                signal_data[ii] = 0.0
+                error_data[ii] = 0.0
+            else:
+                signal_data[ii] = signal
+                error_data[ii] = signal_error
+
+        return signal_data, error_data
+
+    @staticmethod
+    def analyse_mean_reference(
+            laser_data: np.ndarray,
+            signal_start: float = 100e-9,
+            signal_end: float = 300e-9,
+            norm_start: float = 1000e-9,
+            norm_end: float = 2000e-9,
+            bin_width: float = 1e-9) -&gt; Tuple[np.ndarray, np.ndarray]:
+        &#34;&#34;&#34;
+        Subtracts the mean of the signal window from the mean of the reference window.
+
+        Args:
+            laser_data: 2D array of laser data
+            signal_start: start of the signal window in seconds
+            signal_end: end of the signal window in seconds
+            norm_start: start of the reference window in seconds
+            norm_end: end of the reference window in seconds
+            bin_width: width of a bin in seconds
+
+        Returns:
+            np.ndarray: referenced mean of the signal window
+            np.ndarray: measurement error
+        &#34;&#34;&#34;
+        # Get number of lasers
+        num_of_lasers = laser_data.shape[0]
+
+        if not isinstance(bin_width, float):
+            return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+        # Convert the times in seconds to bins (i.e. array indices)
+        signal_start_bin = round(signal_start / bin_width)
+        signal_end_bin = round(signal_end / bin_width)
+        norm_start_bin = round(norm_start / bin_width)
+        norm_end_bin = round(norm_end / bin_width)
+
+        # initialize data arrays for signal and measurement error
+        signal_data = np.empty(num_of_lasers, dtype=float)
+        error_data = np.empty(num_of_lasers, dtype=float)
+
+        # loop over all laser pulses and analyze them
+        for ii, laser_arr in enumerate(laser_data):
+            # calculate the sum and mean of the data in the normalization window
+            tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+            reference_sum = np.sum(tmp_data)
+            reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+            # calculate the sum and mean of the data in the signal window
+            tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+            signal_sum = np.sum(tmp_data)
+            signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+            signal_data[ii] = signal_mean - reference_mean
+
+            # calculate with respect to gaussian error &#39;evolution&#39;
+            error_data[ii] = signal_data[ii] * np.sqrt(1 / abs(signal_sum) + 1 / abs(reference_sum))
+
+        return signal_data, error_data
+
+    @staticmethod
+    def analyse_mean_norm(
+            laser_data: np.ndarray,
+            signal_start: float = 100e-9,
+            signal_end: float = 300e-9,
+            norm_start: float = 1000e-9,
+            norm_end=2000e-9,
+            bin_width: float = 1e-9
+    ) -&gt; Tuple[np.ndarray, np.ndarray]:
+        &#34;&#34;&#34;
+        Divides the mean of the signal window from the mean of the reference window.
+
+        Args:
+            laser_data: 2D array of laser data
+            signal_start: start of the signal window in seconds
+            signal_end: end of the signal window in seconds
+            norm_start: start of the reference window in seconds
+            norm_end: end of the reference window in seconds
+            bin_width: width of a bin in seconds
+
+        Returns:
+            np.ndarray: normalized mean of the signal window
+            np.ndarray: measurement error
+        &#34;&#34;&#34;
+        # Get number of lasers
+        num_of_lasers = laser_data.shape[0]
+
+        if not isinstance(bin_width, float):
+            return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+        # Convert the times in seconds to bins (i.e. array indices)
+        signal_start_bin = round(signal_start / bin_width)
+        signal_end_bin = round(signal_end / bin_width)
+        norm_start_bin = round(norm_start / bin_width)
+        norm_end_bin = round(norm_end / bin_width)
+
+        # initialize data arrays for signal and measurement error
+        signal_data = np.empty(num_of_lasers, dtype=float)
+        error_data = np.empty(num_of_lasers, dtype=float)
+
+        # loop over all laser pulses and analyze them
+        for ii, laser_arr in enumerate(laser_data):
+            # calculate the sum and mean of the data in the normalization window
+            tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+            reference_sum = np.sum(tmp_data)
+            reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+            # calculate the sum and mean of the data in the signal window
+            tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+            signal_sum = np.sum(tmp_data)
+            signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+            # Calculate normalized signal while avoiding division by zero
+            if reference_mean &gt; 0 and signal_mean &gt;= 0:
+                signal_data[ii] = signal_mean / reference_mean
+            else:
+                signal_data[ii] = 0.0
+
+            # Calculate measurement error while avoiding division by zero
+            if reference_sum &gt; 0 and signal_sum &gt; 0:
+                # calculate with respect to gaussian error &#39;evolution&#39;
+                error_data[ii] = signal_data[ii] * np.sqrt(1 / signal_sum + 1 / reference_sum)
+            else:
+                error_data[ii] = 0.0
+
+        return signal_data, error_data
+
+    def optimize_raster_odmr_params(
+            self,
+            measurements: dict[str, MeasurementDataclass],
+            num_samples: int = 10,
+            num_params: int = 3,
+    ) -&gt; Tuple[float, Tuple[float, float, float]]:
+        &#34;&#34;&#34;
+        This method optimizes the hyperparameters of the ODMR analysis.
+        It does so by randomly sampling a subset of the measurements and
+        then optimizing the hyperparameters for them.
+
+        Args:
+            measurements: A dictionary of measurements to optimize the hyperparameters for.
+            num_params: The number of parameters to optimize.
+            num_samples: The number of measurements to sample.
+
+        Returns:
+            float: The highest minimum r2 value
+            tuple: Optimized hyperparameters.
+        &#34;&#34;&#34;
+        r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
+        thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
+        sigma_thresh_fracs: np.ndarray = np.around(np.linspace(start=0.1, stop=0.2, num=num_params), decimals=1)
+
+        odmr_sample: dict = {}
+        for k, v in random.sample(sorted(measurements.items()), k=num_samples):
+            odmr_sample[k] = v
+
+        highest_min_r2: float = 0
+        optimal_params: Tuple[float, float, float] = (0, 0, 0)
+
+        for idx, (r2_thresh, thresh_frac, sigma_thresh_frac) in enumerate(
+                product(r2_threshs, thresh_fracs, sigma_thresh_fracs)):
+            odmr_sample = self.fit_raster_odmr(
+                odmr_sample,
+                r2_thresh=r2_thresh,
+                thresh_frac=thresh_frac,
+                sigma_thresh_frac=sigma_thresh_frac,
+                min_thresh=0.01,
+                progress_bar=False
+            )
+
+            r2s: np.ndarray = np.zeros(len(odmr_sample))
+            for _idx, odmr in enumerate(odmr_sample.values()):
+                r2s[_idx] = odmr.fit_model.rsquared
+            min_r2: float = np.min(r2s)
+
+            if highest_min_r2 &lt; min_r2:
+                highest_min_r2 = min_r2
+                optimal_params = (r2_thresh, thresh_frac, sigma_thresh_frac)
+
+        return highest_min_r2, optimal_params
+
+    @staticmethod
+    def fit_raster_odmr(
+            odmr_measurements: dict[str, MeasurementDataclass],
+            r2_thresh: float = 0.95,
+            thresh_frac: float = 0.5,
+            sigma_thresh_frac: float = 0.15,
+            min_thresh: float = 0.01,
+            extract_pixel_from_filename: bool = True,
+            progress_bar: bool = True
+    ) -&gt; dict[str, MeasurementDataclass]:
+        &#34;&#34;&#34;
+        Fit a list of ODMR data to single and double Lorentzian functions
+
+        Args:
+            odmr_measurements: List of ODMR data in MeasurementDataclasses
+            r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
+            thresh_frac: Threshold fraction for the peak finding
+            min_thresh: Minimum threshold for the peak finding
+            sigma_thresh_frac: Change in threshold fraction for the peak finding
+            extract_pixel_from_filename: Extract `(row, col)` (in this format) from filename
+            progress_bar: Show progress bar
+
+        Returns:
+            dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+        &#34;&#34;&#34;
+
+        model1, base_params1 = rof.make_lorentzian_model()
+        model2, base_params2 = rof.make_lorentziandouble_model()
+
+        # Generate arguments for the parallel fitting
+        args = []
+        for odmr in tqdm(odmr_measurements.values(), disable=not progress_bar):
+            x = odmr.data[&#34;Freq(MHz)&#34;].to_numpy()
+            y = odmr.data[&#34;Counts&#34;].to_numpy()
+            _, params1 = rof.estimate_lorentzian_dip(x, y, base_params1)
+            _, params2 = rof.estimate_lorentziandouble_dip(x, y, base_params2, thresh_frac, min_thresh,
+                                                           sigma_thresh_frac)
+            args.append((x, y, model1, model2, params1, params2, r2_thresh))
+
+        # Parallel fitting
+        model_results = Parallel(n_jobs=cpu_count())(
+            delayed(rof.lorentzian_fitting)(
+                x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
+            in
+            tqdm(args, disable=not progress_bar)
+        )
+
+        x = list(odmr_measurements.values())[0].data[&#34;Freq(MHz)&#34;].to_numpy()
+        x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
+
+        for odmr, res in zip(odmr_measurements.values(), model_results):
+
+            if len(res.params) == 6:
+                # Fit to a single Lorentzian
+                y_fit = model1.eval(x=x_fit, params=res.params)
+            else:
+                # Fit to a double Lorentzian
+                y_fit = model2.eval(x=x_fit, params=res.params)
+
+            # Plug results into the DataClass
+            odmr.fit_model = res
+            odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=[&#34;x_fit&#34;, &#34;y_fit&#34;])
+
+            if extract_pixel_from_filename:
+                row, col = map(int, re.findall(r&#39;(?&lt;=\().*?(?=\))&#39;, odmr.filename)[0].split(&#34;,&#34;))
+                odmr.xy_position = (row, col)
+
+        return odmr_measurements
+
+    @staticmethod
+    def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
+        &#34;&#34;&#34; Average a NaN pixel to its surrounding pixels.
+
+        Args:
+            orig_image: Image with NaN pixels
+
+        Returns:
+            Image with NaN pixels replaced by the average of its surrounding pixels
+        &#34;&#34;&#34;
+        image: np.ndarray = orig_image.copy()
+        for row, col in np.argwhere(np.isnan(image)):
+            if row == 0:
+                pixel_avg = np.nanmean(image[row + 1:row + 2, col - 1:col + 2])
+            elif row == image.shape[0] - 1:
+                pixel_avg = np.nanmean(image[row - 1:row, col - 1:col + 2])
+            elif col == 0:
+                pixel_avg = np.nanmean(image[row - 1:row + 2, col + 1:col + 2])
+            elif col == image.shape[1] - 1:
+                pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col])
+            else:
+                pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
+
+            image[row, col] = pixel_avg
+        return image</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>qudi_hira_analysis._qudi_fit_logic.FitLogic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="qudi_hira_analysis.data_handler.DataHandler" href="data_handler.html#qudi_hira_analysis.data_handler.DataHandler">DataHandler</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.AnalysisLogic.fit_function"><code class="name">var <span class="ident">fit_function</span></code></dt>
+<dd>
+<div class="desc"><p>Class for storing fit methods and estimators.
+Fit methods are stored as tuples of (method, estimator)
+where method is the name of the fit method and estimator is the name of the estimator.</p></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="qudi_hira_analysis.AnalysisLogic.analyse_mean"><code class="name flex">
+<span>def <span class="ident">analyse_mean</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the mean of the signal window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>np.ndarray</code></dt>
+<dd>mean of the signal window</dd>
+<dt><code>np.ndarray</code></dt>
+<dd>measurement error</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyse_mean(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        bin_width: float = 1e-9
+) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Calculate the mean of the signal window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        np.ndarray: mean of the signal window
+        np.ndarray: measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the mean of the data in the signal window
+        signal = laser_arr[signal_start_bin:signal_end_bin].mean()
+        signal_sum = laser_arr[signal_start_bin:signal_end_bin].sum()
+        signal_error = np.sqrt(signal_sum) / (signal_end_bin - signal_start_bin)
+
+        # Avoid numpy C type variables overflow and NaN values
+        if signal &lt; 0 or signal != signal:
+            signal_data[ii] = 0.0
+            error_data[ii] = 0.0
+        else:
+            signal_data[ii] = signal
+            error_data[ii] = signal_error
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.analyse_mean_norm"><code class="name flex">
+<span>def <span class="ident">analyse_mean_norm</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end=2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Divides the mean of the signal window from the mean of the reference window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>norm_start</code></strong></dt>
+<dd>start of the reference window in seconds</dd>
+<dt><strong><code>norm_end</code></strong></dt>
+<dd>end of the reference window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>np.ndarray</code></dt>
+<dd>normalized mean of the signal window</dd>
+<dt><code>np.ndarray</code></dt>
+<dd>measurement error</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyse_mean_norm(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end=2000e-9,
+        bin_width: float = 1e-9
+) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Divides the mean of the signal window from the mean of the reference window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        norm_start: start of the reference window in seconds
+        norm_end: end of the reference window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        np.ndarray: normalized mean of the signal window
+        np.ndarray: measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+    norm_start_bin = round(norm_start / bin_width)
+    norm_end_bin = round(norm_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the sum and mean of the data in the normalization window
+        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+        reference_sum = np.sum(tmp_data)
+        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # calculate the sum and mean of the data in the signal window
+        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+        signal_sum = np.sum(tmp_data)
+        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # Calculate normalized signal while avoiding division by zero
+        if reference_mean &gt; 0 and signal_mean &gt;= 0:
+            signal_data[ii] = signal_mean / reference_mean
+        else:
+            signal_data[ii] = 0.0
+
+        # Calculate measurement error while avoiding division by zero
+        if reference_sum &gt; 0 and signal_sum &gt; 0:
+            # calculate with respect to gaussian error &#39;evolution&#39;
+            error_data[ii] = signal_data[ii] * np.sqrt(1 / signal_sum + 1 / reference_sum)
+        else:
+            error_data[ii] = 0.0
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.analyse_mean_reference"><code class="name flex">
+<span>def <span class="ident">analyse_mean_reference</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end: float = 2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Subtracts the mean of the signal window from the mean of the reference window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>norm_start</code></strong></dt>
+<dd>start of the reference window in seconds</dd>
+<dt><strong><code>norm_end</code></strong></dt>
+<dd>end of the reference window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>np.ndarray</code></dt>
+<dd>referenced mean of the signal window</dd>
+<dt><code>np.ndarray</code></dt>
+<dd>measurement error</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyse_mean_reference(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end: float = 2000e-9,
+        bin_width: float = 1e-9) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Subtracts the mean of the signal window from the mean of the reference window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        norm_start: start of the reference window in seconds
+        norm_end: end of the reference window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        np.ndarray: referenced mean of the signal window
+        np.ndarray: measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+    norm_start_bin = round(norm_start / bin_width)
+    norm_end_bin = round(norm_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the sum and mean of the data in the normalization window
+        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+        reference_sum = np.sum(tmp_data)
+        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # calculate the sum and mean of the data in the signal window
+        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+        signal_sum = np.sum(tmp_data)
+        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        signal_data[ii] = signal_mean - reference_mean
+
+        # calculate with respect to gaussian error &#39;evolution&#39;
+        error_data[ii] = signal_data[ii] * np.sqrt(1 / abs(signal_sum) + 1 / abs(reference_sum))
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.average_raster_odmr_pixels"><code class="name flex">
+<span>def <span class="ident">average_raster_odmr_pixels</span></span>(<span>orig_image: np.ndarray) ‑> numpy.ndarray</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Average a NaN pixel to its surrounding pixels.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>orig_image</code></strong></dt>
+<dd>Image with NaN pixels</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Image with NaN pixels replaced by the average of its surrounding pixels</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
+    &#34;&#34;&#34; Average a NaN pixel to its surrounding pixels.
+
+    Args:
+        orig_image: Image with NaN pixels
+
+    Returns:
+        Image with NaN pixels replaced by the average of its surrounding pixels
+    &#34;&#34;&#34;
+    image: np.ndarray = orig_image.copy()
+    for row, col in np.argwhere(np.isnan(image)):
+        if row == 0:
+            pixel_avg = np.nanmean(image[row + 1:row + 2, col - 1:col + 2])
+        elif row == image.shape[0] - 1:
+            pixel_avg = np.nanmean(image[row - 1:row, col - 1:col + 2])
+        elif col == 0:
+            pixel_avg = np.nanmean(image[row - 1:row + 2, col + 1:col + 2])
+        elif col == image.shape[1] - 1:
+            pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col])
+        else:
+            pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
+
+        image[row, col] = pixel_avg
+    return image</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.fit_raster_odmr"><code class="name flex">
+<span>def <span class="ident">fit_raster_odmr</span></span>(<span>odmr_measurements: dict[str, MeasurementDataclass], r2_thresh: float = 0.95, thresh_frac: float = 0.5, sigma_thresh_frac: float = 0.15, min_thresh: float = 0.01, extract_pixel_from_filename: bool = True, progress_bar: bool = True) ‑> dict[str, MeasurementDataclass]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fit a list of ODMR data to single and double Lorentzian functions</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>odmr_measurements</code></strong></dt>
+<dd>List of ODMR data in MeasurementDataclasses</dd>
+<dt><strong><code>r2_thresh</code></strong></dt>
+<dd>R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian</dd>
+<dt><strong><code>thresh_frac</code></strong></dt>
+<dd>Threshold fraction for the peak finding</dd>
+<dt><strong><code>min_thresh</code></strong></dt>
+<dd>Minimum threshold for the peak finding</dd>
+<dt><strong><code>sigma_thresh_frac</code></strong></dt>
+<dd>Change in threshold fraction for the peak finding</dd>
+<dt><strong><code>extract_pixel_from_filename</code></strong></dt>
+<dd>Extract <code>(row, col)</code> (in this format) from filename</dd>
+<dt><strong><code>progress_bar</code></strong></dt>
+<dd>Show progress bar</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>ODMR data with fit, fit model and pixels in MeasurementDataclass</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def fit_raster_odmr(
+        odmr_measurements: dict[str, MeasurementDataclass],
+        r2_thresh: float = 0.95,
+        thresh_frac: float = 0.5,
+        sigma_thresh_frac: float = 0.15,
+        min_thresh: float = 0.01,
+        extract_pixel_from_filename: bool = True,
+        progress_bar: bool = True
+) -&gt; dict[str, MeasurementDataclass]:
+    &#34;&#34;&#34;
+    Fit a list of ODMR data to single and double Lorentzian functions
+
+    Args:
+        odmr_measurements: List of ODMR data in MeasurementDataclasses
+        r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
+        thresh_frac: Threshold fraction for the peak finding
+        min_thresh: Minimum threshold for the peak finding
+        sigma_thresh_frac: Change in threshold fraction for the peak finding
+        extract_pixel_from_filename: Extract `(row, col)` (in this format) from filename
+        progress_bar: Show progress bar
+
+    Returns:
+        dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+    &#34;&#34;&#34;
+
+    model1, base_params1 = rof.make_lorentzian_model()
+    model2, base_params2 = rof.make_lorentziandouble_model()
+
+    # Generate arguments for the parallel fitting
+    args = []
+    for odmr in tqdm(odmr_measurements.values(), disable=not progress_bar):
+        x = odmr.data[&#34;Freq(MHz)&#34;].to_numpy()
+        y = odmr.data[&#34;Counts&#34;].to_numpy()
+        _, params1 = rof.estimate_lorentzian_dip(x, y, base_params1)
+        _, params2 = rof.estimate_lorentziandouble_dip(x, y, base_params2, thresh_frac, min_thresh,
+                                                       sigma_thresh_frac)
+        args.append((x, y, model1, model2, params1, params2, r2_thresh))
+
+    # Parallel fitting
+    model_results = Parallel(n_jobs=cpu_count())(
+        delayed(rof.lorentzian_fitting)(
+            x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
+        in
+        tqdm(args, disable=not progress_bar)
+    )
+
+    x = list(odmr_measurements.values())[0].data[&#34;Freq(MHz)&#34;].to_numpy()
+    x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
+
+    for odmr, res in zip(odmr_measurements.values(), model_results):
+
+        if len(res.params) == 6:
+            # Fit to a single Lorentzian
+            y_fit = model1.eval(x=x_fit, params=res.params)
+        else:
+            # Fit to a double Lorentzian
+            y_fit = model2.eval(x=x_fit, params=res.params)
+
+        # Plug results into the DataClass
+        odmr.fit_model = res
+        odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=[&#34;x_fit&#34;, &#34;y_fit&#34;])
+
+        if extract_pixel_from_filename:
+            row, col = map(int, re.findall(r&#39;(?&lt;=\().*?(?=\))&#39;, odmr.filename)[0].split(&#34;,&#34;))
+            odmr.xy_position = (row, col)
+
+    return odmr_measurements</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="qudi_hira_analysis.AnalysisLogic.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, x: str | np.ndarray | pd.Series, y: str | np.ndarray | pd.Series, fit_function: FitMethodsAndEstimators, data: pd.DataFrame = None, parameters: list[Parameter] = None) ‑> Tuple[np.ndarray, np.ndarray, ModelResult]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>x data</dd>
+<dt><strong><code>y</code></strong></dt>
+<dd>y data</dd>
+<dt><strong><code>fit_function</code></strong></dt>
+<dd>fit function to use</dd>
+<dt><strong><code>data</code></strong></dt>
+<dd>pandas DataFrame containing x and y data</dd>
+<dt><strong><code>parameters</code></strong></dt>
+<dd>list of parameters to use in fit</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>x_fit</code></dt>
+<dd>x data of fit</dd>
+<dt><code>y_fit</code></dt>
+<dd>y data of fit</dd>
+<dt><code>result</code></dt>
+<dd>result of fit</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(
+        self,
+        x: str | np.ndarray | pd.Series,
+        y: str | np.ndarray | pd.Series,
+        fit_function: FitMethodsAndEstimators,
+        data: pd.DataFrame = None,
+        parameters: list[Parameter] = None
+) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
+    &#34;&#34;&#34;
+    Args:
+        x: x data
+        y: y data
+        fit_function: fit function to use
+        data: pandas DataFrame containing x and y data
+        parameters: list of parameters to use in fit
+
+    Returns:
+        x_fit: x data of fit
+        y_fit: y data of fit
+        result: result of fit
+
+    &#34;&#34;&#34;
+    if &#34;twoD&#34; in fit_function[0]:
+        dims: str = &#34;2d&#34;
+    else:
+        dims: str = &#34;1d&#34;
+
+    if data is None:
+        if isinstance(x, pd.Series) or isinstance(x, pd.Index):
+            x: np.ndarray = x.to_numpy()
+        if isinstance(y, pd.Series):
+            y: np.ndarray = y.to_numpy()
+    elif isinstance(data, pd.DataFrame):
+        x: np.ndarray = data[x].to_numpy()
+        y: np.ndarray = data[y].to_numpy()
+    else:
+        raise TypeError(&#34;Data must be a pandas DataFrame or None&#34;)
+
+    return self._perform_fit(
+        x=x,
+        y=y,
+        fit_function=fit_function[0],
+        estimator=fit_function[1],
+        parameters=parameters,
+        dims=dims
+    )</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.get_all_fits"><code class="name flex">
+<span>def <span class="ident">get_all_fits</span></span>(<span>self) ‑> Tuple[list, list]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_all_fits(self) -&gt; Tuple[list, list]:
+    one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
+    two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
+    self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
+    return one_d_fits, two_d_fits</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.optimize_raster_odmr_params"><code class="name flex">
+<span>def <span class="ident">optimize_raster_odmr_params</span></span>(<span>self, measurements: dict[str, MeasurementDataclass], num_samples: int = 10, num_params: int = 3) ‑> Tuple[float, Tuple[float, float, float]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method optimizes the hyperparameters of the ODMR analysis.
+It does so by randomly sampling a subset of the measurements and
+then optimizing the hyperparameters for them.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>measurements</code></strong></dt>
+<dd>A dictionary of measurements to optimize the hyperparameters for.</dd>
+<dt><strong><code>num_params</code></strong></dt>
+<dd>The number of parameters to optimize.</dd>
+<dt><strong><code>num_samples</code></strong></dt>
+<dd>The number of measurements to sample.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>The highest minimum r2 value</dd>
+<dt><code>tuple</code></dt>
+<dd>Optimized hyperparameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimize_raster_odmr_params(
+        self,
+        measurements: dict[str, MeasurementDataclass],
+        num_samples: int = 10,
+        num_params: int = 3,
+) -&gt; Tuple[float, Tuple[float, float, float]]:
+    &#34;&#34;&#34;
+    This method optimizes the hyperparameters of the ODMR analysis.
+    It does so by randomly sampling a subset of the measurements and
+    then optimizing the hyperparameters for them.
+
+    Args:
+        measurements: A dictionary of measurements to optimize the hyperparameters for.
+        num_params: The number of parameters to optimize.
+        num_samples: The number of measurements to sample.
+
+    Returns:
+        float: The highest minimum r2 value
+        tuple: Optimized hyperparameters.
+    &#34;&#34;&#34;
+    r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
+    thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
+    sigma_thresh_fracs: np.ndarray = np.around(np.linspace(start=0.1, stop=0.2, num=num_params), decimals=1)
+
+    odmr_sample: dict = {}
+    for k, v in random.sample(sorted(measurements.items()), k=num_samples):
+        odmr_sample[k] = v
+
+    highest_min_r2: float = 0
+    optimal_params: Tuple[float, float, float] = (0, 0, 0)
+
+    for idx, (r2_thresh, thresh_frac, sigma_thresh_frac) in enumerate(
+            product(r2_threshs, thresh_fracs, sigma_thresh_fracs)):
+        odmr_sample = self.fit_raster_odmr(
+            odmr_sample,
+            r2_thresh=r2_thresh,
+            thresh_frac=thresh_frac,
+            sigma_thresh_frac=sigma_thresh_frac,
+            min_thresh=0.01,
+            progress_bar=False
+        )
+
+        r2s: np.ndarray = np.zeros(len(odmr_sample))
+        for _idx, odmr in enumerate(odmr_sample.values()):
+            r2s[_idx] = odmr.fit_model.rsquared
+        min_r2: float = np.min(r2s)
+
+        if highest_min_r2 &lt; min_r2:
+            highest_min_r2 = min_r2
+            optimal_params = (r2_thresh, thresh_frac, sigma_thresh_frac)
+
+    return highest_min_r2, optimal_params</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="qudi_hira_analysis.DataHandler"><code class="flex name class">
+<span>class <span class="ident">DataHandler</span></span>
+<span>(</span><span>data_folder: Path, figure_folder: Path, measurement_folder: Path = PosixPath('.'), copy_measurement_folder_structure: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handles automated data searching and extraction into dataclasses.</p>
+<h2 id="parameters">Parameters</h2>
+<p>data_folder: Path to the data folder.
+figure_folder: Path to the figure folder.
+measurement_folder: Path to the measurement folder.</p>
+<h2 id="examples">Examples</h2>
+<p>Create an instance of the DataHandler class:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; dh = DataHandler(
+&gt;&gt;&gt;     data_folder=Path('C:\'', 'Data'),
+&gt;&gt;&gt;     figure_folder=Path('C:\'', 'QudiHiraAnalysis'),
+&gt;&gt;&gt;     measurement_folder=Path('20230101_Bakeout'),
+&gt;&gt;&gt; )
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DataHandler(DataLoader, AnalysisLogic):
+    &#34;&#34;&#34;
+    Handles automated data searching and extraction into dataclasses.
+
+    Parameters:
+        data_folder: Path to the data folder.
+        figure_folder: Path to the figure folder.
+        measurement_folder: Path to the measurement folder.
+
+    Examples:
+        Create an instance of the DataHandler class:
+
+        &gt;&gt;&gt; dh = DataHandler(
+        &gt;&gt;&gt;     data_folder=Path(&#39;C:\\&#39;&#39;, &#39;Data&#39;),
+        &gt;&gt;&gt;     figure_folder=Path(&#39;C:\\&#39;&#39;, &#39;QudiHiraAnalysis&#39;),
+        &gt;&gt;&gt;     measurement_folder=Path(&#39;20230101_Bakeout&#39;),
+        &gt;&gt;&gt; )
+    &#34;&#34;&#34;
+
+    def __init__(
+            self,
+            data_folder: Path,
+            figure_folder: Path,
+            measurement_folder: Path = Path(),
+            copy_measurement_folder_structure: bool = True,
+    ):
+        self.log = logging.getLogger(__name__)
+
+        self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
+
+        if copy_measurement_folder_structure:
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+        else:
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, Path())
+
+        super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
+
+        self.timestamp_format_str = &#34;%Y%m%d-%H%M-%S&#34;
+
+    def __get_data_folder_path(self, data_folder: Path, folder_name: Path) -&gt; Path:
+        &#34;&#34;&#34; Check if folder exists, if not, create it and return absolute folder paths. &#34;&#34;&#34;
+        path = data_folder / folder_name
+
+        if not path.exists():
+            raise IOError(&#34;Data folder path does not exist.&#34;)
+
+        self.log.info(f&#34;Data folder path is {path}&#34;)
+        return path
+
+    def __get_figure_folder_path(self, figure_folder: Path, folder_name: Path) -&gt; Path:
+        &#34;&#34;&#34; Check if folder exists, if not, create it and return absolute folder paths. &#34;&#34;&#34;
+        path = figure_folder / folder_name
+
+        if not path.exists():
+            path.mkdir()
+            self.log.info(f&#34;Creating new output folder path {path}&#34;)
+        else:
+            self.log.info(f&#34;Figure folder path is {path}&#34;)
+        return path
+
+    def __tree(self, dir_path: Path, prefix: str = &#39;&#39;):
+        &#34;&#34;&#34;
+        A recursive generator, given a directory Path object
+        will yield a visual tree structure line by line
+        with each line prefixed by the same characters
+        &#34;&#34;&#34;
+        # prefix components:
+        space = &#39;    &#39;
+        branch = &#39;│   &#39;
+        # pointers:
+        tee = &#39;├── &#39;
+        last = &#39;└── &#39;
+
+        contents = list(dir_path.iterdir())
+        # contents each get pointers that are ├── with a final └── :
+        pointers = [tee] * (len(contents) - 1) + [last]
+        for pointer, path in zip(pointers, contents):
+            yield prefix + pointer + path.name
+            if path.is_dir():  # extend the prefix and recurse:
+                extension = branch if pointer == tee else space
+                # i.e. space because last, └── , above so no more |
+                yield from self.__tree(path, prefix=prefix + extension)
+
+    def data_folder_tree(self):
+        &#34;&#34;&#34; Print a tree of the data folder. &#34;&#34;&#34;
+        for line in self.__tree(self.data_folder_path):
+            print(line)
+
+    def figure_folder_tree(self):
+        &#34;&#34;&#34; Print a tree of the figure folder. &#34;&#34;&#34;
+        for line in self.__tree(self.figure_folder_path):
+            print(line)
+
+    def _get_measurement_filepaths(
+            self,
+            measurement: str,
+            extension: str,
+            exclude_str: str | None = None
+    ) -&gt; list[Path]:
+        &#34;&#34;&#34;
+        List all measurement files for a single measurement type, regardless of date
+        within a similar set (i.e. top level folder).
+        &#34;&#34;&#34;
+        filepaths: List[Path] = []
+
+        for path in self.data_folder_path.rglob(&#34;*&#34;):
+            if path.is_file() and measurement.lower() in str(path).lower():
+                if exclude_str is None or exclude_str not in str(path):
+                    if extension:
+                        if path.suffix == extension:
+                            filepaths.append(path)
+                    else:
+                        filepaths.append(path)
+        return filepaths
+
+    def __load_qudi_measurements_into_dataclass(
+            self,
+            measurement_str: str,
+            pulsed: bool,
+            extension: str
+    ) -&gt; dict[str: MeasurementDataclass]:
+
+        if pulsed:
+            filtered_filepaths = []
+            timestamps = set()
+
+            # Get set of unique timestamps containing pulsed_measurement_str
+            for filepath in self._get_measurement_filepaths(measurement=measurement_str, extension=extension,
+                                                            exclude_str=&#34;image_1.dat&#34;):
+                filename = filepath.name
+                if measurement_str in filename:
+                    timestamps.add(filename[:16])
+                    filtered_filepaths.append(filepath)
+
+            pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
+
+            for ts in timestamps:
+                pm, lp, rt = None, None, None
+
+                for filepath in filtered_filepaths:
+                    filename = filepath.name
+                    if filename.startswith(ts):
+                        if str(filename).endswith(&#34;laser_pulses.dat&#34;):
+                            lp = LaserPulses(filepath=filepath, loaders=self.trace_qudi_loader)
+                        elif str(filename).endswith(&#34;pulsed_measurement.dat&#34;):
+                            pm = PulsedMeasurement(filepath=filepath, loaders=self.default_qudi_loader)
+                        elif str(filename).endswith(&#34;raw_timetrace.dat&#34;):
+                            rt = RawTimetrace(filepath=filepath, loaders=self.trace_qudi_loader)
+
+                    if lp and pm and rt:
+                        break
+
+                pulsed_measurement_data[ts] = (
+                    MeasurementDataclass(
+                        timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                        pulsed=PulsedMeasurementDataclass(
+                            measurement=pm,
+                            laser_pulses=lp,
+                            timetrace=rt
+                        )
+                    )
+                )
+            return pulsed_measurement_data
+        else:
+            if measurement_str.lower() == &#34;confocal&#34;:
+                loaders = self.confocal_qudi_loader
+                exclude_str = &#34;xy_data.dat&#34;
+            elif measurement_str.lower() == &#34;pixelscanner&#34;:
+                loaders = self.pixelscanner_qudi_loader
+                exclude_str = None
+            else:
+                loaders = self.default_qudi_loader
+                exclude_str = None
+
+            measurement_data: dict[str: MeasurementDataclass] = {}
+
+            for filepath in self._get_measurement_filepaths(measurement_str, extension, exclude_str):
+                ts = filepath.name[:16]
+                measurement_data[ts] = (
+                    MeasurementDataclass(
+                        filepath=filepath,
+                        timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                        _loaders=loaders
+                    )
+                )
+            return measurement_data
+
+    def __load_standard_measurements_into_dataclass(
+            self,
+            measurement_str: str,
+            extension: str
+    ) -&gt; dict[str: MeasurementDataclass]:
+        measurement_list: dict[str: MeasurementDataclass] = {}
+
+        # Try and infer measurement type
+        if measurement_str.lower() == &#34;temperature-monitoring&#34;:
+            loaders = self.temperature_loader
+            extension = &#34;.xls&#34;
+            exclude_str = None
+        elif measurement_str.lower() == &#34;pressure-monitoring&#34;:
+            loaders = self.pressure_loader
+            extension = &#34;.txt&#34;
+            exclude_str = None
+        elif measurement_str == &#34;frq-sweep&#34;:
+            loaders = self.nanonis_loader
+            exclude_str = None
+        elif extension == &#34;.sxm&#34;:
+            loaders = self.nanonis_spm_loader
+            exclude_str = None
+        elif extension == &#34;.pys&#34;:
+            loaders = self.pys_loader
+            exclude_str = None
+        elif extension == &#34;.001&#34;:
+            loaders = self.bruker_spm_loader
+            exclude_str = None
+        else:
+            loaders = self.default_qudi_loader
+            exclude_str = None
+
+        for filepath in self._get_measurement_filepaths(measurement_str, extension, exclude_str):
+            timestamp = datetime.datetime.fromtimestamp(filepath.stat().st_mtime)
+            self.log.warning(&#34;Extracting timestamp from file modified time, may not be accurate.&#34;)
+            ts = datetime.datetime.strftime(timestamp, self.timestamp_format_str)
+            measurement_list[ts] = (
+                MeasurementDataclass(
+                    filepath=filepath,
+                    timestamp=timestamp,
+                    _loaders=loaders
+                )
+            )
+        return measurement_list
+
+    def load_measurements(
+            self,
+            measurement_str: str,
+            qudi: bool = True,
+            pulsed: bool = False,
+            extension: str = &#34;.dat&#34;
+    ) -&gt; dict[str: MeasurementDataclass]:
+        &#34;&#34;&#34;
+        Lazy load all measurements of a given type into a dictionary of dataclasses.
+
+        Args:
+            measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc. Recursively searches through the path defined by data_folder and measurement_folder
+            qudi: Whether the measurement is a qudi measurement (default: False).
+            pulsed: Whether the measurement is a pulsed measurement (default: False).
+            extension: The file extension of the measurement files (default: .dat).
+
+        Returns:
+            dict: A dictionary of dataclasses containing the measurement data.
+
+        Examples:
+            `dh` is an instance of the `DataHandler` class.
+
+            Load all T1 measurements:
+
+            &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
+
+            Load all confocal data:
+
+            &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;Confocal&#34;)
+
+            Load all temperature monitoring data:
+
+            &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;Temperature&#34;)
+
+            Load all pressure monitoring data:
+
+            &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;Pressure&#34;)
+        &#34;&#34;&#34;
+
+        measurement_str = measurement_str.lower()
+        if qudi:
+            return self.__load_qudi_measurements_into_dataclass(measurement_str, pulsed=pulsed, extension=&#34;.dat&#34;)
+        else:
+            return self.__load_standard_measurements_into_dataclass(measurement_str, extension=extension)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="qudi_hira_analysis.data_handler.DataLoader" href="data_handler.html#qudi_hira_analysis.data_handler.DataLoader">DataLoader</a></li>
+<li><a title="qudi_hira_analysis.io_handler.IOHandler" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler">IOHandler</a></li>
+<li><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic">AnalysisLogic</a></li>
+<li>qudi_hira_analysis._qudi_fit_logic.FitLogic</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="qudi_hira_analysis.DataHandler.data_folder_tree"><code class="name flex">
+<span>def <span class="ident">data_folder_tree</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print a tree of the data folder.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def data_folder_tree(self):
+    &#34;&#34;&#34; Print a tree of the data folder. &#34;&#34;&#34;
+    for line in self.__tree(self.data_folder_path):
+        print(line)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.DataHandler.figure_folder_tree"><code class="name flex">
+<span>def <span class="ident">figure_folder_tree</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Print a tree of the figure folder.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def figure_folder_tree(self):
+    &#34;&#34;&#34; Print a tree of the figure folder. &#34;&#34;&#34;
+    for line in self.__tree(self.figure_folder_path):
+        print(line)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.DataHandler.load_measurements"><code class="name flex">
+<span>def <span class="ident">load_measurements</span></span>(<span>self, measurement_str: str, qudi: bool = True, pulsed: bool = False, extension: str = '.dat') ‑> dict[slice(<class 'str'>, <class '<a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass" href="measurement_dataclass.html#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass">MeasurementDataclass</a>'>, None)]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Lazy load all measurements of a given type into a dictionary of dataclasses.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>measurement_str</code></strong></dt>
+<dd>The name of the measurement type to load e.g. t1, t2, confocal etc. Recursively searches through the path defined by data_folder and measurement_folder</dd>
+<dt><strong><code>qudi</code></strong></dt>
+<dd>Whether the measurement is a qudi measurement (default: False).</dd>
+<dt><strong><code>pulsed</code></strong></dt>
+<dd>Whether the measurement is a pulsed measurement (default: False).</dd>
+<dt><strong><code>extension</code></strong></dt>
+<dd>The file extension of the measurement files (default: .dat).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>A dictionary of dataclasses containing the measurement data.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<p><code>dh</code> is an instance of the <code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code> class.</p>
+<p>Load all T1 measurements:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; dh.load_measurements(measurement_str=&quot;ODMR&quot;, pulsed=True)
+</code></pre>
+<p>Load all confocal data:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; dh.load_measurements(measurement_str=&quot;Confocal&quot;)
+</code></pre>
+<p>Load all temperature monitoring data:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; dh.load_measurements(measurement_str=&quot;Temperature&quot;)
+</code></pre>
+<p>Load all pressure monitoring data:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; dh.load_measurements(measurement_str=&quot;Pressure&quot;)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_measurements(
+        self,
+        measurement_str: str,
+        qudi: bool = True,
+        pulsed: bool = False,
+        extension: str = &#34;.dat&#34;
+) -&gt; dict[str: MeasurementDataclass]:
+    &#34;&#34;&#34;
+    Lazy load all measurements of a given type into a dictionary of dataclasses.
+
+    Args:
+        measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc. Recursively searches through the path defined by data_folder and measurement_folder
+        qudi: Whether the measurement is a qudi measurement (default: False).
+        pulsed: Whether the measurement is a pulsed measurement (default: False).
+        extension: The file extension of the measurement files (default: .dat).
+
+    Returns:
+        dict: A dictionary of dataclasses containing the measurement data.
+
+    Examples:
+        `dh` is an instance of the `DataHandler` class.
+
+        Load all T1 measurements:
+
+        &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
+
+        Load all confocal data:
+
+        &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;Confocal&#34;)
+
+        Load all temperature monitoring data:
+
+        &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;Temperature&#34;)
+
+        Load all pressure monitoring data:
+
+        &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;Pressure&#34;)
+    &#34;&#34;&#34;
+
+    measurement_str = measurement_str.lower()
+    if qudi:
+        return self.__load_qudi_measurements_into_dataclass(measurement_str, pulsed=pulsed, extension=&#34;.dat&#34;)
+    else:
+        return self.__load_standard_measurements_into_dataclass(measurement_str, extension=extension)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="qudi_hira_analysis.data_handler.DataLoader" href="data_handler.html#qudi_hira_analysis.data_handler.DataLoader">DataLoader</a></b></code>:
+<ul class="hlist">
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_bruker_spm_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_bruker_spm_data">read_bruker_spm_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_confocal_into_dataframe" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_confocal_into_dataframe">read_confocal_into_dataframe</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_csv" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_csv">read_csv</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_excel" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_excel">read_excel</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_into_dataframe" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_into_dataframe">read_into_dataframe</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_into_ndarray" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_into_ndarray">read_into_ndarray</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_into_ndarray_transposed" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_into_ndarray_transposed">read_into_ndarray_transposed</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_lakeshore_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_lakeshore_data">read_lakeshore_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_nanonis_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_nanonis_data">read_nanonis_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_nanonis_parameters" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_nanonis_parameters">read_nanonis_parameters</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_nanonis_spm_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_nanonis_spm_data">read_nanonis_spm_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_oceanoptics_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_oceanoptics_data">read_oceanoptics_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_pfeiffer_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_pfeiffer_data">read_pfeiffer_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_pixelscanner_data" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_pixelscanner_data">read_pixelscanner_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_pkl" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_pkl">read_pkl</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_pys" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_pys">read_pys</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.read_qudi_parameters" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.read_qudi_parameters">read_qudi_parameters</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.save_df" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_df">save_df</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.save_figures" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_figures">save_figures</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.save_pkl" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_pkl">save_pkl</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler.DataLoader.save_pys" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_pys">save_pys</a></code></li>
+</ul>
+</li>
+<li><code><b><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic">AnalysisLogic</a></b></code>:
+<ul class="hlist">
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.average_raster_odmr_pixels" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.average_raster_odmr_pixels">average_raster_odmr_pixels</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">fit</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">fit_function</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_raster_odmr" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_raster_odmr">fit_raster_odmr</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.optimize_raster_odmr_params" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.optimize_raster_odmr_params">optimize_raster_odmr_params</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler"><code class="flex name class">
+<span>class <span class="ident">IOHandler</span></span>
+<span>(</span><span>base_read_path: pathlib.Path = None, base_write_path: pathlib.Path = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handle all read and write operations.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IOHandler:
+    &#34;&#34;&#34; Handle all read and write operations. &#34;&#34;&#34;
+
+    def __init__(self, base_read_path: Path = None, base_write_path: Path = None):
+        super().__init__()
+        self.base_read_path = base_read_path
+        self.base_write_path = base_write_path
+
+    @staticmethod
+    def _add_base_read_path(func: Callable) -&gt; Callable:
+        &#34;&#34;&#34;
+        Decorator to add the `base_read_path` to the filepath if it is not None
+
+        Args:
+            func: Function to be decorated
+
+        Returns:
+            Decorated function
+        &#34;&#34;&#34;
+
+        @wraps(func)
+        def wrapper(self, filepath: Path, **kwargs):
+            if self.base_read_path:
+                filepath = self.base_read_path / filepath
+            return func(self, filepath, **kwargs)
+
+        return wrapper
+
+    @staticmethod
+    def _add_base_write_path(func: Callable) -&gt; Callable:
+        &#34;&#34;&#34;
+        Decorator to add the `base_write_path` to the filepath if it is not None
+
+        Args:
+            func: Function to be decorated
+
+        Returns:
+            Decorated function
+        &#34;&#34;&#34;
+
+        @wraps(func)
+        def wrapper(self, filepath: Path, **kwargs):
+            if self.base_write_path:
+                filepath = self.base_write_path / filepath
+            filepath.parent.mkdir(exist_ok=True)
+            return func(self, filepath, **kwargs)
+
+        return wrapper
+
+    @staticmethod
+    def _check_extension(ext: str) -&gt; Callable:
+        &#34;&#34;&#34;
+        Decorator to check the extension of the filepath is correct
+
+        Args:
+            ext: Extension to check for
+
+        Returns:
+            Decorated function
+        &#34;&#34;&#34;
+
+        def decorator(func: Callable) -&gt; Callable:
+            @wraps(func)
+            def wrapper(self, filepath: Path, **kwargs) -&gt; Callable:
+                if filepath.suffix == ext:
+                    return func(self, filepath, **kwargs)
+                elif filepath.suffix == &#34;&#34;:
+                    return func(self, filepath.with_suffix(ext), **kwargs)
+                else:
+                    raise IOError(f&#34;Invalid extension &#39;{filepath.suffix}&#39; in &#39;{filepath}&#39;, extension should be &#39;{ext}&#39;&#34;)
+
+            return wrapper
+
+        return decorator
+
+    @_add_base_read_path
+    @_check_extension(&#34;.dat&#34;)
+    def read_qudi_parameters(self, filepath: Path) -&gt; dict:
+        &#34;&#34;&#34;Extract parameters from a qudi dat file.
+
+        Args:
+            filepath: Path to the qudi .dat file
+
+        Returns:
+            Dictionary of parameters
+        &#34;&#34;&#34;
+        params = {}
+        with open(filepath) as file:
+            for line in file:
+                if line == &#39;#=====\n&#39;:
+                    break
+                else:
+                    # noinspection PyBroadException
+                    try:
+                        # Remove # from beginning of lines
+                        line = line[1:]
+                        if line.count(&#34;:&#34;) == 1:
+                            # Add params to dictionary
+                            label, value = line.split(&#34;:&#34;)
+                            if value != &#34;\n&#34;:
+                                params[label] = ast.literal_eval(inspect.cleandoc(value))
+                        elif line.count(&#34;:&#34;) == 3:
+                            # Handle files with timestamps in them
+                            label = line.split(&#34;:&#34;)[0]
+                            timestamp_str = &#34;&#34;.join(line.split(&#34;:&#34;)[1:]).strip()
+                            datetime_str = datetime.datetime.strptime(timestamp_str, &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;).replace(
+                                tzinfo=datetime.timezone.utc)
+                            params[label] = datetime_str
+                    except Exception as _:
+                        pass
+        return params
+
+    @_add_base_read_path
+    @_check_extension(&#34;.dat&#34;)
+    def read_into_dataframe(self, filepath: Path) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Read a qudi data file into a pandas DataFrame for analysis.
+
+        Args:
+            filepath: Path to the qudi data file
+
+        Returns:
+            DataFrame containing the data from the qudi data file
+        &#34;&#34;&#34;
+        with open(filepath) as handle:
+            # Generate column names for DataFrame by parsing the file
+            *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;), handle)
+            names = names[1:].strip().split(&#34;\t&#34;)
+        return pd.read_csv(filepath, names=names, comment=&#34;#&#34;, sep=&#34;\t&#34;)
+
+    @_add_base_read_path
+    def read_csv(self, filepath: Path, **kwargs) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Read a csv file into a pandas DataFrame. &#34;&#34;&#34;
+        return pd.read_csv(filepath, **kwargs)
+
+    @_add_base_read_path
+    def read_excel(self, filepath: Path, **kwargs) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Read a csv file into a pandas DataFrame. &#34;&#34;&#34;
+        return pd.read_excel(filepath, **kwargs)
+
+    @_add_base_read_path
+    @_check_extension(&#34;.dat&#34;)
+    def read_confocal_into_dataframe(self, filepath: Path) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Read a qudi confocal data file into a pandas DataFrame for analysis. &#34;&#34;&#34;
+        confocal_params = self.read_qudi_parameters(filepath)
+        data = self.read_into_ndarray(filepath, delimiter=&#34;\t&#34;)
+        # Use the confocal parameters to generate the index and columns for the DataFrame
+        index = np.linspace(
+            confocal_params[&#39;X image min (m)&#39;],
+            confocal_params[&#39;X image max (m)&#39;],
+            data.shape[0]
+        )
+        columns = np.linspace(
+            confocal_params[&#39;Y image min&#39;],
+            confocal_params[&#39;Y image max&#39;],
+            data.shape[1]
+        )
+        df = pd.DataFrame(data, index=index, columns=columns)
+        # Sort the index to get origin (0, 0) in the lower left corner of the DataFrame
+        df.sort_index(axis=0, ascending=False, inplace=True)
+        return df
+
+    @_add_base_read_path
+    def read_into_ndarray(self, filepath: Path, **kwargs) -&gt; np.ndarray:
+        &#34;&#34;&#34; Read a file into a numpy ndarray. &#34;&#34;&#34;
+        return np.genfromtxt(filepath, **kwargs)
+
+    @_add_base_read_path
+    def read_into_ndarray_transposed(self, filepath: Path, **kwargs) -&gt; np.ndarray:
+        &#34;&#34;&#34; Read a file into a transposed numpy ndarray. &#34;&#34;&#34;
+        return np.genfromtxt(filepath, **kwargs).T
+
+    @_add_base_read_path
+    @_check_extension(&#34;.pys&#34;)
+    def read_pys(self, filepath: Path) -&gt; dict:
+        &#34;&#34;&#34; Read raw .pys data files into a dictionary. &#34;&#34;&#34;
+        byte_dict = np.load(str(filepath), encoding=&#34;bytes&#34;, allow_pickle=True)
+        # Convert byte string keys to normal strings
+        return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict.keys()}
+
+    @_add_base_read_path
+    @_check_extension(&#34;.pkl&#34;)
+    def read_pkl(self, filepath: Path) -&gt; dict:
+        &#34;&#34;&#34; Read pickle files into a dictionary. &#34;&#34;&#34;
+        with open(filepath, &#39;rb&#39;) as f:
+            file = pickle.load(f)
+        return file
+
+    @_add_base_read_path
+    @_check_extension(&#34;.dat&#34;)
+    def read_nanonis_data(self, filepath: Path) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Read data from a Nanonis .dat file.
+
+        Args:
+            filepath: Path to the Nanonis .dat file.
+
+        Returns:
+            DataFrame of data.
+        &#34;&#34;&#34;
+        skip_rows = 0
+        with open(filepath) as dat_file:
+            for num, line in enumerate(dat_file, 1):
+                if &#34;[DATA]&#34; in line:
+                    # Find number of rows to skip when extracting data
+                    skip_rows = num
+                    break
+                if &#34;#=====&#34; in line:
+                    skip_rows = num
+                    break
+        df = pd.read_table(filepath, sep=&#34;\t&#34;, skiprows=skip_rows)
+        return df
+
+    @_add_base_read_path
+    @_check_extension(&#34;.dat&#34;)
+    def read_nanonis_parameters(self, filepath: Path) -&gt; dict:
+        &#34;&#34;&#34;Read parameters from a Nanonis .dat file.
+
+        Args:
+            filepath: Path to the Nanonis .dat file.
+
+        Returns:
+            Dictionary of parameters.
+        &#34;&#34;&#34;
+        parameters = {}
+        with open(filepath) as dat_file:
+            for line in dat_file:
+                if line == &#34;\n&#34;:
+                    # Break when reaching empty line
+                    break
+                elif &#34;User&#34; in line or line.split(&#34;\t&#34;)[0] == &#34;&#34;:
+                    # Cleanup excess parameters and skip empty lines
+                    pass
+                else:
+                    label, value, _ = line.split(&#34;\t&#34;)
+                    try:
+                        # Convert strings to number where possible
+                        value = float(value)
+                    except ValueError:
+                        pass
+                    if &#34;Oscillation Control&gt;&#34; in label:
+                        label = label.replace(&#34;Oscillation Control&gt;&#34;, &#34;&#34;)
+                    parameters[label] = value
+        return parameters
+
+    @_add_base_read_path
+    @_check_extension(&#34;.sxm&#34;)
+    def read_nanonis_spm_data(self, filepath: Path) -&gt; pySPM.SXM:
+        &#34;&#34;&#34;Read a Nanonis .sxm data file.
+
+        Args:
+            filepath: Path to the .sxm file.
+
+        Returns:
+            pySPM.SXM object containing the data.
+        &#34;&#34;&#34;
+        return pySPM.SXM(filepath)
+
+    @_add_base_read_path
+    @_check_extension(&#34;.001&#34;)
+    def read_bruker_spm_data(self, filepath: Path) -&gt; pySPM.Bruker:
+        &#34;&#34;&#34;Read a Bruker SPM data file.
+
+        Args:
+            filepath: Path to the .001 file.
+
+        Returns:
+            pySPM.Bruker object containing the data.
+        &#34;&#34;&#34;
+        return pySPM.Bruker(filepath)
+
+    @_add_base_read_path
+    @_check_extension(&#34;.txt&#34;)
+    def read_pfeiffer_data(self, filepath: Path) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Read data stored by Pfeiffer vacuum monitoring software.
+
+        Args:
+            filepath: Path to the text file.
+
+        Returns:
+            DataFrame containing the data.
+        &#34;&#34;&#34;
+        # Extract rows including the header
+        df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=[0, 2, 3, 4])
+        # Combine data and time columns together
+        df[&#34;Date&#34;] = df[&#34;Date&#34;] + &#34; &#34; + df[&#34;Time&#34;]
+        df = df.drop(&#34;Time&#34;, axis=1)
+        # Infer datetime format and convert to datetime objects
+        df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;], infer_datetime_format=True)
+        # Set datetime as index
+        df = df.set_index(&#34;Date&#34;, drop=True)
+        return df
+
+    @_add_base_read_path
+    @_check_extension(&#34;.xls&#34;)
+    def read_lakeshore_data(self, filepath: Path) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Read data stored by Lakeshore temperature monitor software.
+
+        Args:
+            filepath: Path to the Excel file.
+
+        Returns:
+            DataFrame containing the data.
+        &#34;&#34;&#34;
+        # Extract only the origin timestamp
+        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+        # Remove any tzinfo to prevent future exceptions in pandas
+        origin = origin.replace(&#34;CET&#34;, &#34;&#34;)
+        # Parse datetime object from timestamp
+        origin = pd.to_datetime(origin)
+        # Create DataFrame and drop empty cols
+        df = pd.read_excel(filepath, skiprows=3)
+        df = df.dropna(axis=1, how=&#34;all&#34;)
+        # Add datetimes to DataFrame
+        df[&#34;Datetime&#34;] = pd.to_datetime(df[&#34;Time&#34;], unit=&#34;ms&#34;, origin=origin)
+        df = df.drop(&#34;Time&#34;, axis=1)
+        # Set datetime as index
+        df = df.set_index(&#34;Datetime&#34;, drop=True)
+        return df
+
+    @_add_base_read_path
+    @_check_extension(&#34;.txt&#34;)
+    def read_oceanoptics_data(self, filepath: str) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Read spectrometer data from OceanOptics spectrometer.
+
+        Args:
+            filepath: Path to the data file.
+
+        Returns:
+            DataFrame containing the wavelength and intensity data.
+        &#34;&#34;&#34;
+        df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14, names=[&#34;wavelength&#34;, &#34;intensity&#34;])
+        return df
+
+    @staticmethod
+    def __get_forward_backward_counts(count_rates, num_pixels):
+        split_array = np.split(count_rates, 2 * num_pixels)
+        # Extract forward scan array as every second element
+        forward_counts = np.stack(split_array[::2])
+        # Extract backward scan array as every shifted second element
+        # Flip scan so that backward and forward scans represent the same data
+        backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
+        return forward_counts, backward_counts
+
+    def read_pixelscanner_data(self, filepath: Path) -&gt; (pySPM.SPM_image, pySPM.SPM_image):
+        &#34;&#34;&#34; Read data from a PixelScanner measurement.
+
+        Args:
+            filepath: Path to the data file.
+
+        Returns:
+            Forward and backward scan data.
+        &#34;&#34;&#34;
+        df = self.read_into_dataframe(filepath)
+        num_pixels = int(np.sqrt(len(df) // 2))
+
+        if num_pixels ** 2 != len(df) // 2:
+            raise ValueError(&#34;Number of pixels does not match data length.&#34;)
+
+        try:
+            fwd, bwd = self.__get_forward_backward_counts(df[&#34;count_rates&#34;], num_pixels)
+        except KeyError:
+            try:
+                fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;], num_pixels)
+            except KeyError:
+                # Support old data format
+                fwd = df[&#34;forward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
+                bwd = df[&#34;backward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
+
+        fwd = pySPM.SPM_image(fwd, channel=&#34;Forward&#34;, _type=&#34;NV-PL&#34;)
+        bwd = pySPM.SPM_image(bwd, channel=&#34;Backward&#34;, _type=&#34;NV-PL&#34;)
+        return fwd, bwd
+
+    @_add_base_write_path
+    @_check_extension(&#34;.pkl&#34;)
+    def save_pkl(self, filepath: Path, obj: object):
+        &#34;&#34;&#34;Saves pickle files.
+
+        Args:
+            filepath: Path to the data file.
+            obj: Object to be saved.
+        &#34;&#34;&#34;
+        with open(filepath, &#39;wb&#39;) as f:
+            pickle.dump(obj, f)
+
+    @_add_base_write_path
+    @_check_extension(&#34;.pys&#34;)
+    def save_pys(self, filepath: Path, dictionary: dict):
+        &#34;&#34;&#34;Saves .pys files.
+
+        Args:
+            filepath: Path to the data file.
+            dictionary: Dictionary to be saved.
+        &#34;&#34;&#34;
+        with open(filepath, &#39;wb&#39;) as f:
+            pickle.dump(dictionary, f, 1)
+
+    @_add_base_write_path
+    @_check_extension(&#34;.pys&#34;)
+    def save_df(self, filepath: Path, df: pd.DataFrame):
+        &#34;&#34;&#34; Save Dataframe as csv. &#34;&#34;&#34;
+        df.to_csv(filepath, sep=&#39;\t&#39;, encoding=&#39;utf-8&#39;)
+
+    @_add_base_write_path
+    def save_figures(self, filepath: Path, fig: plt.Figure, **kwargs):
+        &#34;&#34;&#34;Saves figures from matplotlib plot data.
+
+        By default, saves as jpg, png, pdf and svg.
+
+        Args:
+            fig: Matplotlib figure to save.
+            filepath: Name of figure to save.
+            only_jpg: If True, only save as jpg (default: False).
+            only_pdf: If True, only save as pdf (default: False).
+            **kwargs: Keyword arguments passed to fig.savefig().
+        &#34;&#34;&#34;
+        extensions = None
+        if &#34;only_jpg&#34; in kwargs:
+            if kwargs.get(&#34;only_jpg&#34;):
+                extensions = [&#34;.jpg&#34;]
+            kwargs.pop(&#34;only_jpg&#34;, None)
+        elif &#34;only_pdf&#34; in kwargs:
+            if kwargs.get(&#34;only_pdf&#34;):
+                extensions = [&#34;.pdf&#34;]
+            kwargs.pop(&#34;only_pdf&#34;, None)
+        else:
+            extensions = [&#34;.jpg&#34;, &#34;.pdf&#34;, &#34;.svg&#34;, &#34;.png&#34;]
+
+        for ext in extensions:
+            fig.savefig(filepath.with_suffix(ext), dpi=200, **kwargs)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="qudi_hira_analysis.data_handler.DataLoader" href="data_handler.html#qudi_hira_analysis.data_handler.DataLoader">DataLoader</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="qudi_hira_analysis.IOHandler.read_bruker_spm_data"><code class="name flex">
+<span>def <span class="ident">read_bruker_spm_data</span></span>(<span>self, filepath: pathlib.Path) ‑> pySPM.Bruker.Bruker</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a Bruker SPM data file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the .001 file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>pySPM.Bruker object containing the data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.001&#34;)
+def read_bruker_spm_data(self, filepath: Path) -&gt; pySPM.Bruker:
+    &#34;&#34;&#34;Read a Bruker SPM data file.
+
+    Args:
+        filepath: Path to the .001 file.
+
+    Returns:
+        pySPM.Bruker object containing the data.
+    &#34;&#34;&#34;
+    return pySPM.Bruker(filepath)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_confocal_into_dataframe"><code class="name flex">
+<span>def <span class="ident">read_confocal_into_dataframe</span></span>(<span>self, filepath: pathlib.Path) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a qudi confocal data file into a pandas DataFrame for analysis.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.dat&#34;)
+def read_confocal_into_dataframe(self, filepath: Path) -&gt; pd.DataFrame:
+    &#34;&#34;&#34; Read a qudi confocal data file into a pandas DataFrame for analysis. &#34;&#34;&#34;
+    confocal_params = self.read_qudi_parameters(filepath)
+    data = self.read_into_ndarray(filepath, delimiter=&#34;\t&#34;)
+    # Use the confocal parameters to generate the index and columns for the DataFrame
+    index = np.linspace(
+        confocal_params[&#39;X image min (m)&#39;],
+        confocal_params[&#39;X image max (m)&#39;],
+        data.shape[0]
+    )
+    columns = np.linspace(
+        confocal_params[&#39;Y image min&#39;],
+        confocal_params[&#39;Y image max&#39;],
+        data.shape[1]
+    )
+    df = pd.DataFrame(data, index=index, columns=columns)
+    # Sort the index to get origin (0, 0) in the lower left corner of the DataFrame
+    df.sort_index(axis=0, ascending=False, inplace=True)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_csv"><code class="name flex">
+<span>def <span class="ident">read_csv</span></span>(<span>self, filepath: pathlib.Path, **kwargs) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a csv file into a pandas DataFrame.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+def read_csv(self, filepath: Path, **kwargs) -&gt; pd.DataFrame:
+    &#34;&#34;&#34; Read a csv file into a pandas DataFrame. &#34;&#34;&#34;
+    return pd.read_csv(filepath, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_excel"><code class="name flex">
+<span>def <span class="ident">read_excel</span></span>(<span>self, filepath: pathlib.Path, **kwargs) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a csv file into a pandas DataFrame.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+def read_excel(self, filepath: Path, **kwargs) -&gt; pd.DataFrame:
+    &#34;&#34;&#34; Read a csv file into a pandas DataFrame. &#34;&#34;&#34;
+    return pd.read_excel(filepath, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_into_dataframe"><code class="name flex">
+<span>def <span class="ident">read_into_dataframe</span></span>(<span>self, filepath: pathlib.Path) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a qudi data file into a pandas DataFrame for analysis.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the qudi data file</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>DataFrame containing the data from the qudi data file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.dat&#34;)
+def read_into_dataframe(self, filepath: Path) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Read a qudi data file into a pandas DataFrame for analysis.
+
+    Args:
+        filepath: Path to the qudi data file
+
+    Returns:
+        DataFrame containing the data from the qudi data file
+    &#34;&#34;&#34;
+    with open(filepath) as handle:
+        # Generate column names for DataFrame by parsing the file
+        *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;), handle)
+        names = names[1:].strip().split(&#34;\t&#34;)
+    return pd.read_csv(filepath, names=names, comment=&#34;#&#34;, sep=&#34;\t&#34;)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_into_ndarray"><code class="name flex">
+<span>def <span class="ident">read_into_ndarray</span></span>(<span>self, filepath: pathlib.Path, **kwargs) ‑> numpy.ndarray</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a file into a numpy ndarray.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+def read_into_ndarray(self, filepath: Path, **kwargs) -&gt; np.ndarray:
+    &#34;&#34;&#34; Read a file into a numpy ndarray. &#34;&#34;&#34;
+    return np.genfromtxt(filepath, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_into_ndarray_transposed"><code class="name flex">
+<span>def <span class="ident">read_into_ndarray_transposed</span></span>(<span>self, filepath: pathlib.Path, **kwargs) ‑> numpy.ndarray</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a file into a transposed numpy ndarray.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+def read_into_ndarray_transposed(self, filepath: Path, **kwargs) -&gt; np.ndarray:
+    &#34;&#34;&#34; Read a file into a transposed numpy ndarray. &#34;&#34;&#34;
+    return np.genfromtxt(filepath, **kwargs).T</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_lakeshore_data"><code class="name flex">
+<span>def <span class="ident">read_lakeshore_data</span></span>(<span>self, filepath: pathlib.Path) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read data stored by Lakeshore temperature monitor software.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the Excel file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>DataFrame containing the data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.xls&#34;)
+def read_lakeshore_data(self, filepath: Path) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Read data stored by Lakeshore temperature monitor software.
+
+    Args:
+        filepath: Path to the Excel file.
+
+    Returns:
+        DataFrame containing the data.
+    &#34;&#34;&#34;
+    # Extract only the origin timestamp
+    origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+    # Remove any tzinfo to prevent future exceptions in pandas
+    origin = origin.replace(&#34;CET&#34;, &#34;&#34;)
+    # Parse datetime object from timestamp
+    origin = pd.to_datetime(origin)
+    # Create DataFrame and drop empty cols
+    df = pd.read_excel(filepath, skiprows=3)
+    df = df.dropna(axis=1, how=&#34;all&#34;)
+    # Add datetimes to DataFrame
+    df[&#34;Datetime&#34;] = pd.to_datetime(df[&#34;Time&#34;], unit=&#34;ms&#34;, origin=origin)
+    df = df.drop(&#34;Time&#34;, axis=1)
+    # Set datetime as index
+    df = df.set_index(&#34;Datetime&#34;, drop=True)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_nanonis_data"><code class="name flex">
+<span>def <span class="ident">read_nanonis_data</span></span>(<span>self, filepath: pathlib.Path) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read data from a Nanonis .dat file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the Nanonis .dat file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>DataFrame of data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.dat&#34;)
+def read_nanonis_data(self, filepath: Path) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Read data from a Nanonis .dat file.
+
+    Args:
+        filepath: Path to the Nanonis .dat file.
+
+    Returns:
+        DataFrame of data.
+    &#34;&#34;&#34;
+    skip_rows = 0
+    with open(filepath) as dat_file:
+        for num, line in enumerate(dat_file, 1):
+            if &#34;[DATA]&#34; in line:
+                # Find number of rows to skip when extracting data
+                skip_rows = num
+                break
+            if &#34;#=====&#34; in line:
+                skip_rows = num
+                break
+    df = pd.read_table(filepath, sep=&#34;\t&#34;, skiprows=skip_rows)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_nanonis_parameters"><code class="name flex">
+<span>def <span class="ident">read_nanonis_parameters</span></span>(<span>self, filepath: pathlib.Path) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read parameters from a Nanonis .dat file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the Nanonis .dat file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Dictionary of parameters.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.dat&#34;)
+def read_nanonis_parameters(self, filepath: Path) -&gt; dict:
+    &#34;&#34;&#34;Read parameters from a Nanonis .dat file.
+
+    Args:
+        filepath: Path to the Nanonis .dat file.
+
+    Returns:
+        Dictionary of parameters.
+    &#34;&#34;&#34;
+    parameters = {}
+    with open(filepath) as dat_file:
+        for line in dat_file:
+            if line == &#34;\n&#34;:
+                # Break when reaching empty line
+                break
+            elif &#34;User&#34; in line or line.split(&#34;\t&#34;)[0] == &#34;&#34;:
+                # Cleanup excess parameters and skip empty lines
+                pass
+            else:
+                label, value, _ = line.split(&#34;\t&#34;)
+                try:
+                    # Convert strings to number where possible
+                    value = float(value)
+                except ValueError:
+                    pass
+                if &#34;Oscillation Control&gt;&#34; in label:
+                    label = label.replace(&#34;Oscillation Control&gt;&#34;, &#34;&#34;)
+                parameters[label] = value
+    return parameters</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_nanonis_spm_data"><code class="name flex">
+<span>def <span class="ident">read_nanonis_spm_data</span></span>(<span>self, filepath: pathlib.Path) ‑> pySPM.SXM.SXM</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read a Nanonis .sxm data file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the .sxm file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>pySPM.SXM object containing the data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.sxm&#34;)
+def read_nanonis_spm_data(self, filepath: Path) -&gt; pySPM.SXM:
+    &#34;&#34;&#34;Read a Nanonis .sxm data file.
+
+    Args:
+        filepath: Path to the .sxm file.
+
+    Returns:
+        pySPM.SXM object containing the data.
+    &#34;&#34;&#34;
+    return pySPM.SXM(filepath)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_oceanoptics_data"><code class="name flex">
+<span>def <span class="ident">read_oceanoptics_data</span></span>(<span>self, filepath: str) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read spectrometer data from OceanOptics spectrometer.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the data file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>DataFrame containing the wavelength and intensity data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.txt&#34;)
+def read_oceanoptics_data(self, filepath: str) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Read spectrometer data from OceanOptics spectrometer.
+
+    Args:
+        filepath: Path to the data file.
+
+    Returns:
+        DataFrame containing the wavelength and intensity data.
+    &#34;&#34;&#34;
+    df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14, names=[&#34;wavelength&#34;, &#34;intensity&#34;])
+    return df</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_pfeiffer_data"><code class="name flex">
+<span>def <span class="ident">read_pfeiffer_data</span></span>(<span>self, filepath: pathlib.Path) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read data stored by Pfeiffer vacuum monitoring software.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the text file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>DataFrame containing the data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.txt&#34;)
+def read_pfeiffer_data(self, filepath: Path) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Read data stored by Pfeiffer vacuum monitoring software.
+
+    Args:
+        filepath: Path to the text file.
+
+    Returns:
+        DataFrame containing the data.
+    &#34;&#34;&#34;
+    # Extract rows including the header
+    df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=[0, 2, 3, 4])
+    # Combine data and time columns together
+    df[&#34;Date&#34;] = df[&#34;Date&#34;] + &#34; &#34; + df[&#34;Time&#34;]
+    df = df.drop(&#34;Time&#34;, axis=1)
+    # Infer datetime format and convert to datetime objects
+    df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;], infer_datetime_format=True)
+    # Set datetime as index
+    df = df.set_index(&#34;Date&#34;, drop=True)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_pixelscanner_data"><code class="name flex">
+<span>def <span class="ident">read_pixelscanner_data</span></span>(<span>self, filepath: pathlib.Path) ‑> (<class 'pySPM.SPM.SPM_image'>, <class 'pySPM.SPM.SPM_image'>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read data from a PixelScanner measurement.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the data file.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Forward and backward scan data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_pixelscanner_data(self, filepath: Path) -&gt; (pySPM.SPM_image, pySPM.SPM_image):
+    &#34;&#34;&#34; Read data from a PixelScanner measurement.
+
+    Args:
+        filepath: Path to the data file.
+
+    Returns:
+        Forward and backward scan data.
+    &#34;&#34;&#34;
+    df = self.read_into_dataframe(filepath)
+    num_pixels = int(np.sqrt(len(df) // 2))
+
+    if num_pixels ** 2 != len(df) // 2:
+        raise ValueError(&#34;Number of pixels does not match data length.&#34;)
+
+    try:
+        fwd, bwd = self.__get_forward_backward_counts(df[&#34;count_rates&#34;], num_pixels)
+    except KeyError:
+        try:
+            fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;], num_pixels)
+        except KeyError:
+            # Support old data format
+            fwd = df[&#34;forward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
+            bwd = df[&#34;backward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
+
+    fwd = pySPM.SPM_image(fwd, channel=&#34;Forward&#34;, _type=&#34;NV-PL&#34;)
+    bwd = pySPM.SPM_image(bwd, channel=&#34;Backward&#34;, _type=&#34;NV-PL&#34;)
+    return fwd, bwd</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_pkl"><code class="name flex">
+<span>def <span class="ident">read_pkl</span></span>(<span>self, filepath: pathlib.Path) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read pickle files into a dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.pkl&#34;)
+def read_pkl(self, filepath: Path) -&gt; dict:
+    &#34;&#34;&#34; Read pickle files into a dictionary. &#34;&#34;&#34;
+    with open(filepath, &#39;rb&#39;) as f:
+        file = pickle.load(f)
+    return file</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_pys"><code class="name flex">
+<span>def <span class="ident">read_pys</span></span>(<span>self, filepath: pathlib.Path) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read raw .pys data files into a dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.pys&#34;)
+def read_pys(self, filepath: Path) -&gt; dict:
+    &#34;&#34;&#34; Read raw .pys data files into a dictionary. &#34;&#34;&#34;
+    byte_dict = np.load(str(filepath), encoding=&#34;bytes&#34;, allow_pickle=True)
+    # Convert byte string keys to normal strings
+    return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict.keys()}</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.read_qudi_parameters"><code class="name flex">
+<span>def <span class="ident">read_qudi_parameters</span></span>(<span>self, filepath: pathlib.Path) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Extract parameters from a qudi dat file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the qudi .dat file</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Dictionary of parameters</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_read_path
+@_check_extension(&#34;.dat&#34;)
+def read_qudi_parameters(self, filepath: Path) -&gt; dict:
+    &#34;&#34;&#34;Extract parameters from a qudi dat file.
+
+    Args:
+        filepath: Path to the qudi .dat file
+
+    Returns:
+        Dictionary of parameters
+    &#34;&#34;&#34;
+    params = {}
+    with open(filepath) as file:
+        for line in file:
+            if line == &#39;#=====\n&#39;:
+                break
+            else:
+                # noinspection PyBroadException
+                try:
+                    # Remove # from beginning of lines
+                    line = line[1:]
+                    if line.count(&#34;:&#34;) == 1:
+                        # Add params to dictionary
+                        label, value = line.split(&#34;:&#34;)
+                        if value != &#34;\n&#34;:
+                            params[label] = ast.literal_eval(inspect.cleandoc(value))
+                    elif line.count(&#34;:&#34;) == 3:
+                        # Handle files with timestamps in them
+                        label = line.split(&#34;:&#34;)[0]
+                        timestamp_str = &#34;&#34;.join(line.split(&#34;:&#34;)[1:]).strip()
+                        datetime_str = datetime.datetime.strptime(timestamp_str, &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;).replace(
+                            tzinfo=datetime.timezone.utc)
+                        params[label] = datetime_str
+                except Exception as _:
+                    pass
+    return params</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.save_df"><code class="name flex">
+<span>def <span class="ident">save_df</span></span>(<span>self, filepath: pathlib.Path, df: pandas.core.frame.DataFrame)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save Dataframe as csv.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_write_path
+@_check_extension(&#34;.pys&#34;)
+def save_df(self, filepath: Path, df: pd.DataFrame):
+    &#34;&#34;&#34; Save Dataframe as csv. &#34;&#34;&#34;
+    df.to_csv(filepath, sep=&#39;\t&#39;, encoding=&#39;utf-8&#39;)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.save_figures"><code class="name flex">
+<span>def <span class="ident">save_figures</span></span>(<span>self, filepath: pathlib.Path, fig: matplotlib.figure.Figure, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Saves figures from matplotlib plot data.</p>
+<p>By default, saves as jpg, png, pdf and svg.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fig</code></strong></dt>
+<dd>Matplotlib figure to save.</dd>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Name of figure to save.</dd>
+<dt><strong><code>only_jpg</code></strong></dt>
+<dd>If True, only save as jpg (default: False).</dd>
+<dt><strong><code>only_pdf</code></strong></dt>
+<dd>If True, only save as pdf (default: False).</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Keyword arguments passed to fig.savefig().</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_write_path
+def save_figures(self, filepath: Path, fig: plt.Figure, **kwargs):
+    &#34;&#34;&#34;Saves figures from matplotlib plot data.
+
+    By default, saves as jpg, png, pdf and svg.
+
+    Args:
+        fig: Matplotlib figure to save.
+        filepath: Name of figure to save.
+        only_jpg: If True, only save as jpg (default: False).
+        only_pdf: If True, only save as pdf (default: False).
+        **kwargs: Keyword arguments passed to fig.savefig().
+    &#34;&#34;&#34;
+    extensions = None
+    if &#34;only_jpg&#34; in kwargs:
+        if kwargs.get(&#34;only_jpg&#34;):
+            extensions = [&#34;.jpg&#34;]
+        kwargs.pop(&#34;only_jpg&#34;, None)
+    elif &#34;only_pdf&#34; in kwargs:
+        if kwargs.get(&#34;only_pdf&#34;):
+            extensions = [&#34;.pdf&#34;]
+        kwargs.pop(&#34;only_pdf&#34;, None)
+    else:
+        extensions = [&#34;.jpg&#34;, &#34;.pdf&#34;, &#34;.svg&#34;, &#34;.png&#34;]
+
+    for ext in extensions:
+        fig.savefig(filepath.with_suffix(ext), dpi=200, **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.save_pkl"><code class="name flex">
+<span>def <span class="ident">save_pkl</span></span>(<span>self, filepath: pathlib.Path, obj: object)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Saves pickle files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the data file.</dd>
+<dt><strong><code>obj</code></strong></dt>
+<dd>Object to be saved.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_write_path
+@_check_extension(&#34;.pkl&#34;)
+def save_pkl(self, filepath: Path, obj: object):
+    &#34;&#34;&#34;Saves pickle files.
+
+    Args:
+        filepath: Path to the data file.
+        obj: Object to be saved.
+    &#34;&#34;&#34;
+    with open(filepath, &#39;wb&#39;) as f:
+        pickle.dump(obj, f)</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.IOHandler.save_pys"><code class="name flex">
+<span>def <span class="ident">save_pys</span></span>(<span>self, filepath: pathlib.Path, dictionary: dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Saves .pys files.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>filepath</code></strong></dt>
+<dd>Path to the data file.</dd>
+<dt><strong><code>dictionary</code></strong></dt>
+<dd>Dictionary to be saved.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@_add_base_write_path
+@_check_extension(&#34;.pys&#34;)
+def save_pys(self, filepath: Path, dictionary: dict):
+    &#34;&#34;&#34;Saves .pys files.
+
+    Args:
+        filepath: Path to the data file.
+        dictionary: Dictionary to be saved.
+    &#34;&#34;&#34;
+    with open(filepath, &#39;wb&#39;) as f:
+        pickle.dump(dictionary, f, 1)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="qudi_hira_analysis.analysis_logic" href="analysis_logic.html">qudi_hira_analysis.analysis_logic</a></code></li>
+<li><code><a title="qudi_hira_analysis.data_handler" href="data_handler.html">qudi_hira_analysis.data_handler</a></code></li>
+<li><code><a title="qudi_hira_analysis.helper_functions" href="helper_functions.html">qudi_hira_analysis.helper_functions</a></code></li>
+<li><code><a title="qudi_hira_analysis.io_handler" href="io_handler.html">qudi_hira_analysis.io_handler</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass" href="measurement_dataclass.html">qudi_hira_analysis.measurement_dataclass</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="qudi_hira_analysis.AnalysisLogic" href="#qudi_hira_analysis.AnalysisLogic">AnalysisLogic</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.analyse_mean" href="#qudi_hira_analysis.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.analyse_mean_norm" href="#qudi_hira_analysis.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.analyse_mean_reference" href="#qudi_hira_analysis.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.average_raster_odmr_pixels" href="#qudi_hira_analysis.AnalysisLogic.average_raster_odmr_pixels">average_raster_odmr_pixels</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.fit" href="#qudi_hira_analysis.AnalysisLogic.fit">fit</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.fit_function" href="#qudi_hira_analysis.AnalysisLogic.fit_function">fit_function</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.fit_raster_odmr" href="#qudi_hira_analysis.AnalysisLogic.fit_raster_odmr">fit_raster_odmr</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.get_all_fits" href="#qudi_hira_analysis.AnalysisLogic.get_all_fits">get_all_fits</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.optimize_raster_odmr_params" href="#qudi_hira_analysis.AnalysisLogic.optimize_raster_odmr_params">optimize_raster_odmr_params</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.DataHandler.data_folder_tree" href="#qudi_hira_analysis.DataHandler.data_folder_tree">data_folder_tree</a></code></li>
+<li><code><a title="qudi_hira_analysis.DataHandler.figure_folder_tree" href="#qudi_hira_analysis.DataHandler.figure_folder_tree">figure_folder_tree</a></code></li>
+<li><code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">load_measurements</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.IOHandler" href="#qudi_hira_analysis.IOHandler">IOHandler</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.IOHandler.read_bruker_spm_data" href="#qudi_hira_analysis.IOHandler.read_bruker_spm_data">read_bruker_spm_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_confocal_into_dataframe" href="#qudi_hira_analysis.IOHandler.read_confocal_into_dataframe">read_confocal_into_dataframe</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_csv" href="#qudi_hira_analysis.IOHandler.read_csv">read_csv</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_excel" href="#qudi_hira_analysis.IOHandler.read_excel">read_excel</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_into_dataframe" href="#qudi_hira_analysis.IOHandler.read_into_dataframe">read_into_dataframe</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_into_ndarray" href="#qudi_hira_analysis.IOHandler.read_into_ndarray">read_into_ndarray</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_into_ndarray_transposed" href="#qudi_hira_analysis.IOHandler.read_into_ndarray_transposed">read_into_ndarray_transposed</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_lakeshore_data" href="#qudi_hira_analysis.IOHandler.read_lakeshore_data">read_lakeshore_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_nanonis_data" href="#qudi_hira_analysis.IOHandler.read_nanonis_data">read_nanonis_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_nanonis_parameters" href="#qudi_hira_analysis.IOHandler.read_nanonis_parameters">read_nanonis_parameters</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_nanonis_spm_data" href="#qudi_hira_analysis.IOHandler.read_nanonis_spm_data">read_nanonis_spm_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_oceanoptics_data" href="#qudi_hira_analysis.IOHandler.read_oceanoptics_data">read_oceanoptics_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_pfeiffer_data" href="#qudi_hira_analysis.IOHandler.read_pfeiffer_data">read_pfeiffer_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_pixelscanner_data" href="#qudi_hira_analysis.IOHandler.read_pixelscanner_data">read_pixelscanner_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_pkl" href="#qudi_hira_analysis.IOHandler.read_pkl">read_pkl</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_pys" href="#qudi_hira_analysis.IOHandler.read_pys">read_pys</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.read_qudi_parameters" href="#qudi_hira_analysis.IOHandler.read_qudi_parameters">read_qudi_parameters</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.save_df" href="#qudi_hira_analysis.IOHandler.save_df">save_df</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.save_figures" href="#qudi_hira_analysis.IOHandler.save_figures">save_figures</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.save_pkl" href="#qudi_hira_analysis.IOHandler.save_pkl">save_pkl</a></code></li>
+<li><code><a title="qudi_hira_analysis.IOHandler.save_pys" href="#qudi_hira_analysis.IOHandler.save_pys">save_pys</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

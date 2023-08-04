@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>qudi_hira_analysis.measurement_dataclass API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>qudi_hira_analysis.measurement_dataclass</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from __future__ import annotations
+
+import logging
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING, Callable, Tuple
+
+import pandas as pd
+
+if TYPE_CHECKING:
+    import lmfit
+    import datetime
+    import numpy as np
+    from PIL import Image
+
+logging.basicConfig(format=&#39;%(name)s :: %(levelname)s :: %(message)s&#39;, level=logging.INFO)
+
+
+@dataclass
+class PulsedMeasurement:
+    &#34;&#34;&#34; Dataclass for storing pulsed data and metadata &#34;&#34;&#34;
+    filepath: Path
+    loaders: (Callable, Callable) = field(default=None)
+    __data: pd.DataFrame = field(default=None)
+    __params: dict = field(default=None)
+
+    @property
+    def data(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+        if self.__data is None:
+            self.__data = self.loaders[0](self.filepath)
+        return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+        if self.__params is None:
+            self.__params = self.loaders[1](self.filepath)
+        return self.__params
+
+
+@dataclass
+class LaserPulses:
+    &#34;&#34;&#34; Dataclass for storing laser pulses data and metadata &#34;&#34;&#34;
+    filepath: Path
+    loaders: (Callable, Callable) = field(default=None)
+    __data: np.ndarray = field(default=None)
+    __params: dict = field(default=None)
+
+    @property
+    def data(self) -&gt; np.ndarray:
+        &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+        if self.__data is None:
+            self.__data = self.loaders[0](self.filepath)
+        return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+        if self.__params is None:
+            self.__params = self.loaders[1](self.filepath)
+        return self.__params
+
+
+@dataclass
+class RawTimetrace:
+    &#34;&#34;&#34; Dataclass for storing raw timetrace data and metadata &#34;&#34;&#34;
+    filepath: Path
+    loaders: (Callable, Callable) = field(default=None)
+    __data: np.ndarray = field(default=None)
+    __params: dict = field(default=None)
+
+    @property
+    def data(self) -&gt; np.ndarray:
+        &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+        if self.__data is None:
+            self.__data = self.loaders[0](self.filepath)
+        return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+        if self.__params is None:
+            self.__params = self.loaders[1](self.filepath)
+        return self.__params
+
+
+@dataclass
+class PulsedMeasurementDataclass:
+    &#34;&#34;&#34; Dataclass for storing pulsed measurement data and metadata &#34;&#34;&#34;
+    measurement: PulsedMeasurement
+    laser_pulses: LaserPulses = field(default=None)
+    timetrace: RawTimetrace = field(default=None)
+
+    def __post_init__(self):
+        self.base_filename = self.measurement.filepath.name.replace(&#34;_pulsed_measurement.dat&#34;, &#34;&#34;)
+
+    def show_image(self) -&gt; Image:
+        &#34;&#34;&#34; Use PIL to open the measurement image saved on the disk &#34;&#34;&#34;
+        return Image.open(str(self.measurement.filepath).replace(&#34;.dat&#34;, &#34;_fig.png&#34;))
+
+
+@dataclass
+class MeasurementDataclass:
+    &#34;&#34;&#34; Dataclass for storing measurement data and metadata &#34;&#34;&#34;
+    timestamp: datetime.datetime
+    filepath: Path = field(default=None)
+    _loaders: (Callable, Callable) = field(default=None)
+    pulsed: PulsedMeasurementDataclass = field(default=None)
+    __data: np.ndarray | pd.DataFrame = field(default=None)
+    __params: dict = field(default=None)
+    _fit_data: pd.DataFrame = field(default=None)
+    _fit_model: lmfit.Model = field(default=None)
+    _xy_position: Tuple[int, int] = field(default=None)
+
+    def __post_init__(self):
+        self.log = logging.getLogger(__name__)
+
+        if self.pulsed:
+            self.filename = self.pulsed.base_filename
+        else:
+            self.filename = self.filepath.name
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Measurement(timestamp=&#39;{self.timestamp}&#39;, filename=&#39;{self.filename}&#39;)&#34;
+
+    @property
+    def data(self) -&gt; np.ndarray | pd.DataFrame:
+        &#34;&#34;&#34; Read measurement data from file. &#34;&#34;&#34;
+        if self.pulsed:
+            return self.pulsed.measurement.data
+        else:
+            if self.__data is None:
+                self.__data = self._loaders[0](self.filepath)
+            return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file. &#34;&#34;&#34;
+        if self.pulsed:
+            return self.pulsed.measurement.params
+        else:
+            if self.__params is None:
+                self.__params = self._loaders[1](self.filepath)
+            return self.__params
+
+    @property
+    def fit_data(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Fit data to a model &#34;&#34;&#34;
+        return self._fit_data
+
+    @fit_data.setter
+    def fit_data(self, fit_data: pd.DataFrame):
+        &#34;&#34;&#34; Fit data to a model &#34;&#34;&#34;
+        self._fit_data = fit_data
+
+    @property
+    def fit_model(self) -&gt; lmfit.Model:
+        &#34;&#34;&#34; lmfit data model &#34;&#34;&#34;
+        return self._fit_model
+
+    @fit_model.setter
+    def fit_model(self, fit_model: lmfit.Model):
+        self._fit_model = fit_model
+
+    @property
+    def xy_position(self) -&gt; Tuple[int, int]:
+        &#34;&#34;&#34; (row, col) position of measurement in image &#34;&#34;&#34;
+        return self._xy_position
+
+    @xy_position.setter
+    def xy_position(self, xy_position: Tuple[int, int]):
+        self._xy_position = xy_position
+
+    def get_param_from_filename(self, unit: str) -&gt; float | None:
+        &#34;&#34;&#34;
+        Extract param from filename with format &lt;param&gt;&lt;unit&gt;, where param
+        is a float or integer and unit is a string. The param can be negative
+        with keyword &#39;minus&#39; or a decimal point with keyword &#39;point&#39;.
+
+        Args:
+            unit: unit of param to extract, e.g. dBm, mbar, V etc.
+
+        Returns:
+            Extracted param from filename
+
+        Examples:
+            filename = &#34;rabi_12dBm&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;dBm&#39;)
+            12.0
+
+            filename = &#34;pixelscan_minus100nm&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;dBm&#39;)
+            -100.0
+
+            filename = &#34;rabi_2e-6mbar&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;mbar&#39;)
+            2e-6
+
+            filename = &#34;rabi_2point3uW&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;uW&#39;)
+            2.5
+        &#34;&#34;&#34;
+        filename = self.filename
+        filename = filename.replace(&#34;point&#34;, &#34;.&#34;)
+        filename = filename.replace(&#34;minus&#34;, &#34;-&#34;)
+        params = re.search(rf&#34;(-?\d+\.?\d*)(?={unit})&#34;, filename)
+
+        if params:
+            # Handle exponents in filename
+            if filename[params.start() - 1] == &#34;e&#34;:
+                try:
+                    params = re.search(rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename).group(0)[1:]
+                    return float(params)
+                except AttributeError:
+                    raise Exception(f&#34;Parameter with unit &#39;{unit}&#39; not found in filename &#39;{filename}&#39;&#34;)
+            else:
+                return float(params.group(0))
+        else:
+            self.log.warning(f&#34;Unable to extract parameter from filename: {filename}&#34;)
+            return None
+
+    def set_datetime_index(self) -&gt; pd.DataFrame:
+        if &#39;Start counting time&#39; not in self.__params:
+            raise ValueError(&#34;&#39;Start counting time&#39; not in params&#34;)
+        if not isinstance(self.__data, pd.DataFrame):
+            raise TypeError(&#34;data is not of type pd.DataFrame&#34;)
+        if &#34;Time (s)&#34; not in self.__data.columns:
+            raise IndexError(&#34;Unable to find column &#39;Time (s)&#39; in DataFrame&#34;)
+
+        self.__data[&#39;Time (s)&#39;] += self.__params[&#39;Start counting time&#39;].timestamp()
+        self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;, utc=True)
+        self.__data.set_index(self.__data[&#34;Time&#34;], inplace=True)
+        self.__data.tz_convert(&#39;Europe/Berlin&#39;)
+        self.__data.drop([&#34;Time&#34;, &#34;Time (s)&#34;], inplace=True, axis=1)
+        return self.__data</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.LaserPulses"><code class="flex name class">
+<span>class <span class="ident">LaserPulses</span></span>
+<span>(</span><span>filepath: Path, loaders: (Callable, Callable) = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dataclass for storing laser pulses data and metadata</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class LaserPulses:
+    &#34;&#34;&#34; Dataclass for storing laser pulses data and metadata &#34;&#34;&#34;
+    filepath: Path
+    loaders: (Callable, Callable) = field(default=None)
+    __data: np.ndarray = field(default=None)
+    __params: dict = field(default=None)
+
+    @property
+    def data(self) -&gt; np.ndarray:
+        &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+        if self.__data is None:
+            self.__data = self.loaders[0](self.filepath)
+        return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+        if self.__params is None:
+            self.__params = self.loaders[1](self.filepath)
+        return self.__params</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.LaserPulses.filepath"><code class="name">var <span class="ident">filepath</span> : Path</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.LaserPulses.loaders"><code class="name">var <span class="ident">loaders</span> : (Callable, Callable)</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.LaserPulses.data"><code class="name">var <span class="ident">data</span> : np.ndarray</code></dt>
+<dd>
+<div class="desc"><p>Read measurement data from file into pandas DataFrame</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data(self) -&gt; np.ndarray:
+    &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+    if self.__data is None:
+        self.__data = self.loaders[0](self.filepath)
+    return self.__data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.LaserPulses.params"><code class="name">var <span class="ident">params</span> : dict</code></dt>
+<dd>
+<div class="desc"><p>Read measurement params from file into dict</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def params(self) -&gt; dict:
+    &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+    if self.__params is None:
+        self.__params = self.loaders[1](self.filepath)
+    return self.__params</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass"><code class="flex name class">
+<span>class <span class="ident">MeasurementDataclass</span></span>
+<span>(</span><span>timestamp: datetime.datetime, filepath: Path = None, pulsed: <a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass">PulsedMeasurementDataclass</a> = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dataclass for storing measurement data and metadata</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class MeasurementDataclass:
+    &#34;&#34;&#34; Dataclass for storing measurement data and metadata &#34;&#34;&#34;
+    timestamp: datetime.datetime
+    filepath: Path = field(default=None)
+    _loaders: (Callable, Callable) = field(default=None)
+    pulsed: PulsedMeasurementDataclass = field(default=None)
+    __data: np.ndarray | pd.DataFrame = field(default=None)
+    __params: dict = field(default=None)
+    _fit_data: pd.DataFrame = field(default=None)
+    _fit_model: lmfit.Model = field(default=None)
+    _xy_position: Tuple[int, int] = field(default=None)
+
+    def __post_init__(self):
+        self.log = logging.getLogger(__name__)
+
+        if self.pulsed:
+            self.filename = self.pulsed.base_filename
+        else:
+            self.filename = self.filepath.name
+
+    def __repr__(self) -&gt; str:
+        return f&#34;Measurement(timestamp=&#39;{self.timestamp}&#39;, filename=&#39;{self.filename}&#39;)&#34;
+
+    @property
+    def data(self) -&gt; np.ndarray | pd.DataFrame:
+        &#34;&#34;&#34; Read measurement data from file. &#34;&#34;&#34;
+        if self.pulsed:
+            return self.pulsed.measurement.data
+        else:
+            if self.__data is None:
+                self.__data = self._loaders[0](self.filepath)
+            return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file. &#34;&#34;&#34;
+        if self.pulsed:
+            return self.pulsed.measurement.params
+        else:
+            if self.__params is None:
+                self.__params = self._loaders[1](self.filepath)
+            return self.__params
+
+    @property
+    def fit_data(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Fit data to a model &#34;&#34;&#34;
+        return self._fit_data
+
+    @fit_data.setter
+    def fit_data(self, fit_data: pd.DataFrame):
+        &#34;&#34;&#34; Fit data to a model &#34;&#34;&#34;
+        self._fit_data = fit_data
+
+    @property
+    def fit_model(self) -&gt; lmfit.Model:
+        &#34;&#34;&#34; lmfit data model &#34;&#34;&#34;
+        return self._fit_model
+
+    @fit_model.setter
+    def fit_model(self, fit_model: lmfit.Model):
+        self._fit_model = fit_model
+
+    @property
+    def xy_position(self) -&gt; Tuple[int, int]:
+        &#34;&#34;&#34; (row, col) position of measurement in image &#34;&#34;&#34;
+        return self._xy_position
+
+    @xy_position.setter
+    def xy_position(self, xy_position: Tuple[int, int]):
+        self._xy_position = xy_position
+
+    def get_param_from_filename(self, unit: str) -&gt; float | None:
+        &#34;&#34;&#34;
+        Extract param from filename with format &lt;param&gt;&lt;unit&gt;, where param
+        is a float or integer and unit is a string. The param can be negative
+        with keyword &#39;minus&#39; or a decimal point with keyword &#39;point&#39;.
+
+        Args:
+            unit: unit of param to extract, e.g. dBm, mbar, V etc.
+
+        Returns:
+            Extracted param from filename
+
+        Examples:
+            filename = &#34;rabi_12dBm&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;dBm&#39;)
+            12.0
+
+            filename = &#34;pixelscan_minus100nm&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;dBm&#39;)
+            -100.0
+
+            filename = &#34;rabi_2e-6mbar&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;mbar&#39;)
+            2e-6
+
+            filename = &#34;rabi_2point3uW&#34;
+            &gt;&gt;&gt; get_param_from_filename(unit=&#39;uW&#39;)
+            2.5
+        &#34;&#34;&#34;
+        filename = self.filename
+        filename = filename.replace(&#34;point&#34;, &#34;.&#34;)
+        filename = filename.replace(&#34;minus&#34;, &#34;-&#34;)
+        params = re.search(rf&#34;(-?\d+\.?\d*)(?={unit})&#34;, filename)
+
+        if params:
+            # Handle exponents in filename
+            if filename[params.start() - 1] == &#34;e&#34;:
+                try:
+                    params = re.search(rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename).group(0)[1:]
+                    return float(params)
+                except AttributeError:
+                    raise Exception(f&#34;Parameter with unit &#39;{unit}&#39; not found in filename &#39;{filename}&#39;&#34;)
+            else:
+                return float(params.group(0))
+        else:
+            self.log.warning(f&#34;Unable to extract parameter from filename: {filename}&#34;)
+            return None
+
+    def set_datetime_index(self) -&gt; pd.DataFrame:
+        if &#39;Start counting time&#39; not in self.__params:
+            raise ValueError(&#34;&#39;Start counting time&#39; not in params&#34;)
+        if not isinstance(self.__data, pd.DataFrame):
+            raise TypeError(&#34;data is not of type pd.DataFrame&#34;)
+        if &#34;Time (s)&#34; not in self.__data.columns:
+            raise IndexError(&#34;Unable to find column &#39;Time (s)&#39; in DataFrame&#34;)
+
+        self.__data[&#39;Time (s)&#39;] += self.__params[&#39;Start counting time&#39;].timestamp()
+        self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;, utc=True)
+        self.__data.set_index(self.__data[&#34;Time&#34;], inplace=True)
+        self.__data.tz_convert(&#39;Europe/Berlin&#39;)
+        self.__data.drop([&#34;Time&#34;, &#34;Time (s)&#34;], inplace=True, axis=1)
+        return self.__data</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.filepath"><code class="name">var <span class="ident">filepath</span> : Path</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.pulsed"><code class="name">var <span class="ident">pulsed</span> : <a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass">PulsedMeasurementDataclass</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.timestamp"><code class="name">var <span class="ident">timestamp</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.data"><code class="name">var <span class="ident">data</span> : np.ndarray | pd.DataFrame</code></dt>
+<dd>
+<div class="desc"><p>Read measurement data from file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data(self) -&gt; np.ndarray | pd.DataFrame:
+    &#34;&#34;&#34; Read measurement data from file. &#34;&#34;&#34;
+    if self.pulsed:
+        return self.pulsed.measurement.data
+    else:
+        if self.__data is None:
+            self.__data = self._loaders[0](self.filepath)
+        return self.__data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.fit_data"><code class="name">var <span class="ident">fit_data</span> : pandas.core.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"><p>Fit data to a model</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def fit_data(self) -&gt; pd.DataFrame:
+    &#34;&#34;&#34; Fit data to a model &#34;&#34;&#34;
+    return self._fit_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.fit_model"><code class="name">var <span class="ident">fit_model</span> : lmfit.Model</code></dt>
+<dd>
+<div class="desc"><p>lmfit data model</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def fit_model(self) -&gt; lmfit.Model:
+    &#34;&#34;&#34; lmfit data model &#34;&#34;&#34;
+    return self._fit_model</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.params"><code class="name">var <span class="ident">params</span> : dict</code></dt>
+<dd>
+<div class="desc"><p>Read measurement params from file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def params(self) -&gt; dict:
+    &#34;&#34;&#34; Read measurement params from file. &#34;&#34;&#34;
+    if self.pulsed:
+        return self.pulsed.measurement.params
+    else:
+        if self.__params is None:
+            self.__params = self._loaders[1](self.filepath)
+        return self.__params</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.xy_position"><code class="name">var <span class="ident">xy_position</span> : Tuple[int, int]</code></dt>
+<dd>
+<div class="desc"><p>(row, col) position of measurement in image</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def xy_position(self) -&gt; Tuple[int, int]:
+    &#34;&#34;&#34; (row, col) position of measurement in image &#34;&#34;&#34;
+    return self._xy_position</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.get_param_from_filename"><code class="name flex">
+<span>def <span class="ident">get_param_from_filename</span></span>(<span>self, unit: str) ‑> float | None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Extract param from filename with format <param><unit>, where param
+is a float or integer and unit is a string. The param can be negative
+with keyword 'minus' or a decimal point with keyword 'point'.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>unit</code></strong></dt>
+<dd>unit of param to extract, e.g. dBm, mbar, V etc.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Extracted param from filename</p>
+<h2 id="examples">Examples</h2>
+<p>filename = "rabi_12dBm"</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; get_param_from_filename(unit='dBm')
+12.0
+</code></pre>
+<p>filename = "pixelscan_minus100nm"</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; get_param_from_filename(unit='dBm')
+-100.0
+</code></pre>
+<p>filename = "rabi_2e-6mbar"</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; get_param_from_filename(unit='mbar')
+2e-6
+</code></pre>
+<p>filename = "rabi_2point3uW"</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; get_param_from_filename(unit='uW')
+2.5
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_param_from_filename(self, unit: str) -&gt; float | None:
+    &#34;&#34;&#34;
+    Extract param from filename with format &lt;param&gt;&lt;unit&gt;, where param
+    is a float or integer and unit is a string. The param can be negative
+    with keyword &#39;minus&#39; or a decimal point with keyword &#39;point&#39;.
+
+    Args:
+        unit: unit of param to extract, e.g. dBm, mbar, V etc.
+
+    Returns:
+        Extracted param from filename
+
+    Examples:
+        filename = &#34;rabi_12dBm&#34;
+        &gt;&gt;&gt; get_param_from_filename(unit=&#39;dBm&#39;)
+        12.0
+
+        filename = &#34;pixelscan_minus100nm&#34;
+        &gt;&gt;&gt; get_param_from_filename(unit=&#39;dBm&#39;)
+        -100.0
+
+        filename = &#34;rabi_2e-6mbar&#34;
+        &gt;&gt;&gt; get_param_from_filename(unit=&#39;mbar&#39;)
+        2e-6
+
+        filename = &#34;rabi_2point3uW&#34;
+        &gt;&gt;&gt; get_param_from_filename(unit=&#39;uW&#39;)
+        2.5
+    &#34;&#34;&#34;
+    filename = self.filename
+    filename = filename.replace(&#34;point&#34;, &#34;.&#34;)
+    filename = filename.replace(&#34;minus&#34;, &#34;-&#34;)
+    params = re.search(rf&#34;(-?\d+\.?\d*)(?={unit})&#34;, filename)
+
+    if params:
+        # Handle exponents in filename
+        if filename[params.start() - 1] == &#34;e&#34;:
+            try:
+                params = re.search(rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename).group(0)[1:]
+                return float(params)
+            except AttributeError:
+                raise Exception(f&#34;Parameter with unit &#39;{unit}&#39; not found in filename &#39;{filename}&#39;&#34;)
+        else:
+            return float(params.group(0))
+    else:
+        self.log.warning(f&#34;Unable to extract parameter from filename: {filename}&#34;)
+        return None</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.set_datetime_index"><code class="name flex">
+<span>def <span class="ident">set_datetime_index</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_datetime_index(self) -&gt; pd.DataFrame:
+    if &#39;Start counting time&#39; not in self.__params:
+        raise ValueError(&#34;&#39;Start counting time&#39; not in params&#34;)
+    if not isinstance(self.__data, pd.DataFrame):
+        raise TypeError(&#34;data is not of type pd.DataFrame&#34;)
+    if &#34;Time (s)&#34; not in self.__data.columns:
+        raise IndexError(&#34;Unable to find column &#39;Time (s)&#39; in DataFrame&#34;)
+
+    self.__data[&#39;Time (s)&#39;] += self.__params[&#39;Start counting time&#39;].timestamp()
+    self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;, utc=True)
+    self.__data.set_index(self.__data[&#34;Time&#34;], inplace=True)
+    self.__data.tz_convert(&#39;Europe/Berlin&#39;)
+    self.__data.drop([&#34;Time&#34;, &#34;Time (s)&#34;], inplace=True, axis=1)
+    return self.__data</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement"><code class="flex name class">
+<span>class <span class="ident">PulsedMeasurement</span></span>
+<span>(</span><span>filepath: Path, loaders: (Callable, Callable) = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dataclass for storing pulsed data and metadata</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class PulsedMeasurement:
+    &#34;&#34;&#34; Dataclass for storing pulsed data and metadata &#34;&#34;&#34;
+    filepath: Path
+    loaders: (Callable, Callable) = field(default=None)
+    __data: pd.DataFrame = field(default=None)
+    __params: dict = field(default=None)
+
+    @property
+    def data(self) -&gt; pd.DataFrame:
+        &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+        if self.__data is None:
+            self.__data = self.loaders[0](self.filepath)
+        return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+        if self.__params is None:
+            self.__params = self.loaders[1](self.filepath)
+        return self.__params</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.filepath"><code class="name">var <span class="ident">filepath</span> : Path</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.loaders"><code class="name">var <span class="ident">loaders</span> : (Callable, Callable)</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.data"><code class="name">var <span class="ident">data</span> : pandas.core.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"><p>Read measurement data from file into pandas DataFrame</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data(self) -&gt; pd.DataFrame:
+    &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+    if self.__data is None:
+        self.__data = self.loaders[0](self.filepath)
+    return self.__data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.params"><code class="name">var <span class="ident">params</span> : dict</code></dt>
+<dd>
+<div class="desc"><p>Read measurement params from file into dict</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def params(self) -&gt; dict:
+    &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+    if self.__params is None:
+        self.__params = self.loaders[1](self.filepath)
+    return self.__params</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass"><code class="flex name class">
+<span>class <span class="ident">PulsedMeasurementDataclass</span></span>
+<span>(</span><span>measurement: <a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement">PulsedMeasurement</a>, laser_pulses: <a title="qudi_hira_analysis.measurement_dataclass.LaserPulses" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses">LaserPulses</a> = None, timetrace: <a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace">RawTimetrace</a> = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dataclass for storing pulsed measurement data and metadata</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class PulsedMeasurementDataclass:
+    &#34;&#34;&#34; Dataclass for storing pulsed measurement data and metadata &#34;&#34;&#34;
+    measurement: PulsedMeasurement
+    laser_pulses: LaserPulses = field(default=None)
+    timetrace: RawTimetrace = field(default=None)
+
+    def __post_init__(self):
+        self.base_filename = self.measurement.filepath.name.replace(&#34;_pulsed_measurement.dat&#34;, &#34;&#34;)
+
+    def show_image(self) -&gt; Image:
+        &#34;&#34;&#34; Use PIL to open the measurement image saved on the disk &#34;&#34;&#34;
+        return Image.open(str(self.measurement.filepath).replace(&#34;.dat&#34;, &#34;_fig.png&#34;))</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.laser_pulses"><code class="name">var <span class="ident">laser_pulses</span> : <a title="qudi_hira_analysis.measurement_dataclass.LaserPulses" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses">LaserPulses</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.measurement"><code class="name">var <span class="ident">measurement</span> : <a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement">PulsedMeasurement</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.timetrace"><code class="name">var <span class="ident">timetrace</span> : <a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace">RawTimetrace</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.show_image"><code class="name flex">
+<span>def <span class="ident">show_image</span></span>(<span>self) ‑> Image</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use PIL to open the measurement image saved on the disk</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_image(self) -&gt; Image:
+    &#34;&#34;&#34; Use PIL to open the measurement image saved on the disk &#34;&#34;&#34;
+    return Image.open(str(self.measurement.filepath).replace(&#34;.dat&#34;, &#34;_fig.png&#34;))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.RawTimetrace"><code class="flex name class">
+<span>class <span class="ident">RawTimetrace</span></span>
+<span>(</span><span>filepath: Path, loaders: (Callable, Callable) = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dataclass for storing raw timetrace data and metadata</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class RawTimetrace:
+    &#34;&#34;&#34; Dataclass for storing raw timetrace data and metadata &#34;&#34;&#34;
+    filepath: Path
+    loaders: (Callable, Callable) = field(default=None)
+    __data: np.ndarray = field(default=None)
+    __params: dict = field(default=None)
+
+    @property
+    def data(self) -&gt; np.ndarray:
+        &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+        if self.__data is None:
+            self.__data = self.loaders[0](self.filepath)
+        return self.__data
+
+    @property
+    def params(self) -&gt; dict:
+        &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+        if self.__params is None:
+            self.__params = self.loaders[1](self.filepath)
+        return self.__params</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.RawTimetrace.filepath"><code class="name">var <span class="ident">filepath</span> : Path</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.RawTimetrace.loaders"><code class="name">var <span class="ident">loaders</span> : (Callable, Callable)</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.measurement_dataclass.RawTimetrace.data"><code class="name">var <span class="ident">data</span> : np.ndarray</code></dt>
+<dd>
+<div class="desc"><p>Read measurement data from file into pandas DataFrame</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def data(self) -&gt; np.ndarray:
+    &#34;&#34;&#34; Read measurement data from file into pandas DataFrame &#34;&#34;&#34;
+    if self.__data is None:
+        self.__data = self.loaders[0](self.filepath)
+    return self.__data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.measurement_dataclass.RawTimetrace.params"><code class="name">var <span class="ident">params</span> : dict</code></dt>
+<dd>
+<div class="desc"><p>Read measurement params from file into dict</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def params(self) -&gt; dict:
+    &#34;&#34;&#34; Read measurement params from file into dict &#34;&#34;&#34;
+    if self.__params is None:
+        self.__params = self.loaders[1](self.filepath)
+    return self.__params</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="qudi_hira_analysis" href="index.html">qudi_hira_analysis</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="qudi_hira_analysis.measurement_dataclass.LaserPulses" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses">LaserPulses</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.LaserPulses.data" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses.data">data</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.LaserPulses.filepath" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses.filepath">filepath</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.LaserPulses.loaders" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses.loaders">loaders</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.LaserPulses.params" href="#qudi_hira_analysis.measurement_dataclass.LaserPulses.params">params</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass">MeasurementDataclass</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.data" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.data">data</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.filepath" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.filepath">filepath</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.fit_data" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.fit_data">fit_data</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.fit_model" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.fit_model">fit_model</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.get_param_from_filename" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.get_param_from_filename">get_param_from_filename</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.params" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.params">params</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.pulsed" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.pulsed">pulsed</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.set_datetime_index" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.set_datetime_index">set_datetime_index</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.timestamp" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.timestamp">timestamp</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.xy_position" href="#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.xy_position">xy_position</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement">PulsedMeasurement</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.data" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.data">data</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.filepath" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.filepath">filepath</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.loaders" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.loaders">loaders</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.params" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurement.params">params</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass">PulsedMeasurementDataclass</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.laser_pulses" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.laser_pulses">laser_pulses</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.measurement" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.measurement">measurement</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.show_image" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.show_image">show_image</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.timetrace" href="#qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.timetrace">timetrace</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace">RawTimetrace</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace.data" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace.data">data</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace.filepath" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace.filepath">filepath</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace.loaders" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace.loaders">loaders</a></code></li>
+<li><code><a title="qudi_hira_analysis.measurement_dataclass.RawTimetrace.params" href="#qudi_hira_analysis.measurement_dataclass.RawTimetrace.params">params</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
