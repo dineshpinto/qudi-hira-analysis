@@ -96,15 +96,16 @@ odmr_measurements = dh.load_measurements(measurement_str="2d_odmr_map")
 odmr_measurements = dict(sorted(odmr_measurements.items()))
 
 # Optional: Try and optimize the hyperparameters for the ODMR fitting
-highest_min_r2, optimal_parameters = dh.optimize_hyperparameters(odmr_measurements, num_samples=100, num_params=3)
+highest_min_r2, optimal_parameters = dh.optimize_raster_odmr_params(odmr_measurements, num_samples=100,
+                                                                    num_params=3)
 
 # Perform parallel (=num CPU cores) ODMR fitting
-odmr_measurements = dh.raster_odmr_fitting(
-    odmr_measurements,
-    r2_thresh=0.95,
-    thresh_frac=0.5,
-    sigma_thresh_frac=0.1,
-    min_thresh=0.01,
+odmr_measurements = dh.fit_raster_odmr(
+  odmr_measurements,
+  r2_thresh=0.95,
+  thresh_frac=0.5,
+  sigma_thresh_frac=0.1,
+  min_thresh=0.01,
 )
 
 # Calculate residuals and 2D ODMR map
@@ -113,20 +114,20 @@ image = np.zeros((pixels, pixels))
 residuals = np.zeros(len(odmr_measurements))
 
 for idx, odmr in enumerate(odmr_measurements.values()):
-    row, col = odmr.xy_position
-    residuals[idx] = odmr.fit_model.rsquared
+  row, col = odmr.xy_position
+  residuals[idx] = odmr.fit_model.rsquared
 
-    if len(odmr.fit_model.params) == 6:
-        # Single Lorentzian, no splitting
-        image[row, col] = 0
+  if len(odmr.fit_model.params) == 6:
+    # Single Lorentzian, no splitting
+    image[row, col] = 0
+  else:
+    if odmr.fit_model.rsquared < 0.95:
+      # Bad fit, set to NaN
+      image[row, col] = np.nan
     else:
-        if odmr.fit_model.rsquared < 0.95:
-            # Bad fit, set to NaN
-            image[row, col] = np.nan
-        else:
-            # Calculate splitting
-            splitting = np.abs(odmr.fit_model.best_values["l1_center"] - odmr.fit_model.best_values["l0_center"])
-            image[row, col] = splitting
+      # Calculate splitting
+      splitting = np.abs(odmr.fit_model.best_values["l1_center"] - odmr.fit_model.best_values["l0_center"])
+      image[row, col] = splitting
 
 fig, (ax, ax1) = plt.subplots(ncols=2)
 # Plot residuals
