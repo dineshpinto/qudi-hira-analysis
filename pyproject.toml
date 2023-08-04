@@ -25,6 +25,7 @@ pyspm = "^0.3.2"
 seaborn = "^0.12.2"
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
+pdoc3 = "^0.10.0"
 
 
 [tool.poetry.group.test.dependencies]

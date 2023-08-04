@@ -1,6 +1,6 @@
 """
 This file contains the Qudi FitLogic class, which provides all
-fitting methods imported from the files in logic/fitmethods.
+fitting methods imported from the files in logic/_fitmethods.
 
 Qudi is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ class FitLogic:
 
         filenames = []
         # for path in directories:
-        path_list = [os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fitmethods')]
+        path_list = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '_fitmethods')]
         # adding additional path, to be defined in the config
         self.log = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class FitLogic:
         self.fit_list['2d'] = OrderedDict()
         self.fit_list['3d'] = OrderedDict()
 
-        # Go through the fitmethods files and import all methods.
+        # Go through the _fitmethods files and import all methods.
         # Also determine which methods need to be added to the fit_list dictionary
         estimators_for_dict = list()
         models_for_dict = list()

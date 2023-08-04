@@ -76,24 +76,19 @@ class DataHandler(DataLoader, AnalysisLogic):
     """
     Handles automated data searching and extraction into dataclasses.
 
-    Parameters
-    ----------
-        data_folder: pathlib.Path
-            Path to the data folder.
-        figure_folder: pathlib.Path
-            Path to the figure folder.
-        measurement_folder: str or pathlib.Path
-            Path to the measurement folder.
+    Parameters:
+        data_folder: Path to the data folder.
+        figure_folder: Path to the figure folder.
+        measurement_folder: Path to the measurement folder.
 
-    Examples
-    --------
-    Create an instance of the DataHandler class:
+    Examples:
+        Create an instance of the DataHandler class:
 
-    >>> dh = DataHandler(
-    >>>     data_folder=Path('C:\\'', 'Data'),
-    >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
-    >>>     measurement_folder=Path('20230101_Bakeout'),
-    >>> )
+        >>> dh = DataHandler(
+        >>>     data_folder=Path('C:\\'', 'Data'),
+        >>>     figure_folder=Path('C:\\'', 'QudiHiraAnalysis'),
+        >>>     measurement_folder=Path('20230101_Bakeout'),
+        >>> )
     """
 
     def __init__(
@@ -170,7 +165,7 @@ class DataHandler(DataLoader, AnalysisLogic):
         for line in self.__tree(self.figure_folder_path):
             print(line)
 
-    def get_measurement_filepaths(
+    def _get_measurement_filepaths(
             self,
             measurement: str,
             extension: str,
@@ -204,8 +199,8 @@ class DataHandler(DataLoader, AnalysisLogic):
             timestamps = set()
 
             # Get set of unique timestamps containing pulsed_measurement_str
-            for filepath in self.get_measurement_filepaths(measurement=measurement_str, extension=extension,
-                                                           exclude_str="image_1.dat"):
+            for filepath in self._get_measurement_filepaths(measurement=measurement_str, extension=extension,
+                                                            exclude_str="image_1.dat"):
                 filename = filepath.name
                 if measurement_str in filename:
                     timestamps.add(filename[:16])
@@ -253,13 +248,13 @@ class DataHandler(DataLoader, AnalysisLogic):
 
             measurement_data: dict[str: MeasurementDataclass] = {}
 
-            for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
+            for filepath in self._get_measurement_filepaths(measurement_str, extension, exclude_str):
                 ts = filepath.name[:16]
                 measurement_data[ts] = (
                     MeasurementDataclass(
                         filepath=filepath,
                         timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
-                        loaders=loaders
+                        _loaders=loaders
                     )
                 )
             return measurement_data
@@ -296,7 +291,7 @@ class DataHandler(DataLoader, AnalysisLogic):
             loaders = self.default_qudi_loader
             exclude_str = None
 
-        for filepath in self.get_measurement_filepaths(measurement_str, extension, exclude_str):
+        for filepath in self._get_measurement_filepaths(measurement_str, extension, exclude_str):
             timestamp = datetime.datetime.fromtimestamp(filepath.stat().st_mtime)
             self.log.warning("Extracting timestamp from file modified time, may not be accurate.")
             ts = datetime.datetime.strftime(timestamp, self.timestamp_format_str)
@@ -304,7 +299,7 @@ class DataHandler(DataLoader, AnalysisLogic):
                 MeasurementDataclass(
                     filepath=filepath,
                     timestamp=timestamp,
-                    loaders=loaders
+                    _loaders=loaders
                 )
             )
         return measurement_list
@@ -319,46 +314,33 @@ class DataHandler(DataLoader, AnalysisLogic):
         """
         Lazy load all measurements of a given type into a dictionary of dataclasses.
 
-        Parameters
-        ----------
-            measurement_str: str
-                The name of the measurement type to load e.g. t1, t2,
-                confocal etc. Recursively searches through the path
-                defined by data_folder and measurement_folder
-            qudi: bool
-                Whether the measurement is a qudi measurement
-                (default: False).
-            pulsed: bool
-                Whether the measurement is a pulsed measurement
-                (default: False).
-            extension: str
-                The file extension of the measurement files.
-                (default: .dat)
+        Args:
+            measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc. Recursively searches through the path defined by data_folder and measurement_folder
+            qudi: Whether the measurement is a qudi measurement (default: False).
+            pulsed: Whether the measurement is a pulsed measurement (default: False).
+            extension: The file extension of the measurement files (default: .dat).
 
-        Returns
-        -------
-            measurement_list: dict[str: MeasurementDataclass]
-                A dictionary of dataclasses containing the measurement data.
+        Returns:
+            dict: A dictionary of dataclasses containing the measurement data.
 
-        Examples
-        --------
-        `dh` is an instance of the `DataHandler` class.
+        Examples:
+            `dh` is an instance of the `DataHandler` class.
 
-        Load all T1 measurements:
+            Load all T1 measurements:
 
-        >>> dh.load_measurements(measurement_str="ODMR", pulsed=True)
+            >>> dh.load_measurements(measurement_str="ODMR", pulsed=True)
 
-        Load all confocal data:
+            Load all confocal data:
 
-        >>> dh.load_measurements(measurement_str="Confocal")
+            >>> dh.load_measurements(measurement_str="Confocal")
 
-        Load all temperature monitoring data:
+            Load all temperature monitoring data:
 
-        >>> dh.load_measurements(measurement_str="Temperature")
+            >>> dh.load_measurements(measurement_str="Temperature")
 
-        Load all pressure monitoring data:
+            Load all pressure monitoring data:
 
-        >>> dh.load_measurements(measurement_str="Pressure")
+            >>> dh.load_measurements(measurement_str="Pressure")
         """
 
         measurement_str = measurement_str.lower()

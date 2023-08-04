@@ -22,8 +22,16 @@ class IOHandler:
         self.base_write_path = base_write_path
 
     @staticmethod
-    def add_base_read_path(func: Callable) -> Callable:
-        """ Decorator to add the base_read_path to the filepath if it is not None """
+    def _add_base_read_path(func: Callable) -> Callable:
+        """
+        Decorator to add the `base_read_path` to the filepath if it is not None
+
+        Args:
+            func: Function to be decorated
+
+        Returns:
+            Decorated function
+        """
 
         @wraps(func)
         def wrapper(self, filepath: Path, **kwargs):
@@ -34,8 +42,16 @@ class IOHandler:
         return wrapper
 
     @staticmethod
-    def add_base_write_path(func: Callable) -> Callable:
-        """ Decorator to add the base_write_path to the filepath if it is not None """
+    def _add_base_write_path(func: Callable) -> Callable:
+        """
+        Decorator to add the `base_write_path` to the filepath if it is not None
+
+        Args:
+            func: Function to be decorated
+
+        Returns:
+            Decorated function
+        """
 
         @wraps(func)
         def wrapper(self, filepath: Path, **kwargs):
@@ -47,10 +63,19 @@ class IOHandler:
         return wrapper
 
     @staticmethod
-    def check_extension(ext: str) -> Callable:
-        """ Decorator to check the extension of the filepath is correct """
+    def _check_extension(ext: str) -> Callable:
+        """
+        Decorator to check the extension of the filepath is correct
+
+        Args:
+            ext: Extension to check for
+
+        Returns:
+            Decorated function
+        """
 
         def decorator(func: Callable) -> Callable:
+            @wraps(func)
             def wrapper(self, filepath: Path, **kwargs) -> Callable:
                 if filepath.suffix == ext:
                     return func(self, filepath, **kwargs)
@@ -63,10 +88,17 @@ class IOHandler:
 
         return decorator
 
-    @add_base_read_path
-    @check_extension(".dat")
+    @_add_base_read_path
+    @_check_extension(".dat")
     def read_qudi_parameters(self, filepath: Path) -> dict:
-        """ Extract parameters from a qudi dat file. """
+        """Extract parameters from a qudi dat file.
+
+        Args:
+            filepath: Path to the qudi .dat file
+
+        Returns:
+            Dictionary of parameters
+        """
         params = {}
         with open(filepath) as file:
             for line in file:
@@ -93,29 +125,37 @@ class IOHandler:
                         pass
         return params
 
-    @add_base_read_path
-    @check_extension(".dat")
+    @_add_base_read_path
+    @_check_extension(".dat")
     def read_into_dataframe(self, filepath: Path) -> pd.DataFrame:
-        """ Read a qudi data file into a pd DataFrame for analysis. """
+        """Read a qudi data file into a pandas DataFrame for analysis.
+
+        Args:
+            filepath: Path to the qudi data file
+
+        Returns:
+            DataFrame containing the data from the qudi data file
+        """
         with open(filepath) as handle:
             # Generate column names for DataFrame by parsing the file
             *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
             names = names[1:].strip().split("\t")
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
 
-    @add_base_read_path
+    @_add_base_read_path
     def read_csv(self, filepath: Path, **kwargs) -> pd.DataFrame:
-        """ Read a csv file into a pd DataFrame. """
+        """ Read a csv file into a pandas DataFrame. """
         return pd.read_csv(filepath, **kwargs)
 
-    @add_base_read_path
+    @_add_base_read_path
     def read_excel(self, filepath: Path, **kwargs) -> pd.DataFrame:
-        """ Read a csv file into a pd DataFrame. """
+        """ Read a csv file into a pandas DataFrame. """
         return pd.read_excel(filepath, **kwargs)
 
-    @add_base_read_path
-    @check_extension(".dat")
+    @_add_base_read_path
+    @_check_extension(".dat")
     def read_confocal_into_dataframe(self, filepath: Path) -> pd.DataFrame:
+        """ Read a qudi confocal data file into a pandas DataFrame for analysis. """
         confocal_params = self.read_qudi_parameters(filepath)
         data = self.read_into_ndarray(filepath, delimiter="\t")
         # Use the confocal parameters to generate the index and columns for the DataFrame
@@ -134,34 +174,43 @@ class IOHandler:
         df.sort_index(axis=0, ascending=False, inplace=True)
         return df
 
-    @add_base_read_path
+    @_add_base_read_path
     def read_into_ndarray(self, filepath: Path, **kwargs) -> np.ndarray:
+        """ Read a file into a numpy ndarray. """
         return np.genfromtxt(filepath, **kwargs)
 
-    @add_base_read_path
+    @_add_base_read_path
     def read_into_ndarray_transposed(self, filepath: Path, **kwargs) -> np.ndarray:
+        """ Read a file into a transposed numpy ndarray. """
         return np.genfromtxt(filepath, **kwargs).T
 
-    @add_base_read_path
-    @check_extension(".pys")
+    @_add_base_read_path
+    @_check_extension(".pys")
     def read_pys(self, filepath: Path) -> dict:
-        """ Loads raw pys data files. Wraps around numpy.load. """
+        """ Read raw .pys data files into a dictionary. """
         byte_dict = np.load(str(filepath), encoding="bytes", allow_pickle=True)
         # Convert byte string keys to normal strings
         return {key.decode('utf8'): byte_dict.get(key) for key in byte_dict.keys()}
 
-    @add_base_read_path
-    @check_extension(".pkl")
+    @_add_base_read_path
+    @_check_extension(".pkl")
     def read_pkl(self, filepath: Path) -> dict:
-        """ Loads processed pickle files for plotting/further analysis. """
+        """ Read pickle files into a dictionary. """
         with open(filepath, 'rb') as f:
             file = pickle.load(f)
         return file
 
-    @add_base_read_path
-    @check_extension(".dat")
+    @_add_base_read_path
+    @_check_extension(".dat")
     def read_nanonis_data(self, filepath: Path) -> pd.DataFrame:
-        """ Extract data from a Nanonis dat file. """
+        """Read data from a Nanonis .dat file.
+
+        Args:
+            filepath: Path to the Nanonis .dat file.
+
+        Returns:
+            DataFrame of data.
+        """
         skip_rows = 0
         with open(filepath) as dat_file:
             for num, line in enumerate(dat_file, 1):
@@ -175,10 +224,17 @@ class IOHandler:
         df = pd.read_table(filepath, sep="\t", skiprows=skip_rows)
         return df
 
-    @add_base_read_path
-    @check_extension(".dat")
+    @_add_base_read_path
+    @_check_extension(".dat")
     def read_nanonis_parameters(self, filepath: Path) -> dict:
-        """ Extract parameters from a Nanonis dat file. """
+        """Read parameters from a Nanonis .dat file.
+
+        Args:
+            filepath: Path to the Nanonis .dat file.
+
+        Returns:
+            Dictionary of parameters.
+        """
         parameters = {}
         with open(filepath) as dat_file:
             for line in dat_file:
@@ -200,22 +256,43 @@ class IOHandler:
                     parameters[label] = value
         return parameters
 
-    @add_base_read_path
-    @check_extension(".sxm")
+    @_add_base_read_path
+    @_check_extension(".sxm")
     def read_nanonis_spm_data(self, filepath: Path) -> pySPM.SXM:
-        """ Read a Nanonis SPM data file. """
+        """Read a Nanonis .sxm data file.
+
+        Args:
+            filepath: Path to the .sxm file.
+
+        Returns:
+            pySPM.SXM object containing the data.
+        """
         return pySPM.SXM(filepath)
 
-    @add_base_read_path
-    @check_extension(".001")
+    @_add_base_read_path
+    @_check_extension(".001")
     def read_bruker_spm_data(self, filepath: Path) -> pySPM.Bruker:
-        """ Read a Bruker SPM data file. """
+        """Read a Bruker SPM data file.
+
+        Args:
+            filepath: Path to the .001 file.
+
+        Returns:
+            pySPM.Bruker object containing the data.
+        """
         return pySPM.Bruker(filepath)
 
-    @add_base_read_path
-    @check_extension(".txt")
+    @_add_base_read_path
+    @_check_extension(".txt")
     def read_pfeiffer_data(self, filepath: Path) -> pd.DataFrame:
-        """ Read data stored by Pfeiffer vacuum monitoring software. """
+        """Read data stored by Pfeiffer vacuum monitoring software.
+
+        Args:
+            filepath: Path to the text file.
+
+        Returns:
+            DataFrame containing the data.
+        """
         # Extract rows including the header
         df = pd.read_csv(filepath, sep="\t", skiprows=[0, 2, 3, 4])
         # Combine data and time columns together
@@ -227,10 +304,17 @@ class IOHandler:
         df = df.set_index("Date", drop=True)
         return df
 
-    @add_base_read_path
-    @check_extension(".xls")
+    @_add_base_read_path
+    @_check_extension(".xls")
     def read_lakeshore_data(self, filepath: Path) -> pd.DataFrame:
-        """ Read data stored by Lakeshore temperature monitor software. """
+        """Read data stored by Lakeshore temperature monitor software.
+
+        Args:
+            filepath: Path to the Excel file.
+
+        Returns:
+            DataFrame containing the data.
+        """
         # Extract only the origin timestamp
         origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
         # Remove any tzinfo to prevent future exceptions in pandas
@@ -247,10 +331,17 @@ class IOHandler:
         df = df.set_index("Datetime", drop=True)
         return df
 
-    @add_base_read_path
-    @check_extension(".txt")
+    @_add_base_read_path
+    @_check_extension(".txt")
     def read_oceanoptics_data(self, filepath: str) -> pd.DataFrame:
-        """ Read spectrometer data from OceanOptics spectrometer. """
+        """Read spectrometer data from OceanOptics spectrometer.
+
+        Args:
+            filepath: Path to the data file.
+
+        Returns:
+            DataFrame containing the wavelength and intensity data.
+        """
         df = pd.read_csv(filepath, sep="\t", skiprows=14, names=["wavelength", "intensity"])
         return df
 
@@ -265,6 +356,14 @@ class IOHandler:
         return forward_counts, backward_counts
 
     def read_pixelscanner_data(self, filepath: Path) -> (pySPM.SPM_image, pySPM.SPM_image):
+        """ Read data from a PixelScanner measurement.
+
+        Args:
+            filepath: Path to the data file.
+
+        Returns:
+            Forward and backward scan data.
+        """
         df = self.read_into_dataframe(filepath)
         num_pixels = int(np.sqrt(len(df) // 2))
 
@@ -285,46 +384,48 @@ class IOHandler:
         bwd = pySPM.SPM_image(bwd, channel="Backward", _type="NV-PL")
         return fwd, bwd
 
-    @add_base_write_path
-    @check_extension(".pkl")
+    @_add_base_write_path
+    @_check_extension(".pkl")
     def save_pkl(self, filepath: Path, obj: object):
-        """ Saves processed pickle files for plotting/further analysis. """
+        """Saves pickle files.
+
+        Args:
+            filepath: Path to the data file.
+            obj: Object to be saved.
+        """
         with open(filepath, 'wb') as f:
             pickle.dump(obj, f)
 
-    @add_base_write_path
-    @check_extension(".pys")
+    @_add_base_write_path
+    @_check_extension(".pys")
     def save_pys(self, filepath: Path, dictionary: dict):
-        """ Saves processed pickle files for plotting/further analysis. """
+        """Saves .pys files.
+
+        Args:
+            filepath: Path to the data file.
+            dictionary: Dictionary to be saved.
+        """
         with open(filepath, 'wb') as f:
             pickle.dump(dictionary, f, 1)
 
-    @add_base_write_path
-    @check_extension(".pys")
+    @_add_base_write_path
+    @_check_extension(".pys")
     def save_df(self, filepath: Path, df: pd.DataFrame):
         """ Save Dataframe as csv. """
         df.to_csv(filepath, sep='\t', encoding='utf-8')
 
-    @add_base_write_path
+    @_add_base_write_path
     def save_figures(self, filepath: Path, fig: plt.Figure, **kwargs):
-        """
-        Saves figures from matplotlib plot data. By default, saves as jpg, png, pdf and svg.
+        """Saves figures from matplotlib plot data.
 
-        Parameters
-        ----------
-        fig : matplotlib.figure.Figure
-            Figure to save.
-        filepath : pathlib.Path
-            Path to save figure to. If called with DataHandler, only the filename is required.
+        By default, saves as jpg, png, pdf and svg.
 
-        Keyword Arguments
-        -----------------
-        only_jpg : bool
-            If True, only save as jpg. Default is False.
-        only_pdf : bool
-            If True, only save as pdf. Default is False.
-        **kwargs
-            Keyword arguments passed to fig.savefig().
+        Args:
+            fig: Matplotlib figure to save.
+            filepath: Name of figure to save.
+            only_jpg: If True, only save as jpg (default: False).
+            only_pdf: If True, only save as pdf (default: False).
+            **kwargs: Keyword arguments passed to fig.savefig().
         """
         extensions = None
         if "only_jpg" in kwargs:

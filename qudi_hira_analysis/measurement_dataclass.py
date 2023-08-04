@@ -19,6 +19,7 @@ logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=log
 
 @dataclass
 class PulsedMeasurement:
+    """ Dataclass for storing pulsed data and metadata """
     filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: pd.DataFrame = field(default=None)
@@ -41,6 +42,7 @@ class PulsedMeasurement:
 
 @dataclass
 class LaserPulses:
+    """ Dataclass for storing laser pulses data and metadata """
     filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
@@ -63,6 +65,7 @@ class LaserPulses:
 
 @dataclass
 class RawTimetrace:
+    """ Dataclass for storing raw timetrace data and metadata """
     filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
@@ -85,6 +88,7 @@ class RawTimetrace:
 
 @dataclass
 class PulsedMeasurementDataclass:
+    """ Dataclass for storing pulsed measurement data and metadata """
     measurement: PulsedMeasurement
     laser_pulses: LaserPulses = field(default=None)
     timetrace: RawTimetrace = field(default=None)
@@ -99,9 +103,10 @@ class PulsedMeasurementDataclass:
 
 @dataclass
 class MeasurementDataclass:
+    """ Dataclass for storing measurement data and metadata """
     timestamp: datetime.datetime
     filepath: Path = field(default=None)
-    loaders: (Callable, Callable) = field(default=None)
+    _loaders: (Callable, Callable) = field(default=None)
     pulsed: PulsedMeasurementDataclass = field(default=None)
     __data: np.ndarray | pd.DataFrame = field(default=None)
     __params: dict = field(default=None)
@@ -122,22 +127,22 @@ class MeasurementDataclass:
 
     @property
     def data(self) -> np.ndarray | pd.DataFrame:
-        """ Read measurement data from file into suitable data structure """
+        """ Read measurement data from file. """
         if self.pulsed:
             return self.pulsed.measurement.data
         else:
             if self.__data is None:
-                self.__data = self.loaders[0](self.filepath)
+                self.__data = self._loaders[0](self.filepath)
             return self.__data
 
     @property
     def params(self) -> dict:
-        """ Read measurement params from file into dict """
+        """ Read measurement params from file. """
         if self.pulsed:
             return self.pulsed.measurement.params
         else:
             if self.__params is None:
-                self.__params = self.loaders[1](self.filepath)
+                self.__params = self._loaders[1](self.filepath)
             return self.__params
 
     @property
@@ -151,7 +156,8 @@ class MeasurementDataclass:
         self._fit_data = fit_data
 
     @property
-    def fit_model(self) -> Image:
+    def fit_model(self) -> lmfit.Model:
+        """ lmfit data model """
         return self._fit_model
 
     @fit_model.setter
@@ -160,6 +166,7 @@ class MeasurementDataclass:
 
     @property
     def xy_position(self) -> Tuple[int, int]:
+        """ (row, col) position of measurement in image """
         return self._xy_position
 
     @xy_position.setter
@@ -173,11 +180,10 @@ class MeasurementDataclass:
         with keyword 'minus' or a decimal point with keyword 'point'.
 
         Args:
-            unit: str
-                unit of param to extract, e.g. dBm, mbar, V, etc.
+            unit: unit of param to extract, e.g. dBm, mbar, V etc.
 
-        Returns: float
-            extracted param from filename
+        Returns:
+            Extracted param from filename
 
         Examples:
             filename = "rabi_12dBm"
