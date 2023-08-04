@@ -53,9 +53,7 @@ class FitMethodsAndEstimators:
 
 
 class AnalysisLogic(FitLogic):
-    """
-        Class for performing analysis on measurement data
-    """
+    """ Class for performing analysis on measurement data """
     fit_function = FitMethodsAndEstimators
 
     def __init__(self):
@@ -103,17 +101,14 @@ class AnalysisLogic(FitLogic):
     ) -> Tuple[np.ndarray, np.ndarray, ModelResult]:
         """
         Args:
-            x: x data
-            y: y data
+            x: x data, can be string, numpy array or pandas Series
+            y: y data, can be string, numpy array or pandas Series
             fit_function: fit function to use
-            data: pandas DataFrame containing x and y data
-            parameters: list of parameters to use in fit
+            data: pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series
+            parameters: list of parameters to use in fit (optional)
 
         Returns:
-            x_fit: x data of fit
-            y_fit: y data of fit
-            result: result of fit
-
+            Fit x data, fit y data and lmfit ModelResult
         """
         if "twoD" in fit_function[0]:
             dims: str = "2d"
@@ -141,13 +136,18 @@ class AnalysisLogic(FitLogic):
         )
 
     def get_all_fits(self) -> Tuple[list, list]:
+        """Get all available fits
+
+        Returns:
+            Tuple with list of 1d and 2d fits
+        """
         one_d_fits: list = list(self.fit_list['1d'].keys())
         two_d_fits: list = list(self.fit_list['2d'].keys())
         self.log.info(f"1d fits: {one_d_fits}\n2d fits: {two_d_fits}")
         return one_d_fits, two_d_fits
 
     @staticmethod
-    def analyse_mean(
+    def analyze_mean(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -163,8 +163,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: mean of the signal window
-            np.ndarray: measurement error
+            Mean of the signal window and measurement error
         """
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -198,7 +197,7 @@ class AnalysisLogic(FitLogic):
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_reference(
+    def analyze_mean_reference(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -217,8 +216,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: referenced mean of the signal window
-            np.ndarray: measurement error
+            Referenced mean of the signal window and measurement error
         """
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -256,7 +254,7 @@ class AnalysisLogic(FitLogic):
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_norm(
+    def analyze_mean_norm(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -276,8 +274,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: normalized mean of the signal window
-            np.ndarray: measurement error
+            Normalized mean of the signal window and measurement error
         """
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -339,8 +336,7 @@ class AnalysisLogic(FitLogic):
             num_samples: The number of measurements to sample.
 
         Returns:
-            float: The highest minimum r2 value
-            tuple: Optimized hyperparameters.
+            The highest minimum R2 value and the optimized hyperparameters.
         """
         r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
         thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
@@ -389,7 +385,7 @@ class AnalysisLogic(FitLogic):
         Fit a list of ODMR data to single and double Lorentzian functions
 
         Args:
-            odmr_measurements: List of ODMR data in MeasurementDataclasses
+            odmr_measurements: Dict of ODMR data in MeasurementDataclasses
             r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
             thresh_frac: Threshold fraction for the peak finding
             min_thresh: Minimum threshold for the peak finding
@@ -398,7 +394,7 @@ class AnalysisLogic(FitLogic):
             progress_bar: Show progress bar
 
         Returns:
-            dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+            Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
         """
 
         model1, base_params1 = rof.make_lorentzian_model()
@@ -469,3 +465,8 @@ class AnalysisLogic(FitLogic):
 
             image[row, col] = pixel_avg
         return image
+
+    # Aliases for backwards compatibility
+    analyse_mean = analyze_mean
+    analyse_mean_norm = analyze_mean_norm
+    analyse_mean_reference = analyze_mean_reference

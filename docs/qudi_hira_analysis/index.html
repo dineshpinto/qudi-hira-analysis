@@ -31,29 +31,131 @@ import seaborn as sns
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path(&quot;C:\Data&quot;), # Path to the data folder
-    figure_folder=Path(&quot;C:\QudiHiraAnalysis&quot;), # Path to the figure folder
+    data_folder=Path(&quot;C:/Data&quot;), # Path to the data folder
+    figure_folder=Path(&quot;C:/QudiHiraAnalysis&quot;), # Path to the figure folder
     measurement_folder=Path(&quot;20230101_NV1&quot;) # Name of the measurement folder
  )
 
 # Search and lazy-load files with &quot;odmr&quot; in the name
 odmr_measurements = dh.load_measurements(&quot;odmr&quot;)
 </code></pre>
-<p>To load a specific set of measurements from the data folder, use the <code>dh.load_measurements()</code> method, which takes the
-following required arguments:</p>
-<ul>
-<li><code>measurement_str</code> is the string that is used to identify the measurement. It is used to filter the data files in the
-<code>data_folder</code> and <code>measurement_folder</code> (if specified)</li>
-</ul>
-<p>Optional arguments:</p>
-<ul>
-<li><code>qudi</code> is a boolean. If <code>True</code>, the data is assumed to be in the format used by Qudi (default: True)</li>
-<li><code>pulsed</code> is a boolean. If <code>True</code>, the data is assumed to be in the format used by Qudi for pulsed measurements
-(default: False)</li>
-<li><code>extension</code> is the extension of the data files (default: ".dat")</li>
-</ul>
-<p>The <code>load_measurements</code> function returns a dictionary containing the measurement data filtered by <code>measurement_str</code>.
-The dictionary keys are measurement timestamps in "(year)(month)(day)-(hour)(minute)-(second)" format.</p>
+<p>Start by creating an instance of the <code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code> class.
+To load a specific set of measurements from the data folder, use the <code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">DataHandler.load_measurements()</a></code> method.</p>
+<h2 id="data-fitting">Data fitting</h2>
+<p>To fit data, call the <code><a title="qudi_hira_analysis.DataHandler.fit" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">AnalysisLogic.fit()</a></code> method.</p>
+<pre><code class="language-python">odmr = odmr_measurements[&quot;20230101-0420-00&quot;]
+xf, yf, res = dh.fit(x=&quot;Freq&quot;, y=&quot;Counts&quot;, fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
+
+# Plot the data and the fit
+plot = sns.scatterplot(x=&quot;Freq&quot;, y=&quot;Counts&quot;, data=odmr.data, label=odmr.timestamp)
+sns.lineplot(x=xf, y=yf, ax=plot, label=&quot;Fit&quot;)
+
+# Generate fit report
+print(res.fit_report())
+</code></pre>
+<p>To get the full list of available fit routines, explore the <code><a title="qudi_hira_analysis.DataHandler.fit_function" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">DataHandler.fit_function</a></code> attribute or call <code><a title="qudi_hira_analysis.AnalysisLogic.get_all_fits" href="#qudi_hira_analysis.AnalysisLogic.get_all_fits">AnalysisLogic.get_all_fits()</a></code>.
+The fit functions are:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1D</td>
+<td>decayexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>biexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>decayexponentialstretched</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussian</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussiandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussianlinearoffset</td>
+</tr>
+<tr>
+<td></td>
+<td>hyperbolicsaturation</td>
+</tr>
+<tr>
+<td></td>
+<td>linear</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentzian</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziantriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sine</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedouble</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithtwoexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sineexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinestretchedexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewiththreeexpdecay</td>
+</tr>
+<tr>
+<td>2D</td>
+<td>twoDgaussian</td>
+</tr>
+</tbody>
+</table>
+<h2 id="data-saving">Data saving</h2>
+<p>To save figures, call the <code><a title="qudi_hira_analysis.DataHandler.save_figures" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_figures">IOHandler.save_figures()</a></code> method. By default,
+the figures are saved as JPG, PDF, PNG and SVG.
+This can be changed by setting the <code>only_jpg</code> or <code>only_pdf</code> arguments to <code>True</code>.</p>
+<pre><code class="language-python"># Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path(&quot;odmr&quot;), fig=plot.get_figure(), only_pdf=True, bbox_inches=&quot;tight&quot;)
+</code></pre>
 <h2 id="examples">Examples</h2>
 <h3 id="nv-odmr-map">NV-ODMR map</h3>
 <pre><code class="language-python"># Extract ODMR measurements from the measurement folder
@@ -75,10 +177,10 @@ for idx, odmr in enumerate(odmr_measurements.values()):
                              - odmr.fit_model.best_values[&quot;l0_center&quot;])
 
 
-map = sns.heatmap(image, cbar_kws={&quot;label&quot;: r&quot;$\Delta E$ (MHz)&quot;})
+map = sns.heatmap(image, cbar_kws={&quot;label&quot;: &quot;Delta E (MHz)&quot;})
 
 # Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=&quot;2d_odmr_map_with_residuals&quot;, fig=map.get_figure(), only_jpg=True)
+dh.save_figures(filepath=&quot;2d_odmr_map&quot;, fig=map.get_figure(), only_jpg=True)
 </code></pre>
 <h3 id="nv-pl-map">NV-PL map</h3>
 <pre><code class="language-python">pixel_scanner_measurements = dh.load_measurements(measurement_str=&quot;PixelScanner&quot;)
@@ -227,30 +329,71 @@ import seaborn as sns
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path(&#34;C:\\Data&#34;), # Path to the data folder
-    figure_folder=Path(&#34;C:\\QudiHiraAnalysis&#34;), # Path to the figure folder
+    data_folder=Path(&#34;C:/Data&#34;), # Path to the data folder
+    figure_folder=Path(&#34;C:/QudiHiraAnalysis&#34;), # Path to the figure folder
     measurement_folder=Path(&#34;20230101_NV1&#34;) # Name of the measurement folder
  )
 
 # Search and lazy-load files with &#34;odmr&#34; in the name
 odmr_measurements = dh.load_measurements(&#34;odmr&#34;)
 ```
+Start by creating an instance of the `DataHandler` class.
+To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
 
-To load a specific set of measurements from the data folder, use the `dh.load_measurements()` method, which takes the
-following required arguments:
+## Data fitting
 
-- `measurement_str` is the string that is used to identify the measurement. It is used to filter the data files in the
-  `data_folder` and `measurement_folder` (if specified)
+To fit data, call the `DataHandler.fit()` method.
 
-Optional arguments:
+```python
+odmr = odmr_measurements[&#34;20230101-0420-00&#34;]
+xf, yf, res = dh.fit(x=&#34;Freq&#34;, y=&#34;Counts&#34;, fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
 
-- `qudi` is a boolean. If `True`, the data is assumed to be in the format used by Qudi (default: True)
-- `pulsed` is a boolean. If `True`, the data is assumed to be in the format used by Qudi for pulsed measurements
-(default: False)
-- `extension` is the extension of the data files (default: &#34;.dat&#34;)
+# Plot the data and the fit
+plot = sns.scatterplot(x=&#34;Freq&#34;, y=&#34;Counts&#34;, data=odmr.data, label=odmr.timestamp)
+sns.lineplot(x=xf, y=yf, ax=plot, label=&#34;Fit&#34;)
 
-The `load_measurements` function returns a dictionary containing the measurement data filtered by `measurement_str`.
-The dictionary keys are measurement timestamps in &#34;(year)(month)(day)-(hour)(minute)-(second)&#34; format.
+# Generate fit report
+print(res.fit_report())
+```
+
+To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call `AnalysisLogic.get_all_fits()`.
+The fit functions are:
+
+| Dimension | Fit                           |
+|-----------|-------------------------------|
+| 1D        | decayexponential              |
+|           | biexponential                 |
+|           | decayexponentialstretched     |
+|           | gaussian                      |
+|           | gaussiandouble                |
+|           | gaussianlinearoffset          |
+|           | hyperbolicsaturation          |
+|           | linear                        |
+|           | lorentzian                    |
+|           | lorentziandouble              |
+|           | lorentziantriple              |
+|           | sine                          |
+|           | sinedouble                    |
+|           | sinedoublewithexpdecay        |
+|           | sinedoublewithtwoexpdecay     |
+|           | sineexponentialdecay          |
+|           | sinestretchedexponentialdecay |
+|           | sinetriple                    |
+|           | sinetriplewithexpdecay        |
+|           | sinetriplewiththreeexpdecay   |
+| 2D        | twoDgaussian                  |
+
+
+## Data saving
+
+To save figures, call the `DataHandler.save_figures()` method. By default,
+the figures are saved as JPG, PDF, PNG and SVG.
+This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`.
+
+```python
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path(&#34;odmr&#34;), fig=plot.get_figure(), only_pdf=True, bbox_inches=&#34;tight&#34;)
+```
 
 
 ## Examples
@@ -276,10 +419,10 @@ for idx, odmr in enumerate(odmr_measurements.values()):
                              - odmr.fit_model.best_values[&#34;l0_center&#34;])
 
 
-map = sns.heatmap(image, cbar_kws={&#34;label&#34;: r&#34;$\Delta E$ (MHz)&#34;})
+map = sns.heatmap(image, cbar_kws={&#34;label&#34;: &#34;Delta E (MHz)&#34;})
 
 # Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=&#34;2d_odmr_map_with_residuals&#34;, fig=map.get_figure(), only_jpg=True)
+dh.save_figures(filepath=&#34;2d_odmr_map&#34;, fig=map.get_figure(), only_jpg=True)
 ```
 
 
@@ -440,11 +583,11 @@ dh.save_figures(filepath=&#34;pys_measurement&#34;, fig=fig)
 
 &#34;&#34;&#34;
 
-from .analysis_logic import AnalysisLogic
+from .analysis_logic import AnalysisLogic, FitMethodsAndEstimators
 from .data_handler import DataHandler
 from .io_handler import IOHandler
 
-__all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]</code></pre>
+__all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;, &#34;FitMethodsAndEstimators&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -489,9 +632,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnalysisLogic(FitLogic):
-    &#34;&#34;&#34;
-        Class for performing analysis on measurement data
-    &#34;&#34;&#34;
+    &#34;&#34;&#34; Class for performing analysis on measurement data &#34;&#34;&#34;
     fit_function = FitMethodsAndEstimators
 
     def __init__(self):
@@ -539,17 +680,14 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
     ) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
         &#34;&#34;&#34;
         Args:
-            x: x data
-            y: y data
+            x: x data, can be string, numpy array or pandas Series
+            y: y data, can be string, numpy array or pandas Series
             fit_function: fit function to use
-            data: pandas DataFrame containing x and y data
-            parameters: list of parameters to use in fit
+            data: pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series
+            parameters: list of parameters to use in fit (optional)
 
         Returns:
-            x_fit: x data of fit
-            y_fit: y data of fit
-            result: result of fit
-
+            Fit x data, fit y data and lmfit ModelResult
         &#34;&#34;&#34;
         if &#34;twoD&#34; in fit_function[0]:
             dims: str = &#34;2d&#34;
@@ -577,13 +715,18 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
         )
 
     def get_all_fits(self) -&gt; Tuple[list, list]:
+        &#34;&#34;&#34;Get all available fits
+
+        Returns:
+            Tuple with list of 1d and 2d fits
+        &#34;&#34;&#34;
         one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
         two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
         self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
         return one_d_fits, two_d_fits
 
     @staticmethod
-    def analyse_mean(
+    def analyze_mean(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -599,8 +742,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: mean of the signal window
-            np.ndarray: measurement error
+            Mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -634,7 +776,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_reference(
+    def analyze_mean_reference(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -653,8 +795,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: referenced mean of the signal window
-            np.ndarray: measurement error
+            Referenced mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -692,7 +833,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_norm(
+    def analyze_mean_norm(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -712,8 +853,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: normalized mean of the signal window
-            np.ndarray: measurement error
+            Normalized mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -775,8 +915,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
             num_samples: The number of measurements to sample.
 
         Returns:
-            float: The highest minimum r2 value
-            tuple: Optimized hyperparameters.
+            The highest minimum R2 value and the optimized hyperparameters.
         &#34;&#34;&#34;
         r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
         thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
@@ -825,7 +964,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
         Fit a list of ODMR data to single and double Lorentzian functions
 
         Args:
-            odmr_measurements: List of ODMR data in MeasurementDataclasses
+            odmr_measurements: Dict of ODMR data in MeasurementDataclasses
             r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
             thresh_frac: Threshold fraction for the peak finding
             min_thresh: Minimum threshold for the peak finding
@@ -834,7 +973,7 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
             progress_bar: Show progress bar
 
         Returns:
-            dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+            Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
         &#34;&#34;&#34;
 
         model1, base_params1 = rof.make_lorentzian_model()
@@ -904,7 +1043,12 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;]<
                 pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
 
             image[row, col] = pixel_avg
-        return image</code></pre>
+        return image
+
+    # Aliases for backwards compatibility
+    analyse_mean = analyze_mean
+    analyse_mean_norm = analyze_mean_norm
+    analyse_mean_reference = analyze_mean_reference</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -942,18 +1086,13 @@ where method is the name of the fit method and estimator is the name of the esti
 <dd>width of a bin in seconds</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>mean of the signal window</dd>
-<dt><code>np.ndarray</code></dt>
-<dd>measurement error</dd>
-</dl></div>
+<p>Mean of the signal window and measurement error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def analyse_mean(
+def analyze_mean(
         laser_data: np.ndarray,
         signal_start: float = 100e-9,
         signal_end: float = 300e-9,
@@ -969,8 +1108,7 @@ def analyse_mean(
         bin_width: width of a bin in seconds
 
     Returns:
-        np.ndarray: mean of the signal window
-        np.ndarray: measurement error
+        Mean of the signal window and measurement error
     &#34;&#34;&#34;
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
@@ -1025,18 +1163,13 @@ def analyse_mean(
 <dd>width of a bin in seconds</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>normalized mean of the signal window</dd>
-<dt><code>np.ndarray</code></dt>
-<dd>measurement error</dd>
-</dl></div>
+<p>Normalized mean of the signal window and measurement error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def analyse_mean_norm(
+def analyze_mean_norm(
         laser_data: np.ndarray,
         signal_start: float = 100e-9,
         signal_end: float = 300e-9,
@@ -1056,8 +1189,7 @@ def analyse_mean_norm(
         bin_width: width of a bin in seconds
 
     Returns:
-        np.ndarray: normalized mean of the signal window
-        np.ndarray: measurement error
+        Normalized mean of the signal window and measurement error
     &#34;&#34;&#34;
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
@@ -1124,18 +1256,13 @@ def analyse_mean_norm(
 <dd>width of a bin in seconds</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>referenced mean of the signal window</dd>
-<dt><code>np.ndarray</code></dt>
-<dd>measurement error</dd>
-</dl></div>
+<p>Referenced mean of the signal window and measurement error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def analyse_mean_reference(
+def analyze_mean_reference(
         laser_data: np.ndarray,
         signal_start: float = 100e-9,
         signal_end: float = 300e-9,
@@ -1154,8 +1281,257 @@ def analyse_mean_reference(
         bin_width: width of a bin in seconds
 
     Returns:
-        np.ndarray: referenced mean of the signal window
-        np.ndarray: measurement error
+        Referenced mean of the signal window and measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+    norm_start_bin = round(norm_start / bin_width)
+    norm_end_bin = round(norm_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the sum and mean of the data in the normalization window
+        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+        reference_sum = np.sum(tmp_data)
+        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # calculate the sum and mean of the data in the signal window
+        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+        signal_sum = np.sum(tmp_data)
+        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        signal_data[ii] = signal_mean - reference_mean
+
+        # calculate with respect to gaussian error &#39;evolution&#39;
+        error_data[ii] = signal_data[ii] * np.sqrt(1 / abs(signal_sum) + 1 / abs(reference_sum))
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.analyze_mean"><code class="name flex">
+<span>def <span class="ident">analyze_mean</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the mean of the signal window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Mean of the signal window and measurement error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyze_mean(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        bin_width: float = 1e-9
+) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Calculate the mean of the signal window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        Mean of the signal window and measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the mean of the data in the signal window
+        signal = laser_arr[signal_start_bin:signal_end_bin].mean()
+        signal_sum = laser_arr[signal_start_bin:signal_end_bin].sum()
+        signal_error = np.sqrt(signal_sum) / (signal_end_bin - signal_start_bin)
+
+        # Avoid numpy C type variables overflow and NaN values
+        if signal &lt; 0 or signal != signal:
+            signal_data[ii] = 0.0
+            error_data[ii] = 0.0
+        else:
+            signal_data[ii] = signal
+            error_data[ii] = signal_error
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.analyze_mean_norm"><code class="name flex">
+<span>def <span class="ident">analyze_mean_norm</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end=2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Divides the mean of the signal window from the mean of the reference window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>norm_start</code></strong></dt>
+<dd>start of the reference window in seconds</dd>
+<dt><strong><code>norm_end</code></strong></dt>
+<dd>end of the reference window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Normalized mean of the signal window and measurement error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyze_mean_norm(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end=2000e-9,
+        bin_width: float = 1e-9
+) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Divides the mean of the signal window from the mean of the reference window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        norm_start: start of the reference window in seconds
+        norm_end: end of the reference window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        Normalized mean of the signal window and measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+    norm_start_bin = round(norm_start / bin_width)
+    norm_end_bin = round(norm_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the sum and mean of the data in the normalization window
+        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+        reference_sum = np.sum(tmp_data)
+        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # calculate the sum and mean of the data in the signal window
+        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+        signal_sum = np.sum(tmp_data)
+        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # Calculate normalized signal while avoiding division by zero
+        if reference_mean &gt; 0 and signal_mean &gt;= 0:
+            signal_data[ii] = signal_mean / reference_mean
+        else:
+            signal_data[ii] = 0.0
+
+        # Calculate measurement error while avoiding division by zero
+        if reference_sum &gt; 0 and signal_sum &gt; 0:
+            # calculate with respect to gaussian error &#39;evolution&#39;
+            error_data[ii] = signal_data[ii] * np.sqrt(1 / signal_sum + 1 / reference_sum)
+        else:
+            error_data[ii] = 0.0
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.AnalysisLogic.analyze_mean_reference"><code class="name flex">
+<span>def <span class="ident">analyze_mean_reference</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end: float = 2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Subtracts the mean of the signal window from the mean of the reference window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>norm_start</code></strong></dt>
+<dd>start of the reference window in seconds</dd>
+<dt><strong><code>norm_end</code></strong></dt>
+<dd>end of the reference window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Referenced mean of the signal window and measurement error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyze_mean_reference(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end: float = 2000e-9,
+        bin_width: float = 1e-9) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Subtracts the mean of the signal window from the mean of the reference window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        norm_start: start of the reference window in seconds
+        norm_end: end of the reference window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        Referenced mean of the signal window and measurement error
     &#34;&#34;&#34;
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
@@ -1244,7 +1620,7 @@ def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>odmr_measurements</code></strong></dt>
-<dd>List of ODMR data in MeasurementDataclasses</dd>
+<dd>Dict of ODMR data in MeasurementDataclasses</dd>
 <dt><strong><code>r2_thresh</code></strong></dt>
 <dd>R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian</dd>
 <dt><strong><code>thresh_frac</code></strong></dt>
@@ -1259,10 +1635,7 @@ def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
 <dd>Show progress bar</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>dict</code></dt>
-<dd>ODMR data with fit, fit model and pixels in MeasurementDataclass</dd>
-</dl></div>
+<p>Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1281,7 +1654,7 @@ def fit_raster_odmr(
     Fit a list of ODMR data to single and double Lorentzian functions
 
     Args:
-        odmr_measurements: List of ODMR data in MeasurementDataclasses
+        odmr_measurements: Dict of ODMR data in MeasurementDataclasses
         r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
         thresh_frac: Threshold fraction for the peak finding
         min_thresh: Minimum threshold for the peak finding
@@ -1290,7 +1663,7 @@ def fit_raster_odmr(
         progress_bar: Show progress bar
 
     Returns:
-        dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+        Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
     &#34;&#34;&#34;
 
     model1, base_params1 = rof.make_lorentzian_model()
@@ -1341,31 +1714,24 @@ def fit_raster_odmr(
 <h3>Methods</h3>
 <dl>
 <dt id="qudi_hira_analysis.AnalysisLogic.fit"><code class="name flex">
-<span>def <span class="ident">fit</span></span>(<span>self, x: str | np.ndarray | pd.Series, y: str | np.ndarray | pd.Series, fit_function: FitMethodsAndEstimators, data: pd.DataFrame = None, parameters: list[Parameter] = None) ‑> Tuple[np.ndarray, np.ndarray, ModelResult]</span>
+<span>def <span class="ident">fit</span></span>(<span>self, x: str | np.ndarray | pd.Series, y: str | np.ndarray | pd.Series, fit_function: <a title="qudi_hira_analysis.FitMethodsAndEstimators" href="#qudi_hira_analysis.FitMethodsAndEstimators">FitMethodsAndEstimators</a>, data: pd.DataFrame = None, parameters: list[Parameter] = None) ‑> Tuple[np.ndarray, np.ndarray, ModelResult]</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
-<dd>x data</dd>
+<dd>x data, can be string, numpy array or pandas Series</dd>
 <dt><strong><code>y</code></strong></dt>
-<dd>y data</dd>
+<dd>y data, can be string, numpy array or pandas Series</dd>
 <dt><strong><code>fit_function</code></strong></dt>
 <dd>fit function to use</dd>
 <dt><strong><code>data</code></strong></dt>
-<dd>pandas DataFrame containing x and y data</dd>
+<dd>pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series</dd>
 <dt><strong><code>parameters</code></strong></dt>
-<dd>list of parameters to use in fit</dd>
+<dd>list of parameters to use in fit (optional)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>x_fit</code></dt>
-<dd>x data of fit</dd>
-<dt><code>y_fit</code></dt>
-<dd>y data of fit</dd>
-<dt><code>result</code></dt>
-<dd>result of fit</dd>
-</dl></div>
+<p>Fit x data, fit y data and lmfit ModelResult</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1380,17 +1746,14 @@ def fit_raster_odmr(
 ) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
     &#34;&#34;&#34;
     Args:
-        x: x data
-        y: y data
+        x: x data, can be string, numpy array or pandas Series
+        y: y data, can be string, numpy array or pandas Series
         fit_function: fit function to use
-        data: pandas DataFrame containing x and y data
-        parameters: list of parameters to use in fit
+        data: pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series
+        parameters: list of parameters to use in fit (optional)
 
     Returns:
-        x_fit: x data of fit
-        y_fit: y data of fit
-        result: result of fit
-
+        Fit x data, fit y data and lmfit ModelResult
     &#34;&#34;&#34;
     if &#34;twoD&#34; in fit_function[0]:
         dims: str = &#34;2d&#34;
@@ -1422,12 +1785,19 @@ def fit_raster_odmr(
 <span>def <span class="ident">get_all_fits</span></span>(<span>self) ‑> Tuple[list, list]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get all available fits</p>
+<h2 id="returns">Returns</h2>
+<p>Tuple with list of 1d and 2d fits</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_all_fits(self) -&gt; Tuple[list, list]:
+    &#34;&#34;&#34;Get all available fits
+
+    Returns:
+        Tuple with list of 1d and 2d fits
+    &#34;&#34;&#34;
     one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
     two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
     self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
@@ -1451,12 +1821,7 @@ then optimizing the hyperparameters for them.</p>
 <dd>The number of measurements to sample.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>The highest minimum r2 value</dd>
-<dt><code>tuple</code></dt>
-<dd>Optimized hyperparameters.</dd>
-</dl></div>
+<p>The highest minimum R2 value and the optimized hyperparameters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1478,8 +1843,7 @@ then optimizing the hyperparameters for them.</p>
         num_samples: The number of measurements to sample.
 
     Returns:
-        float: The highest minimum r2 value
-        tuple: Optimized hyperparameters.
+        The highest minimum R2 value and the optimized hyperparameters.
     &#34;&#34;&#34;
     r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
     thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
@@ -1973,14 +2337,151 @@ measurement_folder: Path to the measurement folder.</p>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean">analyze_mean</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm">analyze_mean_norm</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference">analyze_mean_reference</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.average_raster_odmr_pixels" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.average_raster_odmr_pixels">average_raster_odmr_pixels</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">fit</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">fit_function</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_raster_odmr" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_raster_odmr">fit_raster_odmr</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.get_all_fits" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.get_all_fits">get_all_fits</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.optimize_raster_odmr_params" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.optimize_raster_odmr_params">optimize_raster_odmr_params</a></code></li>
 </ul>
 </li>
 </ul>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators"><code class="flex name class">
+<span>class <span class="ident">FitMethodsAndEstimators</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for storing fit methods and estimators.
+Fit methods are stored as tuples of (method, estimator)
+where method is the name of the fit method and estimator is the name of the estimator.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FitMethodsAndEstimators:
+    &#34;&#34;&#34;
+        Class for storing fit methods and estimators.
+        Fit methods are stored as tuples of (method, estimator)
+        where method is the name of the fit method and estimator is the name of the estimator.
+    &#34;&#34;&#34;
+    # Fit methods with corresponding estimators
+    antibunching: tuple = (&#34;antibunching&#34;, &#34;dip&#34;)
+    hyperbolicsaturation: tuple = (&#34;hyperbolicsaturation&#34;, &#34;generic&#34;)
+    lorentzian: tuple = (&#34;lorentzian&#34;, &#34;dip&#34;)
+    lorentziandouble: tuple = (&#34;lorentziandouble&#34;, &#34;dip&#34;)
+    sineexponentialdecay: tuple = (&#34;sineexponentialdecay&#34;, &#34;generic&#34;)
+    decayexponential: tuple = (&#34;decayexponential&#34;, &#34;generic&#34;)
+    gaussian: tuple = (&#34;gaussian&#34;, &#34;dip&#34;)
+    gaussiandouble: tuple = (&#34;gaussiandouble&#34;, &#34;dip&#34;)
+    gaussianlinearoffset: tuple = (&#34;gaussianlinearoffset&#34;, &#34;dip&#34;)
+    lorentziantriple: tuple = (&#34;lorentziantriple&#34;, &#34;dip&#34;)
+    biexponential: tuple = (&#34;biexponential&#34;, &#34;generic&#34;)
+    decayexponentialstretched: tuple = (&#34;decayexponentialstretched&#34;, &#34;generic&#34;)
+    linear: tuple = (&#34;linear&#34;, &#34;generic&#34;)
+    sine: tuple = (&#34;sine&#34;, &#34;generic&#34;)
+    sinedouble: tuple = (&#34;sinedouble&#34;, &#34;generic&#34;)
+    sinedoublewithexpdecay: tuple = (&#34;sinedoublewithexpdecay&#34;, &#34;generic&#34;)
+    sinedoublewithtwoexpdecay: tuple = (&#34;sinedoublewithtwoexpdecay&#34;, &#34;generic&#34;)
+    sinestretchedexponentialdecay: tuple = (&#34;sinestretchedexponentialdecay&#34;, &#34;generic&#34;)
+    sinetriple: tuple = (&#34;sinetriple&#34;, &#34;generic&#34;)
+    sinetriplewithexpdecay: tuple = (&#34;sinetriplewithexpdecay&#34;, &#34;generic&#34;)
+    sinetriplewiththreeexpdecay: tuple = (&#34;sinetriplewiththreeexpdecay&#34;, &#34;generic&#34;)
+    twoDgaussian: tuple = (&#34;twoDgaussian&#34;, &#34;generic&#34;)</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.antibunching"><code class="name">var <span class="ident">antibunching</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.biexponential"><code class="name">var <span class="ident">biexponential</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.decayexponential"><code class="name">var <span class="ident">decayexponential</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.decayexponentialstretched"><code class="name">var <span class="ident">decayexponentialstretched</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.gaussian"><code class="name">var <span class="ident">gaussian</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.gaussiandouble"><code class="name">var <span class="ident">gaussiandouble</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.gaussianlinearoffset"><code class="name">var <span class="ident">gaussianlinearoffset</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.hyperbolicsaturation"><code class="name">var <span class="ident">hyperbolicsaturation</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.linear"><code class="name">var <span class="ident">linear</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.lorentzian"><code class="name">var <span class="ident">lorentzian</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.lorentziandouble"><code class="name">var <span class="ident">lorentziandouble</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.lorentziantriple"><code class="name">var <span class="ident">lorentziantriple</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sine"><code class="name">var <span class="ident">sine</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinedouble"><code class="name">var <span class="ident">sinedouble</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinedoublewithexpdecay"><code class="name">var <span class="ident">sinedoublewithexpdecay</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinedoublewithtwoexpdecay"><code class="name">var <span class="ident">sinedoublewithtwoexpdecay</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sineexponentialdecay"><code class="name">var <span class="ident">sineexponentialdecay</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinestretchedexponentialdecay"><code class="name">var <span class="ident">sinestretchedexponentialdecay</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinetriple"><code class="name">var <span class="ident">sinetriple</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinetriplewithexpdecay"><code class="name">var <span class="ident">sinetriplewithexpdecay</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.sinetriplewiththreeexpdecay"><code class="name">var <span class="ident">sinetriplewiththreeexpdecay</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="qudi_hira_analysis.FitMethodsAndEstimators.twoDgaussian"><code class="name">var <span class="ident">twoDgaussian</span> : tuple</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 </dd>
 <dt id="qudi_hira_analysis.IOHandler"><code class="flex name class">
 <span>class <span class="ident">IOHandler</span></span>
@@ -2404,7 +2905,7 @@ measurement_folder: Path to the measurement folder.</p>
             filepath: Name of figure to save.
             only_jpg: If True, only save as jpg (default: False).
             only_pdf: If True, only save as pdf (default: False).
-            **kwargs: Keyword arguments passed to fig.savefig().
+            **kwargs: Keyword arguments passed to matplotlib.pyplot.savefig().
         &#34;&#34;&#34;
         extensions = None
         if &#34;only_jpg&#34; in kwargs:
@@ -2986,7 +3487,7 @@ def save_df(self, filepath: Path, df: pd.DataFrame):
 <dt><strong><code>only_pdf</code></strong></dt>
 <dd>If True, only save as pdf (default: False).</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>Keyword arguments passed to fig.savefig().</dd>
+<dd>Keyword arguments passed to matplotlib.pyplot.savefig().</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -3003,7 +3504,7 @@ def save_figures(self, filepath: Path, fig: plt.Figure, **kwargs):
         filepath: Name of figure to save.
         only_jpg: If True, only save as jpg (default: False).
         only_pdf: If True, only save as pdf (default: False).
-        **kwargs: Keyword arguments passed to fig.savefig().
+        **kwargs: Keyword arguments passed to matplotlib.pyplot.savefig().
     &#34;&#34;&#34;
     extensions = None
     if &#34;only_jpg&#34; in kwargs:
@@ -3089,6 +3590,8 @@ def save_pys(self, filepath: Path, dictionary: dict):
 <div class="toc">
 <ul>
 <li><a href="#getting-started">Getting started</a></li>
+<li><a href="#data-fitting">Data fitting</a></li>
+<li><a href="#data-saving">Data saving</a></li>
 <li><a href="#examples">Examples</a><ul>
 <li><a href="#nv-odmr-map">NV-ODMR map</a></li>
 <li><a href="#nv-pl-map">NV-PL map</a></li>
@@ -3121,6 +3624,9 @@ def save_pys(self, filepath: Path, dictionary: dict):
 <li><code><a title="qudi_hira_analysis.AnalysisLogic.analyse_mean" href="#qudi_hira_analysis.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
 <li><code><a title="qudi_hira_analysis.AnalysisLogic.analyse_mean_norm" href="#qudi_hira_analysis.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
 <li><code><a title="qudi_hira_analysis.AnalysisLogic.analyse_mean_reference" href="#qudi_hira_analysis.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.analyze_mean" href="#qudi_hira_analysis.AnalysisLogic.analyze_mean">analyze_mean</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.analyze_mean_norm" href="#qudi_hira_analysis.AnalysisLogic.analyze_mean_norm">analyze_mean_norm</a></code></li>
+<li><code><a title="qudi_hira_analysis.AnalysisLogic.analyze_mean_reference" href="#qudi_hira_analysis.AnalysisLogic.analyze_mean_reference">analyze_mean_reference</a></code></li>
 <li><code><a title="qudi_hira_analysis.AnalysisLogic.average_raster_odmr_pixels" href="#qudi_hira_analysis.AnalysisLogic.average_raster_odmr_pixels">average_raster_odmr_pixels</a></code></li>
 <li><code><a title="qudi_hira_analysis.AnalysisLogic.fit" href="#qudi_hira_analysis.AnalysisLogic.fit">fit</a></code></li>
 <li><code><a title="qudi_hira_analysis.AnalysisLogic.fit_function" href="#qudi_hira_analysis.AnalysisLogic.fit_function">fit_function</a></code></li>
@@ -3135,6 +3641,33 @@ def save_pys(self, filepath: Path, dictionary: dict):
 <li><code><a title="qudi_hira_analysis.DataHandler.data_folder_tree" href="#qudi_hira_analysis.DataHandler.data_folder_tree">data_folder_tree</a></code></li>
 <li><code><a title="qudi_hira_analysis.DataHandler.figure_folder_tree" href="#qudi_hira_analysis.DataHandler.figure_folder_tree">figure_folder_tree</a></code></li>
 <li><code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">load_measurements</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="qudi_hira_analysis.FitMethodsAndEstimators" href="#qudi_hira_analysis.FitMethodsAndEstimators">FitMethodsAndEstimators</a></code></h4>
+<ul class="">
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.antibunching" href="#qudi_hira_analysis.FitMethodsAndEstimators.antibunching">antibunching</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.biexponential" href="#qudi_hira_analysis.FitMethodsAndEstimators.biexponential">biexponential</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.decayexponential" href="#qudi_hira_analysis.FitMethodsAndEstimators.decayexponential">decayexponential</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.decayexponentialstretched" href="#qudi_hira_analysis.FitMethodsAndEstimators.decayexponentialstretched">decayexponentialstretched</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.gaussian" href="#qudi_hira_analysis.FitMethodsAndEstimators.gaussian">gaussian</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.gaussiandouble" href="#qudi_hira_analysis.FitMethodsAndEstimators.gaussiandouble">gaussiandouble</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.gaussianlinearoffset" href="#qudi_hira_analysis.FitMethodsAndEstimators.gaussianlinearoffset">gaussianlinearoffset</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.hyperbolicsaturation" href="#qudi_hira_analysis.FitMethodsAndEstimators.hyperbolicsaturation">hyperbolicsaturation</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.linear" href="#qudi_hira_analysis.FitMethodsAndEstimators.linear">linear</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.lorentzian" href="#qudi_hira_analysis.FitMethodsAndEstimators.lorentzian">lorentzian</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.lorentziandouble" href="#qudi_hira_analysis.FitMethodsAndEstimators.lorentziandouble">lorentziandouble</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.lorentziantriple" href="#qudi_hira_analysis.FitMethodsAndEstimators.lorentziantriple">lorentziantriple</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sine" href="#qudi_hira_analysis.FitMethodsAndEstimators.sine">sine</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinedouble" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinedouble">sinedouble</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinedoublewithexpdecay" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinedoublewithexpdecay">sinedoublewithexpdecay</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinedoublewithtwoexpdecay" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinedoublewithtwoexpdecay">sinedoublewithtwoexpdecay</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sineexponentialdecay" href="#qudi_hira_analysis.FitMethodsAndEstimators.sineexponentialdecay">sineexponentialdecay</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinestretchedexponentialdecay" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinestretchedexponentialdecay">sinestretchedexponentialdecay</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinetriple" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinetriple">sinetriple</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinetriplewithexpdecay" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinetriplewithexpdecay">sinetriplewithexpdecay</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.sinetriplewiththreeexpdecay" href="#qudi_hira_analysis.FitMethodsAndEstimators.sinetriplewiththreeexpdecay">sinetriplewiththreeexpdecay</a></code></li>
+<li><code><a title="qudi_hira_analysis.FitMethodsAndEstimators.twoDgaussian" href="#qudi_hira_analysis.FitMethodsAndEstimators.twoDgaussian">twoDgaussian</a></code></li>
 </ul>
 </li>
 <li>

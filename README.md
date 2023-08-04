@@ -39,16 +39,32 @@ should cite [this work]((https://doi.org/10.5281/zenodo.7604670)).
 
 ```python
 from pathlib import Path
+import seaborn as sns
+
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path("C:\\Data"),
-    figure_folder=Path("C:\\QudiHiraAnalysis"),
-    measurement_folder=Path("20230101_NV1")
+    data_folder=Path("C:\\Data"), # Path to data folder
+    figure_folder=Path("C:\\QudiHiraAnalysis"), # Path to figure folder
+    measurement_folder=Path("20230101_NV1") # Measurement folder name
 )
 
 # Load all ODMR measurements
 odmr_measurements = dh.load_measurements("odmr")
+
+# Fit an ODMR measurement with a double Lorentzian
+odmr = odmr_measurements["20230101-0420-00"]
+xf, yf, res = dh.fit(x="Freq", y="Counts", fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
+
+# Plot the data and the fit
+ax = sns.scatterplot(x="Freq", y="Counts", data=odmr.data, label=odmr.timestamp)
+sns.lineplot(x=xf, y=yf, ax=ax, label="Fit")
+
+# Generate fit report
+print(res.fit_report())
+
+# Save figure
+dh.save_figures(filepath=Path("odmr_fit"), fig=ax.get_figure())
 ```
 
 ## Documentation

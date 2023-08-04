@@ -81,9 +81,7 @@ class FitMethodsAndEstimators:
 
 
 class AnalysisLogic(FitLogic):
-    &#34;&#34;&#34;
-        Class for performing analysis on measurement data
-    &#34;&#34;&#34;
+    &#34;&#34;&#34; Class for performing analysis on measurement data &#34;&#34;&#34;
     fit_function = FitMethodsAndEstimators
 
     def __init__(self):
@@ -131,17 +129,14 @@ class AnalysisLogic(FitLogic):
     ) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
         &#34;&#34;&#34;
         Args:
-            x: x data
-            y: y data
+            x: x data, can be string, numpy array or pandas Series
+            y: y data, can be string, numpy array or pandas Series
             fit_function: fit function to use
-            data: pandas DataFrame containing x and y data
-            parameters: list of parameters to use in fit
+            data: pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series
+            parameters: list of parameters to use in fit (optional)
 
         Returns:
-            x_fit: x data of fit
-            y_fit: y data of fit
-            result: result of fit
-
+            Fit x data, fit y data and lmfit ModelResult
         &#34;&#34;&#34;
         if &#34;twoD&#34; in fit_function[0]:
             dims: str = &#34;2d&#34;
@@ -169,13 +164,18 @@ class AnalysisLogic(FitLogic):
         )
 
     def get_all_fits(self) -&gt; Tuple[list, list]:
+        &#34;&#34;&#34;Get all available fits
+
+        Returns:
+            Tuple with list of 1d and 2d fits
+        &#34;&#34;&#34;
         one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
         two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
         self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
         return one_d_fits, two_d_fits
 
     @staticmethod
-    def analyse_mean(
+    def analyze_mean(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -191,8 +191,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: mean of the signal window
-            np.ndarray: measurement error
+            Mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -226,7 +225,7 @@ class AnalysisLogic(FitLogic):
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_reference(
+    def analyze_mean_reference(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -245,8 +244,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: referenced mean of the signal window
-            np.ndarray: measurement error
+            Referenced mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -284,7 +282,7 @@ class AnalysisLogic(FitLogic):
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_norm(
+    def analyze_mean_norm(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -304,8 +302,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: normalized mean of the signal window
-            np.ndarray: measurement error
+            Normalized mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -367,8 +364,7 @@ class AnalysisLogic(FitLogic):
             num_samples: The number of measurements to sample.
 
         Returns:
-            float: The highest minimum r2 value
-            tuple: Optimized hyperparameters.
+            The highest minimum R2 value and the optimized hyperparameters.
         &#34;&#34;&#34;
         r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
         thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
@@ -417,7 +413,7 @@ class AnalysisLogic(FitLogic):
         Fit a list of ODMR data to single and double Lorentzian functions
 
         Args:
-            odmr_measurements: List of ODMR data in MeasurementDataclasses
+            odmr_measurements: Dict of ODMR data in MeasurementDataclasses
             r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
             thresh_frac: Threshold fraction for the peak finding
             min_thresh: Minimum threshold for the peak finding
@@ -426,7 +422,7 @@ class AnalysisLogic(FitLogic):
             progress_bar: Show progress bar
 
         Returns:
-            dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+            Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
         &#34;&#34;&#34;
 
         model1, base_params1 = rof.make_lorentzian_model()
@@ -496,7 +492,12 @@ class AnalysisLogic(FitLogic):
                 pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
 
             image[row, col] = pixel_avg
-        return image</code></pre>
+        return image
+
+    # Aliases for backwards compatibility
+    analyse_mean = analyze_mean
+    analyse_mean_norm = analyze_mean_norm
+    analyse_mean_reference = analyze_mean_reference</code></pre>
 </details>
 </section>
 <section>
@@ -518,9 +519,7 @@ class AnalysisLogic(FitLogic):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AnalysisLogic(FitLogic):
-    &#34;&#34;&#34;
-        Class for performing analysis on measurement data
-    &#34;&#34;&#34;
+    &#34;&#34;&#34; Class for performing analysis on measurement data &#34;&#34;&#34;
     fit_function = FitMethodsAndEstimators
 
     def __init__(self):
@@ -568,17 +567,14 @@ class AnalysisLogic(FitLogic):
     ) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
         &#34;&#34;&#34;
         Args:
-            x: x data
-            y: y data
+            x: x data, can be string, numpy array or pandas Series
+            y: y data, can be string, numpy array or pandas Series
             fit_function: fit function to use
-            data: pandas DataFrame containing x and y data
-            parameters: list of parameters to use in fit
+            data: pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series
+            parameters: list of parameters to use in fit (optional)
 
         Returns:
-            x_fit: x data of fit
-            y_fit: y data of fit
-            result: result of fit
-
+            Fit x data, fit y data and lmfit ModelResult
         &#34;&#34;&#34;
         if &#34;twoD&#34; in fit_function[0]:
             dims: str = &#34;2d&#34;
@@ -606,13 +602,18 @@ class AnalysisLogic(FitLogic):
         )
 
     def get_all_fits(self) -&gt; Tuple[list, list]:
+        &#34;&#34;&#34;Get all available fits
+
+        Returns:
+            Tuple with list of 1d and 2d fits
+        &#34;&#34;&#34;
         one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
         two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
         self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
         return one_d_fits, two_d_fits
 
     @staticmethod
-    def analyse_mean(
+    def analyze_mean(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -628,8 +629,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: mean of the signal window
-            np.ndarray: measurement error
+            Mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -663,7 +663,7 @@ class AnalysisLogic(FitLogic):
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_reference(
+    def analyze_mean_reference(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -682,8 +682,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: referenced mean of the signal window
-            np.ndarray: measurement error
+            Referenced mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -721,7 +720,7 @@ class AnalysisLogic(FitLogic):
         return signal_data, error_data
 
     @staticmethod
-    def analyse_mean_norm(
+    def analyze_mean_norm(
             laser_data: np.ndarray,
             signal_start: float = 100e-9,
             signal_end: float = 300e-9,
@@ -741,8 +740,7 @@ class AnalysisLogic(FitLogic):
             bin_width: width of a bin in seconds
 
         Returns:
-            np.ndarray: normalized mean of the signal window
-            np.ndarray: measurement error
+            Normalized mean of the signal window and measurement error
         &#34;&#34;&#34;
         # Get number of lasers
         num_of_lasers = laser_data.shape[0]
@@ -804,8 +802,7 @@ class AnalysisLogic(FitLogic):
             num_samples: The number of measurements to sample.
 
         Returns:
-            float: The highest minimum r2 value
-            tuple: Optimized hyperparameters.
+            The highest minimum R2 value and the optimized hyperparameters.
         &#34;&#34;&#34;
         r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
         thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
@@ -854,7 +851,7 @@ class AnalysisLogic(FitLogic):
         Fit a list of ODMR data to single and double Lorentzian functions
 
         Args:
-            odmr_measurements: List of ODMR data in MeasurementDataclasses
+            odmr_measurements: Dict of ODMR data in MeasurementDataclasses
             r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
             thresh_frac: Threshold fraction for the peak finding
             min_thresh: Minimum threshold for the peak finding
@@ -863,7 +860,7 @@ class AnalysisLogic(FitLogic):
             progress_bar: Show progress bar
 
         Returns:
-            dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+            Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
         &#34;&#34;&#34;
 
         model1, base_params1 = rof.make_lorentzian_model()
@@ -933,7 +930,12 @@ class AnalysisLogic(FitLogic):
                 pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
 
             image[row, col] = pixel_avg
-        return image</code></pre>
+        return image
+
+    # Aliases for backwards compatibility
+    analyse_mean = analyze_mean
+    analyse_mean_norm = analyze_mean_norm
+    analyse_mean_reference = analyze_mean_reference</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -971,18 +973,13 @@ where method is the name of the fit method and estimator is the name of the esti
 <dd>width of a bin in seconds</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>mean of the signal window</dd>
-<dt><code>np.ndarray</code></dt>
-<dd>measurement error</dd>
-</dl></div>
+<p>Mean of the signal window and measurement error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def analyse_mean(
+def analyze_mean(
         laser_data: np.ndarray,
         signal_start: float = 100e-9,
         signal_end: float = 300e-9,
@@ -998,8 +995,7 @@ def analyse_mean(
         bin_width: width of a bin in seconds
 
     Returns:
-        np.ndarray: mean of the signal window
-        np.ndarray: measurement error
+        Mean of the signal window and measurement error
     &#34;&#34;&#34;
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
@@ -1054,18 +1050,13 @@ def analyse_mean(
 <dd>width of a bin in seconds</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>normalized mean of the signal window</dd>
-<dt><code>np.ndarray</code></dt>
-<dd>measurement error</dd>
-</dl></div>
+<p>Normalized mean of the signal window and measurement error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def analyse_mean_norm(
+def analyze_mean_norm(
         laser_data: np.ndarray,
         signal_start: float = 100e-9,
         signal_end: float = 300e-9,
@@ -1085,8 +1076,7 @@ def analyse_mean_norm(
         bin_width: width of a bin in seconds
 
     Returns:
-        np.ndarray: normalized mean of the signal window
-        np.ndarray: measurement error
+        Normalized mean of the signal window and measurement error
     &#34;&#34;&#34;
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
@@ -1153,18 +1143,13 @@ def analyse_mean_norm(
 <dd>width of a bin in seconds</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>np.ndarray</code></dt>
-<dd>referenced mean of the signal window</dd>
-<dt><code>np.ndarray</code></dt>
-<dd>measurement error</dd>
-</dl></div>
+<p>Referenced mean of the signal window and measurement error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def analyse_mean_reference(
+def analyze_mean_reference(
         laser_data: np.ndarray,
         signal_start: float = 100e-9,
         signal_end: float = 300e-9,
@@ -1183,8 +1168,257 @@ def analyse_mean_reference(
         bin_width: width of a bin in seconds
 
     Returns:
-        np.ndarray: referenced mean of the signal window
-        np.ndarray: measurement error
+        Referenced mean of the signal window and measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+    norm_start_bin = round(norm_start / bin_width)
+    norm_end_bin = round(norm_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the sum and mean of the data in the normalization window
+        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+        reference_sum = np.sum(tmp_data)
+        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # calculate the sum and mean of the data in the signal window
+        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+        signal_sum = np.sum(tmp_data)
+        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        signal_data[ii] = signal_mean - reference_mean
+
+        # calculate with respect to gaussian error &#39;evolution&#39;
+        error_data[ii] = signal_data[ii] * np.sqrt(1 / abs(signal_sum) + 1 / abs(reference_sum))
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean"><code class="name flex">
+<span>def <span class="ident">analyze_mean</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the mean of the signal window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Mean of the signal window and measurement error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyze_mean(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        bin_width: float = 1e-9
+) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Calculate the mean of the signal window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        Mean of the signal window and measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the mean of the data in the signal window
+        signal = laser_arr[signal_start_bin:signal_end_bin].mean()
+        signal_sum = laser_arr[signal_start_bin:signal_end_bin].sum()
+        signal_error = np.sqrt(signal_sum) / (signal_end_bin - signal_start_bin)
+
+        # Avoid numpy C type variables overflow and NaN values
+        if signal &lt; 0 or signal != signal:
+            signal_data[ii] = 0.0
+            error_data[ii] = 0.0
+        else:
+            signal_data[ii] = signal
+            error_data[ii] = signal_error
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm"><code class="name flex">
+<span>def <span class="ident">analyze_mean_norm</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end=2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Divides the mean of the signal window from the mean of the reference window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>norm_start</code></strong></dt>
+<dd>start of the reference window in seconds</dd>
+<dt><strong><code>norm_end</code></strong></dt>
+<dd>end of the reference window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Normalized mean of the signal window and measurement error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyze_mean_norm(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end=2000e-9,
+        bin_width: float = 1e-9
+) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Divides the mean of the signal window from the mean of the reference window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        norm_start: start of the reference window in seconds
+        norm_end: end of the reference window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        Normalized mean of the signal window and measurement error
+    &#34;&#34;&#34;
+    # Get number of lasers
+    num_of_lasers = laser_data.shape[0]
+
+    if not isinstance(bin_width, float):
+        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
+
+    # Convert the times in seconds to bins (i.e. array indices)
+    signal_start_bin = round(signal_start / bin_width)
+    signal_end_bin = round(signal_end / bin_width)
+    norm_start_bin = round(norm_start / bin_width)
+    norm_end_bin = round(norm_end / bin_width)
+
+    # initialize data arrays for signal and measurement error
+    signal_data = np.empty(num_of_lasers, dtype=float)
+    error_data = np.empty(num_of_lasers, dtype=float)
+
+    # loop over all laser pulses and analyze them
+    for ii, laser_arr in enumerate(laser_data):
+        # calculate the sum and mean of the data in the normalization window
+        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
+        reference_sum = np.sum(tmp_data)
+        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # calculate the sum and mean of the data in the signal window
+        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
+        signal_sum = np.sum(tmp_data)
+        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
+
+        # Calculate normalized signal while avoiding division by zero
+        if reference_mean &gt; 0 and signal_mean &gt;= 0:
+            signal_data[ii] = signal_mean / reference_mean
+        else:
+            signal_data[ii] = 0.0
+
+        # Calculate measurement error while avoiding division by zero
+        if reference_sum &gt; 0 and signal_sum &gt; 0:
+            # calculate with respect to gaussian error &#39;evolution&#39;
+            error_data[ii] = signal_data[ii] * np.sqrt(1 / signal_sum + 1 / reference_sum)
+        else:
+            error_data[ii] = 0.0
+
+    return signal_data, error_data</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference"><code class="name flex">
+<span>def <span class="ident">analyze_mean_reference</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end: float = 2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Subtracts the mean of the signal window from the mean of the reference window.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>laser_data</code></strong></dt>
+<dd>2D array of laser data</dd>
+<dt><strong><code>signal_start</code></strong></dt>
+<dd>start of the signal window in seconds</dd>
+<dt><strong><code>signal_end</code></strong></dt>
+<dd>end of the signal window in seconds</dd>
+<dt><strong><code>norm_start</code></strong></dt>
+<dd>start of the reference window in seconds</dd>
+<dt><strong><code>norm_end</code></strong></dt>
+<dd>end of the reference window in seconds</dd>
+<dt><strong><code>bin_width</code></strong></dt>
+<dd>width of a bin in seconds</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Referenced mean of the signal window and measurement error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def analyze_mean_reference(
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end: float = 2000e-9,
+        bin_width: float = 1e-9) -&gt; Tuple[np.ndarray, np.ndarray]:
+    &#34;&#34;&#34;
+    Subtracts the mean of the signal window from the mean of the reference window.
+
+    Args:
+        laser_data: 2D array of laser data
+        signal_start: start of the signal window in seconds
+        signal_end: end of the signal window in seconds
+        norm_start: start of the reference window in seconds
+        norm_end: end of the reference window in seconds
+        bin_width: width of a bin in seconds
+
+    Returns:
+        Referenced mean of the signal window and measurement error
     &#34;&#34;&#34;
     # Get number of lasers
     num_of_lasers = laser_data.shape[0]
@@ -1273,7 +1507,7 @@ def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>odmr_measurements</code></strong></dt>
-<dd>List of ODMR data in MeasurementDataclasses</dd>
+<dd>Dict of ODMR data in MeasurementDataclasses</dd>
 <dt><strong><code>r2_thresh</code></strong></dt>
 <dd>R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian</dd>
 <dt><strong><code>thresh_frac</code></strong></dt>
@@ -1288,10 +1522,7 @@ def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
 <dd>Show progress bar</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>dict</code></dt>
-<dd>ODMR data with fit, fit model and pixels in MeasurementDataclass</dd>
-</dl></div>
+<p>Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1310,7 +1541,7 @@ def fit_raster_odmr(
     Fit a list of ODMR data to single and double Lorentzian functions
 
     Args:
-        odmr_measurements: List of ODMR data in MeasurementDataclasses
+        odmr_measurements: Dict of ODMR data in MeasurementDataclasses
         r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
         thresh_frac: Threshold fraction for the peak finding
         min_thresh: Minimum threshold for the peak finding
@@ -1319,7 +1550,7 @@ def fit_raster_odmr(
         progress_bar: Show progress bar
 
     Returns:
-        dict: ODMR data with fit, fit model and pixels in MeasurementDataclass
+        Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
     &#34;&#34;&#34;
 
     model1, base_params1 = rof.make_lorentzian_model()
@@ -1376,25 +1607,18 @@ def fit_raster_odmr(
 <div class="desc"><h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong></dt>
-<dd>x data</dd>
+<dd>x data, can be string, numpy array or pandas Series</dd>
 <dt><strong><code>y</code></strong></dt>
-<dd>y data</dd>
+<dd>y data, can be string, numpy array or pandas Series</dd>
 <dt><strong><code>fit_function</code></strong></dt>
 <dd>fit function to use</dd>
 <dt><strong><code>data</code></strong></dt>
-<dd>pandas DataFrame containing x and y data</dd>
+<dd>pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series</dd>
 <dt><strong><code>parameters</code></strong></dt>
-<dd>list of parameters to use in fit</dd>
+<dd>list of parameters to use in fit (optional)</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>x_fit</code></dt>
-<dd>x data of fit</dd>
-<dt><code>y_fit</code></dt>
-<dd>y data of fit</dd>
-<dt><code>result</code></dt>
-<dd>result of fit</dd>
-</dl></div>
+<p>Fit x data, fit y data and lmfit ModelResult</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1409,17 +1633,14 @@ def fit_raster_odmr(
 ) -&gt; Tuple[np.ndarray, np.ndarray, ModelResult]:
     &#34;&#34;&#34;
     Args:
-        x: x data
-        y: y data
+        x: x data, can be string, numpy array or pandas Series
+        y: y data, can be string, numpy array or pandas Series
         fit_function: fit function to use
-        data: pandas DataFrame containing x and y data
-        parameters: list of parameters to use in fit
+        data: pandas DataFrame containing x and y data, if None x and y must be numpy arrays or pandas Series
+        parameters: list of parameters to use in fit (optional)
 
     Returns:
-        x_fit: x data of fit
-        y_fit: y data of fit
-        result: result of fit
-
+        Fit x data, fit y data and lmfit ModelResult
     &#34;&#34;&#34;
     if &#34;twoD&#34; in fit_function[0]:
         dims: str = &#34;2d&#34;
@@ -1451,12 +1672,19 @@ def fit_raster_odmr(
 <span>def <span class="ident">get_all_fits</span></span>(<span>self) ‑> Tuple[list, list]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get all available fits</p>
+<h2 id="returns">Returns</h2>
+<p>Tuple with list of 1d and 2d fits</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_all_fits(self) -&gt; Tuple[list, list]:
+    &#34;&#34;&#34;Get all available fits
+
+    Returns:
+        Tuple with list of 1d and 2d fits
+    &#34;&#34;&#34;
     one_d_fits: list = list(self.fit_list[&#39;1d&#39;].keys())
     two_d_fits: list = list(self.fit_list[&#39;2d&#39;].keys())
     self.log.info(f&#34;1d fits: {one_d_fits}\n2d fits: {two_d_fits}&#34;)
@@ -1480,12 +1708,7 @@ then optimizing the hyperparameters for them.</p>
 <dd>The number of measurements to sample.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>float</code></dt>
-<dd>The highest minimum r2 value</dd>
-<dt><code>tuple</code></dt>
-<dd>Optimized hyperparameters.</dd>
-</dl></div>
+<p>The highest minimum R2 value and the optimized hyperparameters.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1507,8 +1730,7 @@ then optimizing the hyperparameters for them.</p>
         num_samples: The number of measurements to sample.
 
     Returns:
-        float: The highest minimum r2 value
-        tuple: Optimized hyperparameters.
+        The highest minimum R2 value and the optimized hyperparameters.
     &#34;&#34;&#34;
     r2_threshs: np.ndarray = np.around(np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2)
     thresh_fracs: np.ndarray = np.around(np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1)
@@ -1701,6 +1923,9 @@ where method is the name of the fit method and estimator is the name of the esti
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean">analyze_mean</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm">analyze_mean_norm</a></code></li>
+<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference">analyze_mean_reference</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.average_raster_odmr_pixels" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.average_raster_odmr_pixels">average_raster_odmr_pixels</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">fit</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">fit_function</a></code></li>

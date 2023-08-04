@@ -425,7 +425,7 @@ class IOHandler:
             filepath: Name of figure to save.
             only_jpg: If True, only save as jpg (default: False).
             only_pdf: If True, only save as pdf (default: False).
-            **kwargs: Keyword arguments passed to fig.savefig().
+            **kwargs: Keyword arguments passed to matplotlib.pyplot.savefig().
         """
         extensions = None
         if "only_jpg" in kwargs:
@@ -441,3 +441,4 @@ class IOHandler:
 
         for ext in extensions:
             fig.savefig(filepath.with_suffix(ext), dpi=200, **kwargs)
+

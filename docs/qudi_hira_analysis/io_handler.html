@@ -453,7 +453,7 @@ class IOHandler:
             filepath: Name of figure to save.
             only_jpg: If True, only save as jpg (default: False).
             only_pdf: If True, only save as pdf (default: False).
-            **kwargs: Keyword arguments passed to fig.savefig().
+            **kwargs: Keyword arguments passed to matplotlib.pyplot.savefig().
         &#34;&#34;&#34;
         extensions = None
         if &#34;only_jpg&#34; in kwargs:
@@ -902,7 +902,7 @@ class IOHandler:
             filepath: Name of figure to save.
             only_jpg: If True, only save as jpg (default: False).
             only_pdf: If True, only save as pdf (default: False).
-            **kwargs: Keyword arguments passed to fig.savefig().
+            **kwargs: Keyword arguments passed to matplotlib.pyplot.savefig().
         &#34;&#34;&#34;
         extensions = None
         if &#34;only_jpg&#34; in kwargs:
@@ -1484,7 +1484,7 @@ def save_df(self, filepath: Path, df: pd.DataFrame):
 <dt><strong><code>only_pdf</code></strong></dt>
 <dd>If True, only save as pdf (default: False).</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
-<dd>Keyword arguments passed to fig.savefig().</dd>
+<dd>Keyword arguments passed to matplotlib.pyplot.savefig().</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1501,7 +1501,7 @@ def save_figures(self, filepath: Path, fig: plt.Figure, **kwargs):
         filepath: Name of figure to save.
         only_jpg: If True, only save as jpg (default: False).
         only_pdf: If True, only save as pdf (default: False).
-        **kwargs: Keyword arguments passed to fig.savefig().
+        **kwargs: Keyword arguments passed to matplotlib.pyplot.savefig().
     &#34;&#34;&#34;
     extensions = None
     if &#34;only_jpg&#34; in kwargs:

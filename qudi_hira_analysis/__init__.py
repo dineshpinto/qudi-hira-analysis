@@ -10,30 +10,71 @@ import seaborn as sns
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path("C:\\Data"), # Path to the data folder
-    figure_folder=Path("C:\\QudiHiraAnalysis"), # Path to the figure folder
+    data_folder=Path("C:/Data"), # Path to the data folder
+    figure_folder=Path("C:/QudiHiraAnalysis"), # Path to the figure folder
     measurement_folder=Path("20230101_NV1") # Name of the measurement folder
  )
 
 # Search and lazy-load files with "odmr" in the name
 odmr_measurements = dh.load_measurements("odmr")
 ```
+Start by creating an instance of the `DataHandler` class.
+To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
 
-To load a specific set of measurements from the data folder, use the `dh.load_measurements()` method, which takes the
-following required arguments:
+## Data fitting
 
-- `measurement_str` is the string that is used to identify the measurement. It is used to filter the data files in the
-  `data_folder` and `measurement_folder` (if specified)
+To fit data, call the `DataHandler.fit()` method.
 
-Optional arguments:
+```python
+odmr = odmr_measurements["20230101-0420-00"]
+xf, yf, res = dh.fit(x="Freq", y="Counts", fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
 
-- `qudi` is a boolean. If `True`, the data is assumed to be in the format used by Qudi (default: True)
-- `pulsed` is a boolean. If `True`, the data is assumed to be in the format used by Qudi for pulsed measurements
-(default: False)
-- `extension` is the extension of the data files (default: ".dat")
+# Plot the data and the fit
+plot = sns.scatterplot(x="Freq", y="Counts", data=odmr.data, label=odmr.timestamp)
+sns.lineplot(x=xf, y=yf, ax=plot, label="Fit")
 
-The `load_measurements` function returns a dictionary containing the measurement data filtered by `measurement_str`.
-The dictionary keys are measurement timestamps in "(year)(month)(day)-(hour)(minute)-(second)" format.
+# Generate fit report
+print(res.fit_report())
+```
+
+To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call `AnalysisLogic.get_all_fits()`.
+The fit functions are:
+
+| Dimension | Fit                           |
+|-----------|-------------------------------|
+| 1D        | decayexponential              |
+|           | biexponential                 |
+|           | decayexponentialstretched     |
+|           | gaussian                      |
+|           | gaussiandouble                |
+|           | gaussianlinearoffset          |
+|           | hyperbolicsaturation          |
+|           | linear                        |
+|           | lorentzian                    |
+|           | lorentziandouble              |
+|           | lorentziantriple              |
+|           | sine                          |
+|           | sinedouble                    |
+|           | sinedoublewithexpdecay        |
+|           | sinedoublewithtwoexpdecay     |
+|           | sineexponentialdecay          |
+|           | sinestretchedexponentialdecay |
+|           | sinetriple                    |
+|           | sinetriplewithexpdecay        |
+|           | sinetriplewiththreeexpdecay   |
+| 2D        | twoDgaussian                  |
+
+
+## Data saving
+
+To save figures, call the `DataHandler.save_figures()` method. By default,
+the figures are saved as JPG, PDF, PNG and SVG.
+This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`.
+
+```python
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path("odmr"), fig=plot.get_figure(), only_pdf=True, bbox_inches="tight")
+```
 
 
 ## Examples
@@ -59,10 +100,10 @@ for idx, odmr in enumerate(odmr_measurements.values()):
                              - odmr.fit_model.best_values["l0_center"])
 
 
-map = sns.heatmap(image, cbar_kws={"label": r"$\Delta E$ (MHz)"})
+map = sns.heatmap(image, cbar_kws={"label": "Delta E (MHz)"})
 
 # Save the figure to the figure folder specified earlier
-dh.save_figures(filepath="2d_odmr_map_with_residuals", fig=map.get_figure(), only_jpg=True)
+dh.save_figures(filepath="2d_odmr_map", fig=map.get_figure(), only_jpg=True)
 ```
 
 
@@ -223,8 +264,8 @@ dh.save_figures(filepath="pys_measurement", fig=fig)
 
 """
 
-from .analysis_logic import AnalysisLogic
+from .analysis_logic import AnalysisLogic, FitMethodsAndEstimators
 from .data_handler import DataHandler
 from .io_handler import IOHandler
 
-__all__ = ["DataHandler", "IOHandler", "AnalysisLogic"]
+__all__ = ["DataHandler", "IOHandler", "AnalysisLogic", "FitMethodsAndEstimators"]

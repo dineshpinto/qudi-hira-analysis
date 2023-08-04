@@ -96,15 +96,15 @@ class TestLoading(TestCase):
         self.assertAlmostEqual(odmr.data["Controlled variable(Hz)"][0], 2.850000000000000e+09)
         self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e+00)
 
-        sig, err = self.dh.analyse_mean(odmr.pulsed.laser_pulses.data)
+        sig, err = self.dh.analyze_mean(odmr.pulsed.laser_pulses.data)
         self.assertAlmostEqual(sig[0], 694.41)
         self.assertAlmostEqual(err[0], 1.8633437686052456)
 
-        sig, err = self.dh.analyse_mean_norm(odmr.pulsed.laser_pulses.data)
+        sig, err = self.dh.analyze_mean_norm(odmr.pulsed.laser_pulses.data)
         self.assertAlmostEqual(sig[0], 1.1218563353113091)
         self.assertAlmostEqual(err[0], 0.0033309708217416473)
 
-        sig, err = self.dh.analyse_mean_reference(odmr.pulsed.laser_pulses.data)
+        sig, err = self.dh.analyze_mean_reference(odmr.pulsed.laser_pulses.data)
         self.assertAlmostEqual(sig[0], 75.42700000000002)
         self.assertAlmostEqual(err[0], 0.22395482225608515)
 
