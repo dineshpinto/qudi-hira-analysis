@@ -15,7 +15,8 @@ import qudi_hira_analysis._raster_odmr_fitting as rof
 from qudi_hira_analysis._qudi_fit_logic import FitLogic
 
 if TYPE_CHECKING:
-    from lmfit.model import ModelResult, Parameter
+    from lmfit import Model, Parameters, Parameter
+    from lmfit.model import ModelResult
     from .measurement_dataclass import MeasurementDataclass
 
 logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
@@ -372,7 +373,23 @@ class AnalysisLogic(FitLogic):
         return highest_min_r2, optimal_params
 
     @staticmethod
+    def _lorentzian_fitting(
+            x: np.ndarray,
+            y: np.ndarray,
+            model1: Model,
+            model2: Model,
+            params1: Parameters,
+            params2: Parameters,
+            r2_thresh: float
+    ) -> ModelResult:
+        """ Make Lorentzian fitting for single and double Lorentzian model """
+        res1 = rof.make_lorentzian_fit(x, y, model1, params1)
+        if res1.rsquared < r2_thresh:
+            return rof.make_lorentziandouble_fit(x, y, model2, params2)
+        return res1
+
     def fit_raster_odmr(
+            self,
             odmr_measurements: dict[str, MeasurementDataclass],
             r2_thresh: float = 0.95,
             thresh_frac: float = 0.5,
@@ -412,7 +429,7 @@ class AnalysisLogic(FitLogic):
 
         # Parallel fitting
         model_results = Parallel(n_jobs=cpu_count())(
-            delayed(rof.lorentzian_fitting)(
+            delayed(self._lorentzian_fitting)(
                 x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
             in
             tqdm(args, disable=not progress_bar)
@@ -424,10 +441,10 @@ class AnalysisLogic(FitLogic):
         for odmr, res in zip(odmr_measurements.values(), model_results):
 
             if len(res.params) == 6:
-                # Fit to a single Lorentzian
+                # Evaluate a single Lorentzian
                 y_fit = model1.eval(x=x_fit, params=res.params)
             else:
-                # Fit to a double Lorentzian
+                # Evaluate a double Lorentzian
                 y_fit = model2.eval(x=x_fit, params=res.params)
 
             # Plug results into the DataClass
@@ -435,6 +452,7 @@ class AnalysisLogic(FitLogic):
             odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=["x_fit", "y_fit"])
 
             if extract_pixel_from_filename:
+                # Extract the pixel with regex from the filename
                 row, col = map(int, re.findall(r'(?<=\().*?(?=\))', odmr.filename)[0].split(","))
                 odmr.xy_position = (row, col)
 

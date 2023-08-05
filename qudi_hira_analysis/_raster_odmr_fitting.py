@@ -1,3 +1,24 @@
+"""
+This file contains the Qudi FitLogic class, which provides all
+fitting methods imported from the files in logic/_fitmethods.
+
+Qudi is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Qudi is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Qudi. If not, see <http://www.gnu.org/licenses/>.
+
+Copyright (c) the Qudi Developers. See the COPYRIGHT.txt file at the
+top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi/>
+"""
+
 import logging
 from collections import OrderedDict
 
@@ -612,11 +633,3 @@ def make_lorentziandouble_fit(x_axis, data, model, params, units=None, **kwargs)
 
     result.result_str_dict = result_str_dict
     return result
-
-
-def lorentzian_fitting(x, y, model1, model2, params1, params2, r2_thresh):
-    """ Make Lorentzian fitting for single and double Lorentzian model """
-    res1 = make_lorentzian_fit(x, y, model1, params1)
-    if res1.rsquared < r2_thresh:
-        return make_lorentziandouble_fit(x, y, model2, params2)
-    return res1
