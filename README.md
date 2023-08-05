@@ -23,7 +23,7 @@ pip install --upgrade qudi-hira-analysis
 ## Citation
 
 If you are publishing scientific results that use this code, as good scientific practice you
-should cite [this work]((https://doi.org/10.5281/zenodo.7604670)).
+should cite [this work](https://doi.org/10.5281/zenodo.7604670).
 
 ## Features
 
@@ -46,22 +46,23 @@ from qudi_hira_analysis import DataHandler
 dh = DataHandler(
     data_folder=Path("C:\\Data"), # Path to data folder
     figure_folder=Path("C:\\QudiHiraAnalysis"), # Path to figure folder
-    measurement_folder=Path("20230101_NV1") # Measurement folder name
+    measurement_folder=Path("20230101_NV1") # Measurement folder name (optional)
 )
 
-# Load all ODMR measurements
+# Lazy-load all measurements with "odmr" in the path into a Dataclass
 odmr_measurements = dh.load_measurements("odmr")
 
-# Fit an ODMR measurement with a double Lorentzian
+# Extract ODMR data into a pandas DataFrame and fit with a double Lorentzian
 odmr = odmr_measurements["20230101-0420-00"]
-xf, yf, res = dh.fit(x="Freq", y="Counts", fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
+x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal", 
+                              fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
 
-# Plot the data and the fit
-ax = sns.scatterplot(x="Freq", y="Counts", data=odmr.data, label=odmr.timestamp)
-sns.lineplot(x=xf, y=yf, ax=ax, label="Fit")
+# Plot the data and fit, label with measurement timestamp
+ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label=odmr.timestamp)
+sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
 
 # Generate fit report
-print(res.fit_report())
+print(result.fit_report())
 
 # Save figure
 dh.save_figures(filepath=Path("odmr_fit"), fig=ax.get_figure())
@@ -69,7 +70,7 @@ dh.save_figures(filepath=Path("odmr_fit"), fig=ax.get_figure())
 
 ## Documentation
 
-The full documentation is available [here](https://dineshpinto.github.io/qudi-hira-analysis/)
+The full documentation is available [here](https://dineshpinto.github.io/qudi-hira-analysis/).
 
 ## Schema
 

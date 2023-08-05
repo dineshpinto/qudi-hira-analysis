@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "qudi-hira-analysis"
-version = "1.5.1"
+version = "1.5.2"
 repository = "https://github.com/dineshpinto/qudi-hira-analysis"
 homepage = "https://github.com/dineshpinto/qudi-hira-analysis"
 documentation = "https://dineshpinto.github.io/qudi-hira-analysis/qudi_hira_analysis/"
 keywords = ["python", "qubit", "analysis", "nv centers", "photon timetrace"]
 description = "A Python toolkit to analzye photon timetrace data from qubit sensors"
 authors = ["dineshpinto <annual.fallout_0z@icloud.com>"]
-license = "MIT"
+license = "Apache-2.0"
 readme = "README.md"
 packages = [{ include = "qudi_hira_analysis" }]
 
@@ -21,16 +21,14 @@ xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
 pyspm = "^0.3.2"
+seaborn = "^0.12.2"
 
 [tool.poetry.group.dev.dependencies]
-seaborn = "^0.12.2"
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
 
-
 [tool.poetry.group.test.dependencies]
 coverage = "^7.2.5"
-
 
 [tool.poetry.group.docs.dependencies]
 pdoc3 = "^0.10.0"

@@ -35,16 +35,24 @@ dh = DataHandler(
     figure_folder=Path(&quot;C:/QudiHiraAnalysis&quot;), # Path to the figure folder
     measurement_folder=Path(&quot;20230101_NV1&quot;) # Name of the measurement folder
  )
-
-# Search and lazy-load files with &quot;odmr&quot; in the name
-odmr_measurements = dh.load_measurements(&quot;odmr&quot;)
 </code></pre>
-<p>Start by creating an instance of the <code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code> class.
-To load a specific set of measurements from the data folder, use the <code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">DataHandler.load_measurements()</a></code> method.</p>
-<h2 id="data-fitting">Data fitting</h2>
-<p>To fit data, call the <code><a title="qudi_hira_analysis.DataHandler.fit" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">AnalysisLogic.fit()</a></code> method.</p>
-<pre><code class="language-python">odmr = odmr_measurements[&quot;20230101-0420-00&quot;]
-xf, yf, res = dh.fit(x=&quot;Freq&quot;, y=&quot;Counts&quot;, fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
+<p>Start by creating an instance of the <code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code> class. Specify the location you want to load data from
+(<code>data_folder</code>), the location you want to save figures to (<code>figure_folder</code>) and (optionally) the
+name of the measurement folder (<code>measurement_folder</code>). If a measurement folder is specified, its path will be combined
+with the data folder path to form the full path to the measurement data.</p>
+<h3 id="loading-data">Loading data</h3>
+<pre><code class="language-python"># Search and lazy-load files with &quot;odmr&quot; in the path
+odmr_measurements = dh.load_measurements(&quot;odmr&quot;)
+odmr = odmr_measurements[&quot;20230101-0420-00&quot;]
+</code></pre>
+<p>To load a specific set of measurements from the data folder, use the <code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">DataHandler.load_measurements()</a></code> method.
+The method takes a string as an argument and searches for files with the string in the path. The files are lazy-loaded,
+so the data is only loaded when it is needed. The method returns a dictionary, where the keys are the timestamps of the
+measurements and the values are <code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass" href="measurement_dataclass.html#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass">MeasurementDataclass</a></code> objects.</p>
+<h3 id="fitting-data">Fitting data</h3>
+<pre><code class="language-python">x_fit, y_fit, result = dh.fit(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;,
+                              fit_function=dh.fit_function.doublelorentzian,
+                              data=odmr.data)
 
 # Plot the data and the fit
 plot = sns.scatterplot(x=&quot;Freq&quot;, y=&quot;Counts&quot;, data=odmr.data, label=odmr.timestamp)
@@ -53,7 +61,9 @@ sns.lineplot(x=xf, y=yf, ax=plot, label=&quot;Fit&quot;)
 # Generate fit report
 print(res.fit_report())
 </code></pre>
-<p>To get the full list of available fit routines, explore the <code><a title="qudi_hira_analysis.DataHandler.fit_function" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">DataHandler.fit_function</a></code> attribute or call <code><a title="qudi_hira_analysis.AnalysisLogic.get_all_fits" href="#qudi_hira_analysis.AnalysisLogic.get_all_fits">AnalysisLogic.get_all_fits()</a></code>.
+<p>To fit data, call the <code><a title="qudi_hira_analysis.DataHandler.fit" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">AnalysisLogic.fit()</a></code> method. This method accepts pandas DataFrames, numpy arrays or pandas Series
+as inputs. To get the full list of available fit routines, explore the <code><a title="qudi_hira_analysis.DataHandler.fit_function" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">DataHandler.fit_function</a></code> attribute or call
+<code><a title="qudi_hira_analysis.AnalysisLogic.get_all_fits" href="#qudi_hira_analysis.AnalysisLogic.get_all_fits">AnalysisLogic.get_all_fits()</a></code>.
 The fit functions are:</p>
 <table>
 <thead>
@@ -149,17 +159,19 @@ The fit functions are:</p>
 </tr>
 </tbody>
 </table>
-<h2 id="data-saving">Data saving</h2>
+<h3 id="saving-data">Saving data</h3>
+<pre><code class="language-python"># Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path(&quot;odmr&quot;), fig=plot.get_figure(),
+                only_pdf=True, bbox_inches=&quot;tight&quot;)
+</code></pre>
 <p>To save figures, call the <code><a title="qudi_hira_analysis.DataHandler.save_figures" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_figures">IOHandler.save_figures()</a></code> method. By default,
 the figures are saved as JPG, PDF, PNG and SVG.
 This can be changed by setting the <code>only_jpg</code> or <code>only_pdf</code> arguments to <code>True</code>.</p>
-<pre><code class="language-python"># Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=Path(&quot;odmr&quot;), fig=plot.get_figure(), only_pdf=True, bbox_inches=&quot;tight&quot;)
-</code></pre>
 <h2 id="examples">Examples</h2>
 <h3 id="nv-odmr-map">NV-ODMR map</h3>
+<p>Extract a heatmap of ODMR splittings from a 2D raster NV-ODMR map.</p>
 <pre><code class="language-python"># Extract ODMR measurements from the measurement folder
-odmr_measurements = dh.load_measurements(measurement_str=&quot;2d_odmr_map&quot;)
+odmr_measurements = dh.load_measurements(&quot;2d_odmr_map&quot;)
 odmr_measurements = dict(sorted(odmr_measurements.items()))
 
 # Perform parallel (=num CPU cores) ODMR fitting
@@ -183,7 +195,8 @@ map = sns.heatmap(image, cbar_kws={&quot;label&quot;: &quot;Delta E (MHz)&quot;}
 dh.save_figures(filepath=&quot;2d_odmr_map&quot;, fig=map.get_figure(), only_jpg=True)
 </code></pre>
 <h3 id="nv-pl-map">NV-PL map</h3>
-<pre><code class="language-python">pixel_scanner_measurements = dh.load_measurements(measurement_str=&quot;PixelScanner&quot;)
+<p>Extract a heatmap of NV photo-luminescence from a 2D raster NV-PL map.</p>
+<pre><code class="language-python">pixel_scanner_measurements = dh.load_measurements(&quot;PixelScanner&quot;)
 
 fwd, bwd = pixel_scanner_measurements[&quot;20230101-0420-00&quot;].data
 
@@ -205,7 +218,8 @@ cbar.set_label(&quot;NV-PL (kcps)&quot;)
 dh.save_figures(filepath=&quot;nv_pl_scan&quot;, fig=fig, only_jpg=True)
 </code></pre>
 <h3 id="nanonis-afm-measurements">Nanonis AFM measurements</h3>
-<pre><code class="language-python">afm_measurements = dh.load_measurements(measurement_str=&quot;Scan&quot;, extension=&quot;.sxm&quot;, qudi=False)
+<p>Extract a heatmap of AFM data from a 2D raster Nanonis AFM scan.</p>
+<pre><code class="language-python">afm_measurements = dh.load_measurements(&quot;Scan&quot;, extension=&quot;.sxm&quot;, qudi=False)
 
 afm = afm_measurements[&quot;20230101-0420-00&quot;].data
 
@@ -230,7 +244,8 @@ cbar.set_label(&quot;Height (nm)&quot;)
 dh.save_figures(filepath=&quot;afm_topo&quot;, fig=fig, only_jpg=True)
 </code></pre>
 <h3 id="g2-measurements-anti-bunching-fit">g(2) measurements (anti-bunching fit)</h3>
-<pre><code class="language-python">autocorrelation_measurements = dh.load_measurements(measurement_str=&quot;Autocorrelation&quot;)
+<p>Extract a anti-bunching fit from a g(2) measurement.</p>
+<pre><code class="language-python">autocorrelation_measurements = dh.load_measurements(&quot;Autocorrelation&quot;)
 
 fig, ax = plt.subplots()
 
@@ -239,7 +254,8 @@ for autocorrelation in autocorrelation_measurements.values():
     # Plot the data
     sns.lineplot(data=autocorrelation.data, x=&quot;Time (ns)&quot;, y=&quot;g2(t) norm&quot;, ax=ax)
     # Fit the data using the antibunching function
-    fit_x, fit_y, result = dh.fit(x=&quot;Time (ns)&quot;, y=&quot;g2(t) norm&quot;, data=autocorrelation.data,
+    fit_x, fit_y, result = dh.fit(x=&quot;Time (ns)&quot;, y=&quot;g2(t) norm&quot;,
+                                  data=autocorrelation.data,
                                   fit_function=dh.fit_function.antibunching)
     # Plot the fit
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&quot;C1&quot;)
@@ -248,33 +264,38 @@ for autocorrelation in autocorrelation_measurements.values():
 dh.save_figures(filepath=&quot;autocorrelation_variation&quot;, fig=fig)
 </code></pre>
 <h3 id="odmr-measurements-double-lorentzian-fit">ODMR measurements (double Lorentzian fit)</h3>
-<pre><code class="language-python">odmr_measurements = dh.load_measurements(measurement_str=&quot;ODMR&quot;, pulsed=True)
+<p>Extract a double Lorentzian fit from an ODMR measurement.</p>
+<pre><code class="language-python">odmr_measurements = dh.load_measurements(&quot;ODMR&quot;, pulsed=True)
 
 fig, ax = plt.subplots()
 
 for odmr in odmr_measurements.values():
     sns.scatterplot(data=odmr.data, x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;, ax=ax)
-    fit_x, fit_y, result = dh.fit(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;, data=odmr.data,
+    fit_x, fit_y, result = dh.fit(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;,
+                                  data=odmr.data,
                                   fit_function=dh.fit_function.lorentziandouble)
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&quot;C1&quot;)
 
 dh.save_figures(filepath=&quot;odmr_variation&quot;, fig=fig)
 </code></pre>
 <h3 id="rabi-measurements-sine-exp-decay-fit">Rabi measurements (sine exp. decay fit)</h3>
-<pre><code class="language-python">rabi_measurements = dh.load_measurements(measurement_str=&quot;Rabi&quot;, pulsed=True)
+<p>Extract a exponentially decaying sine fit from a Rabi measurement.</p>
+<pre><code class="language-python">rabi_measurements = dh.load_measurements(&quot;Rabi&quot;, pulsed=True)
 
 fig, ax = plt.subplots()
 
 for rabi in rabi_measurements.values():
     sns.scatterplot(data=rabi.data, x=&quot;Controlled variable(s)&quot;, y=&quot;Signal&quot;, ax=ax)
-    fit_x, fit_y, result = dh.fit(x=&quot;Controlled variable(s)&quot;, y=&quot;Signal&quot;, data=rabi.data,
+    fit_x, fit_y, result = dh.fit(x=&quot;Controlled variable(s)&quot;, y=&quot;Signal&quot;,
+                                  data=rabi.data,
                                   fit_function=dh.fit_function.sineexponentialdecay)
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&quot;C1&quot;)
 
 dh.save_figures(filepath=&quot;rabi_variation&quot;, fig=fig)
 </code></pre>
 <h3 id="temperature-measurements">Temperature measurements</h3>
-<pre><code class="language-python">temperature_measurements = dh.load_measurements(measurement_str=&quot;Temperature&quot;, qudi=False)
+<p>Extract temperature data from a Lakeshore temperature monitor.</p>
+<pre><code class="language-python">temperature_measurements = dh.load_measurements(&quot;Temperature&quot;, qudi=False)
 
 temperature = pd.concat([t.data for t in temperature_measurements.values()])
 
@@ -283,7 +304,8 @@ sns.lineplot(data=temperature, x=&quot;Time&quot;, y=&quot;Temperature&quot;, ax
 dh.save_figures(filepath=&quot;temperature_monitoring&quot;, fig=fig)
 </code></pre>
 <h3 id="bruker-mfm-measurements">Bruker MFM measurements</h3>
-<pre><code class="language-python">bruker_measurements = dh.load_measurements(measurement_str=&quot;&quot;, extension=&quot;.001&quot;, qudi=False)
+<p>Extract a heatmap of MFM data from a 2D raster Bruker MFM map.</p>
+<pre><code class="language-python">bruker_measurements = dh.load_measurements(&quot;mfm&quot;, extension=&quot;.001&quot;, qudi=False)
 
 bruker_data = bruker_measurements[&quot;20230101-0420-00&quot;].data
 
@@ -306,7 +328,7 @@ cbar.set_label(&quot;MFM contrast (deg)&quot;)
 dh.save_figures(filepath=&quot;MFM&quot;, fig=fig, only_jpg=True)
 </code></pre>
 <h3 id="pys-data-pi3diamond-compatibility">PYS data (pi3diamond compatibility)</h3>
-<pre><code class="language-python">pys_measurements = dh.load_measurements(measurement_str=&quot;ndmin&quot;, extension=&quot;.pys&quot;, qudi=False)
+<pre><code class="language-python">pys_measurements = dh.load_measurements(&quot;ndmin&quot;, extension=&quot;.pys&quot;, qudi=False)
 pys = pys_measurements[list(pys_measurements)[0]].data
 
 fig, ax = plt.subplots()
@@ -333,20 +355,30 @@ dh = DataHandler(
     figure_folder=Path(&#34;C:/QudiHiraAnalysis&#34;), # Path to the figure folder
     measurement_folder=Path(&#34;20230101_NV1&#34;) # Name of the measurement folder
  )
-
-# Search and lazy-load files with &#34;odmr&#34; in the name
-odmr_measurements = dh.load_measurements(&#34;odmr&#34;)
 ```
-Start by creating an instance of the `DataHandler` class.
-To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
+Start by creating an instance of the `DataHandler` class. Specify the location you want to load data from
+(`data_folder`), the location you want to save figures to (`figure_folder`) and (optionally) the
+name of the measurement folder (`measurement_folder`). If a measurement folder is specified, its path will be combined
+with the data folder path to form the full path to the measurement data.
 
-## Data fitting
-
-To fit data, call the `DataHandler.fit()` method.
+### Loading data
 
 ```python
+# Search and lazy-load files with &#34;odmr&#34; in the path
+odmr_measurements = dh.load_measurements(&#34;odmr&#34;)
 odmr = odmr_measurements[&#34;20230101-0420-00&#34;]
-xf, yf, res = dh.fit(x=&#34;Freq&#34;, y=&#34;Counts&#34;, fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
+```
+To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
+The method takes a string as an argument and searches for files with the string in the path. The files are lazy-loaded,
+so the data is only loaded when it is needed. The method returns a dictionary, where the keys are the timestamps of the
+measurements and the values are `measurement_dataclass.MeasurementDataclass()` objects.
+
+### Fitting data
+
+```python
+x_fit, y_fit, result = dh.fit(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;,
+                              fit_function=dh.fit_function.doublelorentzian,
+                              data=odmr.data)
 
 # Plot the data and the fit
 plot = sns.scatterplot(x=&#34;Freq&#34;, y=&#34;Counts&#34;, data=odmr.data, label=odmr.timestamp)
@@ -355,8 +387,9 @@ sns.lineplot(x=xf, y=yf, ax=plot, label=&#34;Fit&#34;)
 # Generate fit report
 print(res.fit_report())
 ```
-
-To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call `AnalysisLogic.get_all_fits()`.
+To fit data, call the `DataHandler.fit()` method. This method accepts pandas DataFrames, numpy arrays or pandas Series
+as inputs. To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call
+`AnalysisLogic.get_all_fits()`.
 The fit functions are:
 
 | Dimension | Fit                           |
@@ -384,24 +417,26 @@ The fit functions are:
 | 2D        | twoDgaussian                  |
 
 
-## Data saving
+### Saving data
+
+```python
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path(&#34;odmr&#34;), fig=plot.get_figure(),
+                only_pdf=True, bbox_inches=&#34;tight&#34;)
+```
 
 To save figures, call the `DataHandler.save_figures()` method. By default,
 the figures are saved as JPG, PDF, PNG and SVG.
 This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`.
 
-```python
-# Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=Path(&#34;odmr&#34;), fig=plot.get_figure(), only_pdf=True, bbox_inches=&#34;tight&#34;)
-```
-
-
 ## Examples
 
 ### NV-ODMR map
+Extract a heatmap of ODMR splittings from a 2D raster NV-ODMR map.
+
 ```python
 # Extract ODMR measurements from the measurement folder
-odmr_measurements = dh.load_measurements(measurement_str=&#34;2d_odmr_map&#34;)
+odmr_measurements = dh.load_measurements(&#34;2d_odmr_map&#34;)
 odmr_measurements = dict(sorted(odmr_measurements.items()))
 
 # Perform parallel (=num CPU cores) ODMR fitting
@@ -427,9 +462,10 @@ dh.save_figures(filepath=&#34;2d_odmr_map&#34;, fig=map.get_figure(), only_jpg=T
 
 
 ### NV-PL map
+Extract a heatmap of NV photo-luminescence from a 2D raster NV-PL map.
 
 ```python
-pixel_scanner_measurements = dh.load_measurements(measurement_str=&#34;PixelScanner&#34;)
+pixel_scanner_measurements = dh.load_measurements(&#34;PixelScanner&#34;)
 
 fwd, bwd = pixel_scanner_measurements[&#34;20230101-0420-00&#34;].data
 
@@ -452,9 +488,10 @@ dh.save_figures(filepath=&#34;nv_pl_scan&#34;, fig=fig, only_jpg=True)
 ```
 
 ### Nanonis AFM measurements
+Extract a heatmap of AFM data from a 2D raster Nanonis AFM scan.
 
 ```python
-afm_measurements = dh.load_measurements(measurement_str=&#34;Scan&#34;, extension=&#34;.sxm&#34;, qudi=False)
+afm_measurements = dh.load_measurements(&#34;Scan&#34;, extension=&#34;.sxm&#34;, qudi=False)
 
 afm = afm_measurements[&#34;20230101-0420-00&#34;].data
 
@@ -480,9 +517,10 @@ dh.save_figures(filepath=&#34;afm_topo&#34;, fig=fig, only_jpg=True)
 ```
 
 ### g(2) measurements (anti-bunching fit)
+Extract a anti-bunching fit from a g(2) measurement.
 
 ```python
-autocorrelation_measurements = dh.load_measurements(measurement_str=&#34;Autocorrelation&#34;)
+autocorrelation_measurements = dh.load_measurements(&#34;Autocorrelation&#34;)
 
 fig, ax = plt.subplots()
 
@@ -491,7 +529,8 @@ for autocorrelation in autocorrelation_measurements.values():
     # Plot the data
     sns.lineplot(data=autocorrelation.data, x=&#34;Time (ns)&#34;, y=&#34;g2(t) norm&#34;, ax=ax)
     # Fit the data using the antibunching function
-    fit_x, fit_y, result = dh.fit(x=&#34;Time (ns)&#34;, y=&#34;g2(t) norm&#34;, data=autocorrelation.data,
+    fit_x, fit_y, result = dh.fit(x=&#34;Time (ns)&#34;, y=&#34;g2(t) norm&#34;,
+                                  data=autocorrelation.data,
                                   fit_function=dh.fit_function.antibunching)
     # Plot the fit
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&#34;C1&#34;)
@@ -501,15 +540,17 @@ dh.save_figures(filepath=&#34;autocorrelation_variation&#34;, fig=fig)
 ```
 
 ### ODMR measurements (double Lorentzian fit)
+Extract a double Lorentzian fit from an ODMR measurement.
 
 ```python
-odmr_measurements = dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
+odmr_measurements = dh.load_measurements(&#34;ODMR&#34;, pulsed=True)
 
 fig, ax = plt.subplots()
 
 for odmr in odmr_measurements.values():
     sns.scatterplot(data=odmr.data, x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;, ax=ax)
-    fit_x, fit_y, result = dh.fit(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;, data=odmr.data,
+    fit_x, fit_y, result = dh.fit(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;,
+                                  data=odmr.data,
                                   fit_function=dh.fit_function.lorentziandouble)
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&#34;C1&#34;)
 
@@ -517,15 +558,17 @@ dh.save_figures(filepath=&#34;odmr_variation&#34;, fig=fig)
 ```
 
 ### Rabi measurements (sine exp. decay fit)
+Extract a exponentially decaying sine fit from a Rabi measurement.
 
 ```python
-rabi_measurements = dh.load_measurements(measurement_str=&#34;Rabi&#34;, pulsed=True)
+rabi_measurements = dh.load_measurements(&#34;Rabi&#34;, pulsed=True)
 
 fig, ax = plt.subplots()
 
 for rabi in rabi_measurements.values():
     sns.scatterplot(data=rabi.data, x=&#34;Controlled variable(s)&#34;, y=&#34;Signal&#34;, ax=ax)
-    fit_x, fit_y, result = dh.fit(x=&#34;Controlled variable(s)&#34;, y=&#34;Signal&#34;, data=rabi.data,
+    fit_x, fit_y, result = dh.fit(x=&#34;Controlled variable(s)&#34;, y=&#34;Signal&#34;,
+                                  data=rabi.data,
                                   fit_function=dh.fit_function.sineexponentialdecay)
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color=&#34;C1&#34;)
 
@@ -533,9 +576,10 @@ dh.save_figures(filepath=&#34;rabi_variation&#34;, fig=fig)
 ```
 
 ### Temperature measurements
+Extract temperature data from a Lakeshore temperature monitor.
 
 ```python
-temperature_measurements = dh.load_measurements(measurement_str=&#34;Temperature&#34;, qudi=False)
+temperature_measurements = dh.load_measurements(&#34;Temperature&#34;, qudi=False)
 
 temperature = pd.concat([t.data for t in temperature_measurements.values()])
 
@@ -545,9 +589,10 @@ dh.save_figures(filepath=&#34;temperature_monitoring&#34;, fig=fig)
 ```
 
 ### Bruker MFM measurements
+Extract a heatmap of MFM data from a 2D raster Bruker MFM map.
 
 ```python
-bruker_measurements = dh.load_measurements(measurement_str=&#34;&#34;, extension=&#34;.001&#34;, qudi=False)
+bruker_measurements = dh.load_measurements(&#34;mfm&#34;, extension=&#34;.001&#34;, qudi=False)
 
 bruker_data = bruker_measurements[&#34;20230101-0420-00&#34;].data
 
@@ -573,7 +618,7 @@ dh.save_figures(filepath=&#34;MFM&#34;, fig=fig, only_jpg=True)
 ### PYS data (pi3diamond compatibility)
 
 ```python
-pys_measurements = dh.load_measurements(measurement_str=&#34;ndmin&#34;, extension=&#34;.pys&#34;, qudi=False)
+pys_measurements = dh.load_measurements(&#34;ndmin&#34;, extension=&#34;.pys&#34;, qudi=False)
 pys = pys_measurements[list(pys_measurements)[0]].data
 
 fig, ax = plt.subplots()
@@ -3589,9 +3634,12 @@ def save_pys(self, filepath: Path, dictionary: dict):
 <h1>Index</h1>
 <div class="toc">
 <ul>
-<li><a href="#getting-started">Getting started</a></li>
-<li><a href="#data-fitting">Data fitting</a></li>
-<li><a href="#data-saving">Data saving</a></li>
+<li><a href="#getting-started">Getting started</a><ul>
+<li><a href="#loading-data">Loading data</a></li>
+<li><a href="#fitting-data">Fitting data</a></li>
+<li><a href="#saving-data">Saving data</a></li>
+</ul>
+</li>
 <li><a href="#examples">Examples</a><ul>
 <li><a href="#nv-odmr-map">NV-ODMR map</a></li>
 <li><a href="#nv-pl-map">NV-PL map</a></li>
