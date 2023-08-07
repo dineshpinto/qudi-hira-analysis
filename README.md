@@ -1,5 +1,6 @@
 [![DOI](https://zenodo.org/badge/288670453.svg)](https://zenodo.org/badge/latestdoi/288670453)
 [![PyPi version](https://img.shields.io/pypi/v/qudi-hira-analysis)](https://pypi.python.org/pypi/qudi-hira-analysis/)
+[![Python 3.10](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Downloads](https://pepy.tech/badge/qudi-hira-analysis)](https://pepy.tech/project/qudi-hira-analysis)
 [![codecov](https://codecov.io/gh/dineshpinto/qudi-hira-analysis/branch/main/graph/badge.svg?token=FMXDAYW8DW)](https://codecov.io/gh/dineshpinto/qudi-hira-analysis)
 [![Cross-platform unittest](https://github.com/dineshpinto/qudi-hira-analysis/actions/workflows/cross-platform-unittest.yml/badge.svg)](https://github.com/dineshpinto/qudi-hira-analysis/actions/workflows/cross-platform-unittest.yml)
@@ -44,9 +45,9 @@ import seaborn as sns
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path("C:\\Data"), # Path to data folder
-    figure_folder=Path("C:\\QudiHiraAnalysis"), # Path to figure folder
-    measurement_folder=Path("20230101_NV1") # Measurement folder name (optional)
+    data_folder=Path("C:\\Data"),  # Path to data folder
+    figure_folder=Path("C:\\QudiHiraAnalysis"),  # Path to figure folder
+    measurement_folder=Path("20230101_NV1")  # Measurement folder name (optional)
 )
 
 # Lazy-load all measurements with "odmr" in the path into a Dataclass
@@ -54,7 +55,7 @@ odmr_measurements = dh.load_measurements("odmr")
 
 # Extract ODMR data into a pandas DataFrame and fit with a double Lorentzian
 odmr = odmr_measurements["20230101-0420-00"]
-x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal", 
+x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
                               fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
 
 # Plot the data and fit, label with measurement timestamp
