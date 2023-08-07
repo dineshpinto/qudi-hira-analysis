@@ -3,7 +3,7 @@
 [![Python 3.10](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Downloads](https://pepy.tech/badge/qudi-hira-analysis)](https://pepy.tech/project/qudi-hira-analysis)
 [![codecov](https://codecov.io/gh/dineshpinto/qudi-hira-analysis/branch/main/graph/badge.svg?token=FMXDAYW8DW)](https://codecov.io/gh/dineshpinto/qudi-hira-analysis)
-[![Cross-platform unittest](https://github.com/dineshpinto/qudi-hira-analysis/actions/workflows/cross-platform-unittest.yml/badge.svg)](https://github.com/dineshpinto/qudi-hira-analysis/actions/workflows/cross-platform-unittest.yml)
+[![unittest](https://github.com/dineshpinto/qudi-hira-analysis/actions/workflows/unittest.yml/badge.svg)](https://github.com/dineshpinto/qudi-hira-analysis/actions/workflows/unittest.yml)
 
 # Qudi Hira Analysis
 
