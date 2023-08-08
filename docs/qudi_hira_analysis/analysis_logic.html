@@ -43,7 +43,8 @@ import qudi_hira_analysis._raster_odmr_fitting as rof
 from qudi_hira_analysis._qudi_fit_logic import FitLogic
 
 if TYPE_CHECKING:
-    from lmfit.model import ModelResult, Parameter
+    from lmfit import Model, Parameters, Parameter
+    from lmfit.model import ModelResult
     from .measurement_dataclass import MeasurementDataclass
 
 logging.basicConfig(format=&#39;%(name)s :: %(levelname)s :: %(message)s&#39;, level=logging.INFO)
@@ -400,7 +401,23 @@ class AnalysisLogic(FitLogic):
         return highest_min_r2, optimal_params
 
     @staticmethod
+    def _lorentzian_fitting(
+            x: np.ndarray,
+            y: np.ndarray,
+            model1: Model,
+            model2: Model,
+            params1: Parameters,
+            params2: Parameters,
+            r2_thresh: float
+    ) -&gt; ModelResult:
+        &#34;&#34;&#34; Make Lorentzian fitting for single and double Lorentzian model &#34;&#34;&#34;
+        res1 = rof.make_lorentzian_fit(x, y, model1, params1)
+        if res1.rsquared &lt; r2_thresh:
+            return rof.make_lorentziandouble_fit(x, y, model2, params2)
+        return res1
+
     def fit_raster_odmr(
+            self,
             odmr_measurements: dict[str, MeasurementDataclass],
             r2_thresh: float = 0.95,
             thresh_frac: float = 0.5,
@@ -440,7 +457,7 @@ class AnalysisLogic(FitLogic):
 
         # Parallel fitting
         model_results = Parallel(n_jobs=cpu_count())(
-            delayed(rof.lorentzian_fitting)(
+            delayed(self._lorentzian_fitting)(
                 x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
             in
             tqdm(args, disable=not progress_bar)
@@ -452,10 +469,10 @@ class AnalysisLogic(FitLogic):
         for odmr, res in zip(odmr_measurements.values(), model_results):
 
             if len(res.params) == 6:
-                # Fit to a single Lorentzian
+                # Evaluate a single Lorentzian
                 y_fit = model1.eval(x=x_fit, params=res.params)
             else:
-                # Fit to a double Lorentzian
+                # Evaluate a double Lorentzian
                 y_fit = model2.eval(x=x_fit, params=res.params)
 
             # Plug results into the DataClass
@@ -463,6 +480,7 @@ class AnalysisLogic(FitLogic):
             odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=[&#34;x_fit&#34;, &#34;y_fit&#34;])
 
             if extract_pixel_from_filename:
+                # Extract the pixel with regex from the filename
                 row, col = map(int, re.findall(r&#39;(?&lt;=\().*?(?=\))&#39;, odmr.filename)[0].split(&#34;,&#34;))
                 odmr.xy_position = (row, col)
 
@@ -838,7 +856,23 @@ class AnalysisLogic(FitLogic):
         return highest_min_r2, optimal_params
 
     @staticmethod
+    def _lorentzian_fitting(
+            x: np.ndarray,
+            y: np.ndarray,
+            model1: Model,
+            model2: Model,
+            params1: Parameters,
+            params2: Parameters,
+            r2_thresh: float
+    ) -&gt; ModelResult:
+        &#34;&#34;&#34; Make Lorentzian fitting for single and double Lorentzian model &#34;&#34;&#34;
+        res1 = rof.make_lorentzian_fit(x, y, model1, params1)
+        if res1.rsquared &lt; r2_thresh:
+            return rof.make_lorentziandouble_fit(x, y, model2, params2)
+        return res1
+
     def fit_raster_odmr(
+            self,
             odmr_measurements: dict[str, MeasurementDataclass],
             r2_thresh: float = 0.95,
             thresh_frac: float = 0.5,
@@ -878,7 +912,7 @@ class AnalysisLogic(FitLogic):
 
         # Parallel fitting
         model_results = Parallel(n_jobs=cpu_count())(
-            delayed(rof.lorentzian_fitting)(
+            delayed(self._lorentzian_fitting)(
                 x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
             in
             tqdm(args, disable=not progress_bar)
@@ -890,10 +924,10 @@ class AnalysisLogic(FitLogic):
         for odmr, res in zip(odmr_measurements.values(), model_results):
 
             if len(res.params) == 6:
-                # Fit to a single Lorentzian
+                # Evaluate a single Lorentzian
                 y_fit = model1.eval(x=x_fit, params=res.params)
             else:
-                # Fit to a double Lorentzian
+                # Evaluate a double Lorentzian
                 y_fit = model2.eval(x=x_fit, params=res.params)
 
             # Plug results into the DataClass
@@ -901,6 +935,7 @@ class AnalysisLogic(FitLogic):
             odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=[&#34;x_fit&#34;, &#34;y_fit&#34;])
 
             if extract_pixel_from_filename:
+                # Extract the pixel with regex from the filename
                 row, col = map(int, re.findall(r&#39;(?&lt;=\().*?(?=\))&#39;, odmr.filename)[0].split(&#34;,&#34;))
                 odmr.xy_position = (row, col)
 
@@ -1499,104 +1534,6 @@ def average_raster_odmr_pixels(orig_image: np.ndarray) -&gt; np.ndarray:
     return image</code></pre>
 </details>
 </dd>
-<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_raster_odmr"><code class="name flex">
-<span>def <span class="ident">fit_raster_odmr</span></span>(<span>odmr_measurements: dict[str, MeasurementDataclass], r2_thresh: float = 0.95, thresh_frac: float = 0.5, sigma_thresh_frac: float = 0.15, min_thresh: float = 0.01, extract_pixel_from_filename: bool = True, progress_bar: bool = True) ‑> dict[str, MeasurementDataclass]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Fit a list of ODMR data to single and double Lorentzian functions</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>odmr_measurements</code></strong></dt>
-<dd>Dict of ODMR data in MeasurementDataclasses</dd>
-<dt><strong><code>r2_thresh</code></strong></dt>
-<dd>R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian</dd>
-<dt><strong><code>thresh_frac</code></strong></dt>
-<dd>Threshold fraction for the peak finding</dd>
-<dt><strong><code>min_thresh</code></strong></dt>
-<dd>Minimum threshold for the peak finding</dd>
-<dt><strong><code>sigma_thresh_frac</code></strong></dt>
-<dd>Change in threshold fraction for the peak finding</dd>
-<dt><strong><code>extract_pixel_from_filename</code></strong></dt>
-<dd>Extract <code>(row, col)</code> (in this format) from filename</dd>
-<dt><strong><code>progress_bar</code></strong></dt>
-<dd>Show progress bar</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def fit_raster_odmr(
-        odmr_measurements: dict[str, MeasurementDataclass],
-        r2_thresh: float = 0.95,
-        thresh_frac: float = 0.5,
-        sigma_thresh_frac: float = 0.15,
-        min_thresh: float = 0.01,
-        extract_pixel_from_filename: bool = True,
-        progress_bar: bool = True
-) -&gt; dict[str, MeasurementDataclass]:
-    &#34;&#34;&#34;
-    Fit a list of ODMR data to single and double Lorentzian functions
-
-    Args:
-        odmr_measurements: Dict of ODMR data in MeasurementDataclasses
-        r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
-        thresh_frac: Threshold fraction for the peak finding
-        min_thresh: Minimum threshold for the peak finding
-        sigma_thresh_frac: Change in threshold fraction for the peak finding
-        extract_pixel_from_filename: Extract `(row, col)` (in this format) from filename
-        progress_bar: Show progress bar
-
-    Returns:
-        Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
-    &#34;&#34;&#34;
-
-    model1, base_params1 = rof.make_lorentzian_model()
-    model2, base_params2 = rof.make_lorentziandouble_model()
-
-    # Generate arguments for the parallel fitting
-    args = []
-    for odmr in tqdm(odmr_measurements.values(), disable=not progress_bar):
-        x = odmr.data[&#34;Freq(MHz)&#34;].to_numpy()
-        y = odmr.data[&#34;Counts&#34;].to_numpy()
-        _, params1 = rof.estimate_lorentzian_dip(x, y, base_params1)
-        _, params2 = rof.estimate_lorentziandouble_dip(x, y, base_params2, thresh_frac, min_thresh,
-                                                       sigma_thresh_frac)
-        args.append((x, y, model1, model2, params1, params2, r2_thresh))
-
-    # Parallel fitting
-    model_results = Parallel(n_jobs=cpu_count())(
-        delayed(rof.lorentzian_fitting)(
-            x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
-        in
-        tqdm(args, disable=not progress_bar)
-    )
-
-    x = list(odmr_measurements.values())[0].data[&#34;Freq(MHz)&#34;].to_numpy()
-    x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
-
-    for odmr, res in zip(odmr_measurements.values(), model_results):
-
-        if len(res.params) == 6:
-            # Fit to a single Lorentzian
-            y_fit = model1.eval(x=x_fit, params=res.params)
-        else:
-            # Fit to a double Lorentzian
-            y_fit = model2.eval(x=x_fit, params=res.params)
-
-        # Plug results into the DataClass
-        odmr.fit_model = res
-        odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=[&#34;x_fit&#34;, &#34;y_fit&#34;])
-
-        if extract_pixel_from_filename:
-            row, col = map(int, re.findall(r&#39;(?&lt;=\().*?(?=\))&#39;, odmr.filename)[0].split(&#34;,&#34;))
-            odmr.xy_position = (row, col)
-
-    return odmr_measurements</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
@@ -1666,6 +1603,105 @@ def fit_raster_odmr(
         parameters=parameters,
         dims=dims
     )</code></pre>
+</details>
+</dd>
+<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_raster_odmr"><code class="name flex">
+<span>def <span class="ident">fit_raster_odmr</span></span>(<span>self, odmr_measurements: dict[str, MeasurementDataclass], r2_thresh: float = 0.95, thresh_frac: float = 0.5, sigma_thresh_frac: float = 0.15, min_thresh: float = 0.01, extract_pixel_from_filename: bool = True, progress_bar: bool = True) ‑> dict[str, MeasurementDataclass]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fit a list of ODMR data to single and double Lorentzian functions</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>odmr_measurements</code></strong></dt>
+<dd>Dict of ODMR data in MeasurementDataclasses</dd>
+<dt><strong><code>r2_thresh</code></strong></dt>
+<dd>R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian</dd>
+<dt><strong><code>thresh_frac</code></strong></dt>
+<dd>Threshold fraction for the peak finding</dd>
+<dt><strong><code>min_thresh</code></strong></dt>
+<dd>Minimum threshold for the peak finding</dd>
+<dt><strong><code>sigma_thresh_frac</code></strong></dt>
+<dd>Change in threshold fraction for the peak finding</dd>
+<dt><strong><code>extract_pixel_from_filename</code></strong></dt>
+<dd>Extract <code>(row, col)</code> (in this format) from filename</dd>
+<dt><strong><code>progress_bar</code></strong></dt>
+<dd>Show progress bar</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_raster_odmr(
+        self,
+        odmr_measurements: dict[str, MeasurementDataclass],
+        r2_thresh: float = 0.95,
+        thresh_frac: float = 0.5,
+        sigma_thresh_frac: float = 0.15,
+        min_thresh: float = 0.01,
+        extract_pixel_from_filename: bool = True,
+        progress_bar: bool = True
+) -&gt; dict[str, MeasurementDataclass]:
+    &#34;&#34;&#34;
+    Fit a list of ODMR data to single and double Lorentzian functions
+
+    Args:
+        odmr_measurements: Dict of ODMR data in MeasurementDataclasses
+        r2_thresh: R^2 Threshold below which a double lorentzian is fitted instead of a single lorentzian
+        thresh_frac: Threshold fraction for the peak finding
+        min_thresh: Minimum threshold for the peak finding
+        sigma_thresh_frac: Change in threshold fraction for the peak finding
+        extract_pixel_from_filename: Extract `(row, col)` (in this format) from filename
+        progress_bar: Show progress bar
+
+    Returns:
+        Dict of ODMR MeasurementDataclass with fit, fit model and pixels attributes set
+    &#34;&#34;&#34;
+
+    model1, base_params1 = rof.make_lorentzian_model()
+    model2, base_params2 = rof.make_lorentziandouble_model()
+
+    # Generate arguments for the parallel fitting
+    args = []
+    for odmr in tqdm(odmr_measurements.values(), disable=not progress_bar):
+        x = odmr.data[&#34;Freq(MHz)&#34;].to_numpy()
+        y = odmr.data[&#34;Counts&#34;].to_numpy()
+        _, params1 = rof.estimate_lorentzian_dip(x, y, base_params1)
+        _, params2 = rof.estimate_lorentziandouble_dip(x, y, base_params2, thresh_frac, min_thresh,
+                                                       sigma_thresh_frac)
+        args.append((x, y, model1, model2, params1, params2, r2_thresh))
+
+    # Parallel fitting
+    model_results = Parallel(n_jobs=cpu_count())(
+        delayed(self._lorentzian_fitting)(
+            x, y, model1, model2, params1, params2, r2_thresh) for x, y, model1, model2, params1, params2, r2_thresh
+        in
+        tqdm(args, disable=not progress_bar)
+    )
+
+    x = list(odmr_measurements.values())[0].data[&#34;Freq(MHz)&#34;].to_numpy()
+    x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
+
+    for odmr, res in zip(odmr_measurements.values(), model_results):
+
+        if len(res.params) == 6:
+            # Evaluate a single Lorentzian
+            y_fit = model1.eval(x=x_fit, params=res.params)
+        else:
+            # Evaluate a double Lorentzian
+            y_fit = model2.eval(x=x_fit, params=res.params)
+
+        # Plug results into the DataClass
+        odmr.fit_model = res
+        odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T, columns=[&#34;x_fit&#34;, &#34;y_fit&#34;])
+
+        if extract_pixel_from_filename:
+            # Extract the pixel with regex from the filename
+            row, col = map(int, re.findall(r&#39;(?&lt;=\().*?(?=\))&#39;, odmr.filename)[0].split(&#34;,&#34;))
+            odmr.xy_position = (row, col)
+
+    return odmr_measurements</code></pre>
 </details>
 </dd>
 <dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.get_all_fits"><code class="name flex">

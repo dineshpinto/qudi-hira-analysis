@@ -56,7 +56,7 @@ odmr_measurements = dh.load_measurements("odmr")
 # Extract ODMR data into a pandas DataFrame and fit with a double Lorentzian
 odmr = odmr_measurements["20230101-0420-00"]
 x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
-                              fit_function=dh.fit_function.doublelorentzian, data=odmr.data)
+                              fit_function=dh.fit_function.lorentziandouble, data=odmr.data)
 
 # Plot the data and fit, label with measurement timestamp
 ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label=odmr.timestamp)

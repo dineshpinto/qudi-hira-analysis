@@ -36,7 +36,7 @@ measurements and the values are `measurement_dataclass.MeasurementDataclass()` o
 
 ```python
 x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
-                              fit_function=dh.fit_function.doublelorentzian,
+                              fit_function=dh.fit_function.lorentziandouble,
                               data=odmr.data)
 
 # Plot the data and the fit
