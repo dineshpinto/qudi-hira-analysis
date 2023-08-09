@@ -123,7 +123,7 @@ class MeasurementDataclass:
             self.filename = self.filepath.name
 
     def __repr__(self) -> str:
-        return f"Measurement(timestamp='{self.timestamp}', filename='{self.filename}')"
+        return f"MeasurementDataclass(timestamp='{self.timestamp}', filename='{self.filename}')"
 
     @property
     def data(self) -> np.ndarray | pd.DataFrame:
