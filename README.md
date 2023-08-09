@@ -72,7 +72,7 @@ print(result.fit_report())
 # Save figure
 dh.save_figures(filepath=Path("odmr_fit"), fig=ax.get_figure())
 ```
-![ODMR](https://github.com/dineshpinto/qudi-hira-analysis/blob/eacb6c66fc9adfef0d2eb193ae6b62a935221f19/docs/images/odmr.jpg)
+![ODMR](https://github.com/dineshpinto/qudi-hira-analysis/blob/fb86a5321a15a6851803daa9af60abe52436b54d/docs/images/odmr.jpg)
 
 ## Documentation
 
