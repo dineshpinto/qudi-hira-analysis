@@ -63,8 +63,8 @@ sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
 # Calculate the ODMR splitting
 ax.axvline(result.best_values["l0_center"], ls="--", color="C1")
 ax.axvline(result.best_values["l1_center"], ls="--", color="C1")
-splitting = (result.best_values["l1_center"] - result.best_values["l0_center"]) / 1e6
-ax.set_title(f"Splitting = {round(splitting, 2)} MHz")
+splitting = result.best_values["l1_center"] - result.best_values["l0_center"]
+ax.set_title(f"ODMR splitting = {splitting / 1e6:.1f} MHz")
 
 # Generate fit report
 print(result.fit_report())
