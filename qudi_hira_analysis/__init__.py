@@ -2,6 +2,11 @@
 
 ## Getting started
 
+Start by creating an instance of the `DataHandler` class. Specify the location you want to load data from
+(`data_folder`), the location you want to save figures to (`figure_folder`) and (optionally) the
+name of the measurement folder (`measurement_folder`). If a measurement folder is specified, its path will be combined
+with the data folder path to form the full path to the measurement data.
+
 ```python
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -14,42 +19,45 @@ dh = DataHandler(
     figure_folder=Path("C:/QudiHiraAnalysis"), # Path to the figure folder
     measurement_folder=Path("20230101_NV1") # Name of the measurement folder
  )
+ # Output:
+ # qudi_hira_analysis.data_handler :: INFO :: Data folder path is C:/Data/20230101_NV1
+ # qudi_hira_analysis.data_handler :: INFO :: Figure folder path is C:/QudiHiraAnalysis/20230101_NV1
 ```
-Start by creating an instance of the `DataHandler` class. Specify the location you want to load data from
-(`data_folder`), the location you want to save figures to (`figure_folder`) and (optionally) the
-name of the measurement folder (`measurement_folder`). If a measurement folder is specified, its path will be combined
-with the data folder path to form the full path to the measurement data.
 
 ### Loading data
 
-```python
-# Search and lazy-load all pulsed measurements with "odmr" in the path into a Dataclass
-odmr_measurements = dh.load_measurements("odmr", pulsed=True)
-odmr = odmr_measurements["20230101-0420-00"]
-```
 To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
 The method takes a string as an argument and searches for files with the string in the path. The files are lazy-loaded,
 so the data is only loaded when it is needed. The method returns a dictionary, where the keys are the timestamps of the
 measurements and the values are `measurement_dataclass.MeasurementDataclass()` objects.
 
-### Fitting data
 
 ```python
-x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
-                              fit_function=dh.fit_function.lorentziandouble,
-                              data=odmr.data)
-
-# Plot the data and the fit
-plot = sns.scatterplot(x="Freq", y="Counts", data=odmr.data, label=odmr.timestamp)
-sns.lineplot(x=xf, y=yf, ax=plot, label="Fit")
-
-# Generate fit report
-print(res.fit_report())
+# Search and lazy-load all pulsed measurements with "odmr" in the path into Dataclasses
+odmr_measurements = dh.load_measurements("odmr", pulsed=True)
+odmr = odmr_measurements["20230101-0420-00"]
 ```
+
+>>> odmr
+MeasurementDataclass(timestamp='2023-01-01 04:20:00', filename='odmr.dat')
+
+>>> odmr.data
+    Controlled variable(Hz)	Signal
+0	2850.000000	        1.001626
+1	2850.816327	        0.992160
+2	2851.632653	        0.975900
+3	2852.448980	        0.990770
+4	2853.265306	        0.994068
+...	...	                ...
+
+
+### Fitting data
+
 To fit data, call the `DataHandler.fit()` method. This method accepts pandas DataFrames, numpy arrays or pandas Series
 as inputs. To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call
 `AnalysisLogic.get_all_fits()`.
-The fit functions are:
+
+The fit functions available are:
 
 | Dimension | Fit                           |
 |-----------|-------------------------------|
@@ -76,17 +84,66 @@ The fit functions are:
 | 2D        | twoDgaussian                  |
 
 
-### Saving data
 
 ```python
-# Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=Path("odmr"), fig=plot.get_figure(),
-                only_pdf=True, bbox_inches="tight")
+x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
+                              fit_function=dh.fit_function.lorentziandouble,
+                              data=odmr.data)
+
+# Plot the data and the fit
+ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label="Data")
+sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
 ```
+
+>>> print(result.fit_report())
+[[Model]]
+    (((Model(amplitude_function, prefix='l0_') * Model(physical_lorentzian, prefix='l0_')) + Model(constant_function)) + (Model(amplitude_function, prefix='l1_') * Model(physical_lorentzian, prefix='l1_')))
+[[Fit Statistics]]
+    # fitting method   = leastsq
+    # function evals   = 57
+    # data points      = 50
+    # variables        = 7
+    chi-square         = 0.00365104
+    reduced chi-square = 8.4908e-05
+    Akaike info crit   = -462.238252
+    Bayesian info crit = -448.854091
+    R-squared          = 0.98267842
+[[Variables]]
+    l0_amplitude: -0.22563916 +/- 0.00770009 (3.41%) (init = -0.1766346)
+    l0_center:     2866.58588 +/- 0.05208537 (0.00%) (init = 2866.327)
+    l0_sigma:      1.51496671 +/- 0.08457482 (5.58%) (init = 2.834718)
+    offset:        1.00213733 +/- 0.00189341 (0.19%) (init = 0.9965666)
+    l1_amplitude: -0.21380290 +/- 0.00772333 (3.61%) (init = -0.1676134)
+    l1_center:     2873.49077 +/- 0.05478295 (0.00%) (init = 2872.857)
+    l1_sigma:      1.49704419 +/- 0.08813686 (5.89%) (init = 2.987285)
+    l0_fwhm:       3.02993343 +/- 0.16914964 (5.58%) == '2*l0_sigma'
+    l0_contrast:  -22.5157920 +/- 0.76625384 (3.40%) == '(l0_amplitude/offset)*100'
+    l1_fwhm:       2.99408834 +/- 0.17627372 (5.89%) == '2*l1_sigma'
+    l1_contrast:  -21.3346912 +/- 0.76857477 (3.60%) == '(l1_amplitude/offset)*100'
+[[Correlations]] (unreported correlations are < 0.100)
+    C(l0_amplitude, l0_sigma) = +0.6038
+    C(l1_amplitude, l1_sigma) = +0.6020
+    C(l0_sigma, offset)       = +0.3301
+    C(offset, l1_sigma)       = +0.3250
+    C(l0_sigma, l1_sigma)     = -0.1588
+    C(l0_center, l1_sigma)    = -0.1531
+    C(l0_sigma, l1_center)    = +0.1531
+
+### Saving data
 
 To save figures, call the `DataHandler.save_figures()` method. By default,
 the figures are saved as JPG, PDF, PNG and SVG.
-This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`.
+This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`. All other keyword arguments
+are passed to the `matplotlib.pyplot.savefig()` function.
+
+
+```python
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path("odmr"), fig=ax.get_figure(),
+                only_pdf=True, bbox_inches="tight")
+
+# The figure is saved to C:/QudiHiraAnalysis/20230101_NV1/odmr.pdf
+```
 
 ## Examples
 

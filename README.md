@@ -45,21 +45,21 @@ import seaborn as sns
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path("C:\\Data"),  # Path to data folder
-    figure_folder=Path("C:\\QudiHiraAnalysis"),  # Path to figure folder
+    data_folder=Path("C:/Data"),  # Path to data folder
+    figure_folder=Path("C:/QudiHiraAnalysis"),  # Path to figure folder
     measurement_folder=Path("20230101_NV1")  # Measurement folder name (optional)
 )
 
 # Lazy-load all pulsed measurements with "odmr" in the path into a Dataclass
 odmr_measurements = dh.load_measurements("odmr", pulsed=True)
 
-# Extract ODMR data into a pandas DataFrame and fit with a double Lorentzian
+# Fit ODMR data with a double Lorentzian
 odmr = odmr_measurements["20230101-0420-00"]
 x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
                               fit_function=dh.fit_function.lorentziandouble, data=odmr.data)
 
-# Plot the data and fit, label with measurement timestamp
-ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label=odmr.timestamp)
+# Plot the data and fit
+ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label="Data")
 sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
 
 # Generate fit report

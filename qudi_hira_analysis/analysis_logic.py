@@ -27,6 +27,33 @@ class FitMethodsAndEstimators:
         Class for storing fit methods and estimators.
         Fit methods are stored as tuples of (method, estimator)
         where method is the name of the fit method and estimator is the name of the estimator.
+
+
+        The fit functions available are:
+
+        | Dimension | Fit                           |
+        |-----------|-------------------------------|
+        | 1D        | decayexponential              |
+        |           | biexponential                 |
+        |           | decayexponentialstretched     |
+        |           | gaussian                      |
+        |           | gaussiandouble                |
+        |           | gaussianlinearoffset          |
+        |           | hyperbolicsaturation          |
+        |           | linear                        |
+        |           | lorentzian                    |
+        |           | lorentziandouble              |
+        |           | lorentziantriple              |
+        |           | sine                          |
+        |           | sinedouble                    |
+        |           | sinedoublewithexpdecay        |
+        |           | sinedoublewithtwoexpdecay     |
+        |           | sineexponentialdecay          |
+        |           | sinestretchedexponentialdecay |
+        |           | sinetriple                    |
+        |           | sinetriplewithexpdecay        |
+        |           | sinetriplewiththreeexpdecay   |
+        | 2D        | twoDgaussian                  |
     """
     # Fit methods with corresponding estimators
     antibunching: tuple = ("antibunching", "dip")

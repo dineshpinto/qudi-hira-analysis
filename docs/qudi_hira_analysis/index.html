@@ -24,6 +24,10 @@
 <section id="section-intro">
 <p>Analytics suite for qubit SPM using FPGA timetaggers</p>
 <h2 id="getting-started">Getting started</h2>
+<p>Start by creating an instance of the <code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code> class. Specify the location you want to load data from
+(<code>data_folder</code>), the location you want to save figures to (<code>figure_folder</code>) and (optionally) the
+name of the measurement folder (<code>measurement_folder</code>). If a measurement folder is specified, its path will be combined
+with the data folder path to form the full path to the measurement data.</p>
 <pre><code class="language-python">from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -35,36 +39,36 @@ dh = DataHandler(
     figure_folder=Path(&quot;C:/QudiHiraAnalysis&quot;), # Path to the figure folder
     measurement_folder=Path(&quot;20230101_NV1&quot;) # Name of the measurement folder
  )
+ # Output:
+ # qudi_hira_analysis.data_handler :: INFO :: Data folder path is C:/Data/20230101_NV1
+ # qudi_hira_analysis.data_handler :: INFO :: Figure folder path is C:/QudiHiraAnalysis/20230101_NV1
 </code></pre>
-<p>Start by creating an instance of the <code><a title="qudi_hira_analysis.DataHandler" href="#qudi_hira_analysis.DataHandler">DataHandler</a></code> class. Specify the location you want to load data from
-(<code>data_folder</code>), the location you want to save figures to (<code>figure_folder</code>) and (optionally) the
-name of the measurement folder (<code>measurement_folder</code>). If a measurement folder is specified, its path will be combined
-with the data folder path to form the full path to the measurement data.</p>
 <h3 id="loading-data">Loading data</h3>
-<pre><code class="language-python"># Search and lazy-load all pulsed measurements with &quot;odmr&quot; in the path into a Dataclass
-odmr_measurements = dh.load_measurements(&quot;odmr&quot;, pulsed=True)
-odmr = odmr_measurements[&quot;20230101-0420-00&quot;]
-</code></pre>
 <p>To load a specific set of measurements from the data folder, use the <code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">DataHandler.load_measurements()</a></code> method.
 The method takes a string as an argument and searches for files with the string in the path. The files are lazy-loaded,
 so the data is only loaded when it is needed. The method returns a dictionary, where the keys are the timestamps of the
 measurements and the values are <code><a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass" href="measurement_dataclass.html#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass">MeasurementDataclass</a></code> objects.</p>
-<h3 id="fitting-data">Fitting data</h3>
-<pre><code class="language-python">x_fit, y_fit, result = dh.fit(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;,
-                              fit_function=dh.fit_function.lorentziandouble,
-                              data=odmr.data)
-
-# Plot the data and the fit
-plot = sns.scatterplot(x=&quot;Freq&quot;, y=&quot;Counts&quot;, data=odmr.data, label=odmr.timestamp)
-sns.lineplot(x=xf, y=yf, ax=plot, label=&quot;Fit&quot;)
-
-# Generate fit report
-print(res.fit_report())
+<pre><code class="language-python"># Search and lazy-load all pulsed measurements with &quot;odmr&quot; in the path into Dataclasses
+odmr_measurements = dh.load_measurements(&quot;odmr&quot;, pulsed=True)
+odmr = odmr_measurements[&quot;20230101-0420-00&quot;]
 </code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; odmr
+MeasurementDataclass(timestamp='2023-01-01 04:20:00', filename='odmr.dat')
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; odmr.data
+    Controlled variable(Hz)     Signal
+0       2850.000000             1.001626
+1       2850.816327             0.992160
+2       2851.632653             0.975900
+3       2852.448980             0.990770
+4       2853.265306             0.994068
+...     ...                     ...
+</code></pre>
+<h3 id="fitting-data">Fitting data</h3>
 <p>To fit data, call the <code><a title="qudi_hira_analysis.DataHandler.fit" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit">AnalysisLogic.fit()</a></code> method. This method accepts pandas DataFrames, numpy arrays or pandas Series
 as inputs. To get the full list of available fit routines, explore the <code><a title="qudi_hira_analysis.DataHandler.fit_function" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.fit_function">DataHandler.fit_function</a></code> attribute or call
-<code><a title="qudi_hira_analysis.AnalysisLogic.get_all_fits" href="#qudi_hira_analysis.AnalysisLogic.get_all_fits">AnalysisLogic.get_all_fits()</a></code>.
-The fit functions are:</p>
+<code><a title="qudi_hira_analysis.AnalysisLogic.get_all_fits" href="#qudi_hira_analysis.AnalysisLogic.get_all_fits">AnalysisLogic.get_all_fits()</a></code>.</p>
+<p>The fit functions available are:</p>
 <table>
 <thead>
 <tr>
@@ -159,14 +163,59 @@ The fit functions are:</p>
 </tr>
 </tbody>
 </table>
-<h3 id="saving-data">Saving data</h3>
-<pre><code class="language-python"># Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=Path(&quot;odmr&quot;), fig=plot.get_figure(),
-                only_pdf=True, bbox_inches=&quot;tight&quot;)
+<pre><code class="language-python">x_fit, y_fit, result = dh.fit(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;,
+                              fit_function=dh.fit_function.lorentziandouble,
+                              data=odmr.data)
+
+# Plot the data and the fit
+ax = sns.scatterplot(x=&quot;Controlled variable(Hz)&quot;, y=&quot;Signal&quot;, data=odmr.data, label=&quot;Data&quot;)
+sns.lineplot(x=x_fit, y=y_fit, ax=ax, label=&quot;Fit&quot;)
 </code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; print(result.fit_report())
+[[Model]]
+    (((Model(amplitude_function, prefix='l0_') * Model(physical_lorentzian, prefix='l0_')) + Model(constant_function)) + (Model(amplitude_function, prefix='l1_') * Model(physical_lorentzian, prefix='l1_')))
+[[Fit Statistics]]
+    # fitting method   = leastsq
+    # function evals   = 57
+    # data points      = 50
+    # variables        = 7
+    chi-square         = 0.00365104
+    reduced chi-square = 8.4908e-05
+    Akaike info crit   = -462.238252
+    Bayesian info crit = -448.854091
+    R-squared          = 0.98267842
+[[Variables]]
+    l0_amplitude: -0.22563916 +/- 0.00770009 (3.41%) (init = -0.1766346)
+    l0_center:     2866.58588 +/- 0.05208537 (0.00%) (init = 2866.327)
+    l0_sigma:      1.51496671 +/- 0.08457482 (5.58%) (init = 2.834718)
+    offset:        1.00213733 +/- 0.00189341 (0.19%) (init = 0.9965666)
+    l1_amplitude: -0.21380290 +/- 0.00772333 (3.61%) (init = -0.1676134)
+    l1_center:     2873.49077 +/- 0.05478295 (0.00%) (init = 2872.857)
+    l1_sigma:      1.49704419 +/- 0.08813686 (5.89%) (init = 2.987285)
+    l0_fwhm:       3.02993343 +/- 0.16914964 (5.58%) == '2*l0_sigma'
+    l0_contrast:  -22.5157920 +/- 0.76625384 (3.40%) == '(l0_amplitude/offset)*100'
+    l1_fwhm:       2.99408834 +/- 0.17627372 (5.89%) == '2*l1_sigma'
+    l1_contrast:  -21.3346912 +/- 0.76857477 (3.60%) == '(l1_amplitude/offset)*100'
+[[Correlations]] (unreported correlations are &lt; 0.100)
+    C(l0_amplitude, l0_sigma) = +0.6038
+    C(l1_amplitude, l1_sigma) = +0.6020
+    C(l0_sigma, offset)       = +0.3301
+    C(offset, l1_sigma)       = +0.3250
+    C(l0_sigma, l1_sigma)     = -0.1588
+    C(l0_center, l1_sigma)    = -0.1531
+    C(l0_sigma, l1_center)    = +0.1531
+</code></pre>
+<h3 id="saving-data">Saving data</h3>
 <p>To save figures, call the <code><a title="qudi_hira_analysis.DataHandler.save_figures" href="io_handler.html#qudi_hira_analysis.io_handler.IOHandler.save_figures">IOHandler.save_figures()</a></code> method. By default,
 the figures are saved as JPG, PDF, PNG and SVG.
-This can be changed by setting the <code>only_jpg</code> or <code>only_pdf</code> arguments to <code>True</code>.</p>
+This can be changed by setting the <code>only_jpg</code> or <code>only_pdf</code> arguments to <code>True</code>. All other keyword arguments
+are passed to the <code>matplotlib.pyplot.savefig()</code> function.</p>
+<pre><code class="language-python"># Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path(&quot;odmr&quot;), fig=ax.get_figure(),
+                only_pdf=True, bbox_inches=&quot;tight&quot;)
+
+# The figure is saved to C:/QudiHiraAnalysis/20230101_NV1/odmr.pdf
+</code></pre>
 <h2 id="examples">Examples</h2>
 <h3 id="nv-odmr-map">NV-ODMR map</h3>
 <p>Extract a heatmap of ODMR splittings from a 2D raster NV-ODMR map.</p>
@@ -343,6 +392,11 @@ dh.save_figures(filepath=&quot;pys_measurement&quot;, fig=fig)
 
 ## Getting started
 
+Start by creating an instance of the `DataHandler` class. Specify the location you want to load data from
+(`data_folder`), the location you want to save figures to (`figure_folder`) and (optionally) the
+name of the measurement folder (`measurement_folder`). If a measurement folder is specified, its path will be combined
+with the data folder path to form the full path to the measurement data.
+
 ```python
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -355,42 +409,45 @@ dh = DataHandler(
     figure_folder=Path(&#34;C:/QudiHiraAnalysis&#34;), # Path to the figure folder
     measurement_folder=Path(&#34;20230101_NV1&#34;) # Name of the measurement folder
  )
+ # Output:
+ # qudi_hira_analysis.data_handler :: INFO :: Data folder path is C:/Data/20230101_NV1
+ # qudi_hira_analysis.data_handler :: INFO :: Figure folder path is C:/QudiHiraAnalysis/20230101_NV1
 ```
-Start by creating an instance of the `DataHandler` class. Specify the location you want to load data from
-(`data_folder`), the location you want to save figures to (`figure_folder`) and (optionally) the
-name of the measurement folder (`measurement_folder`). If a measurement folder is specified, its path will be combined
-with the data folder path to form the full path to the measurement data.
 
 ### Loading data
 
-```python
-# Search and lazy-load all pulsed measurements with &#34;odmr&#34; in the path into a Dataclass
-odmr_measurements = dh.load_measurements(&#34;odmr&#34;, pulsed=True)
-odmr = odmr_measurements[&#34;20230101-0420-00&#34;]
-```
 To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
 The method takes a string as an argument and searches for files with the string in the path. The files are lazy-loaded,
 so the data is only loaded when it is needed. The method returns a dictionary, where the keys are the timestamps of the
 measurements and the values are `measurement_dataclass.MeasurementDataclass()` objects.
 
-### Fitting data
 
 ```python
-x_fit, y_fit, result = dh.fit(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;,
-                              fit_function=dh.fit_function.lorentziandouble,
-                              data=odmr.data)
-
-# Plot the data and the fit
-plot = sns.scatterplot(x=&#34;Freq&#34;, y=&#34;Counts&#34;, data=odmr.data, label=odmr.timestamp)
-sns.lineplot(x=xf, y=yf, ax=plot, label=&#34;Fit&#34;)
-
-# Generate fit report
-print(res.fit_report())
+# Search and lazy-load all pulsed measurements with &#34;odmr&#34; in the path into Dataclasses
+odmr_measurements = dh.load_measurements(&#34;odmr&#34;, pulsed=True)
+odmr = odmr_measurements[&#34;20230101-0420-00&#34;]
 ```
+
+&gt;&gt;&gt; odmr
+MeasurementDataclass(timestamp=&#39;2023-01-01 04:20:00&#39;, filename=&#39;odmr.dat&#39;)
+
+&gt;&gt;&gt; odmr.data
+    Controlled variable(Hz)     Signal
+0       2850.000000             1.001626
+1       2850.816327             0.992160
+2       2851.632653             0.975900
+3       2852.448980             0.990770
+4       2853.265306             0.994068
+...     ...                     ...
+
+
+### Fitting data
+
 To fit data, call the `DataHandler.fit()` method. This method accepts pandas DataFrames, numpy arrays or pandas Series
 as inputs. To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call
 `AnalysisLogic.get_all_fits()`.
-The fit functions are:
+
+The fit functions available are:
 
 | Dimension | Fit                           |
 |-----------|-------------------------------|
@@ -417,17 +474,66 @@ The fit functions are:
 | 2D        | twoDgaussian                  |
 
 
-### Saving data
 
 ```python
-# Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=Path(&#34;odmr&#34;), fig=plot.get_figure(),
-                only_pdf=True, bbox_inches=&#34;tight&#34;)
+x_fit, y_fit, result = dh.fit(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;,
+                              fit_function=dh.fit_function.lorentziandouble,
+                              data=odmr.data)
+
+# Plot the data and the fit
+ax = sns.scatterplot(x=&#34;Controlled variable(Hz)&#34;, y=&#34;Signal&#34;, data=odmr.data, label=&#34;Data&#34;)
+sns.lineplot(x=x_fit, y=y_fit, ax=ax, label=&#34;Fit&#34;)
 ```
+
+&gt;&gt;&gt; print(result.fit_report())
+[[Model]]
+    (((Model(amplitude_function, prefix=&#39;l0_&#39;) * Model(physical_lorentzian, prefix=&#39;l0_&#39;)) + Model(constant_function)) + (Model(amplitude_function, prefix=&#39;l1_&#39;) * Model(physical_lorentzian, prefix=&#39;l1_&#39;)))
+[[Fit Statistics]]
+    # fitting method   = leastsq
+    # function evals   = 57
+    # data points      = 50
+    # variables        = 7
+    chi-square         = 0.00365104
+    reduced chi-square = 8.4908e-05
+    Akaike info crit   = -462.238252
+    Bayesian info crit = -448.854091
+    R-squared          = 0.98267842
+[[Variables]]
+    l0_amplitude: -0.22563916 +/- 0.00770009 (3.41%) (init = -0.1766346)
+    l0_center:     2866.58588 +/- 0.05208537 (0.00%) (init = 2866.327)
+    l0_sigma:      1.51496671 +/- 0.08457482 (5.58%) (init = 2.834718)
+    offset:        1.00213733 +/- 0.00189341 (0.19%) (init = 0.9965666)
+    l1_amplitude: -0.21380290 +/- 0.00772333 (3.61%) (init = -0.1676134)
+    l1_center:     2873.49077 +/- 0.05478295 (0.00%) (init = 2872.857)
+    l1_sigma:      1.49704419 +/- 0.08813686 (5.89%) (init = 2.987285)
+    l0_fwhm:       3.02993343 +/- 0.16914964 (5.58%) == &#39;2*l0_sigma&#39;
+    l0_contrast:  -22.5157920 +/- 0.76625384 (3.40%) == &#39;(l0_amplitude/offset)*100&#39;
+    l1_fwhm:       2.99408834 +/- 0.17627372 (5.89%) == &#39;2*l1_sigma&#39;
+    l1_contrast:  -21.3346912 +/- 0.76857477 (3.60%) == &#39;(l1_amplitude/offset)*100&#39;
+[[Correlations]] (unreported correlations are &lt; 0.100)
+    C(l0_amplitude, l0_sigma) = +0.6038
+    C(l1_amplitude, l1_sigma) = +0.6020
+    C(l0_sigma, offset)       = +0.3301
+    C(offset, l1_sigma)       = +0.3250
+    C(l0_sigma, l1_sigma)     = -0.1588
+    C(l0_center, l1_sigma)    = -0.1531
+    C(l0_sigma, l1_center)    = +0.1531
+
+### Saving data
 
 To save figures, call the `DataHandler.save_figures()` method. By default,
 the figures are saved as JPG, PDF, PNG and SVG.
-This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`.
+This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`. All other keyword arguments
+are passed to the `matplotlib.pyplot.savefig()` function.
+
+
+```python
+# Save the figure to the figure folder specified earlier
+dh.save_figures(filepath=Path(&#34;odmr&#34;), fig=ax.get_figure(),
+                only_pdf=True, bbox_inches=&#34;tight&#34;)
+
+# The figure is saved to C:/QudiHiraAnalysis/20230101_NV1/odmr.pdf
+```
 
 ## Examples
 
@@ -1126,7 +1232,102 @@ __all__ = [&#34;DataHandler&#34;, &#34;IOHandler&#34;, &#34;AnalysisLogic&#34;, 
 <dd>
 <div class="desc"><p>Class for storing fit methods and estimators.
 Fit methods are stored as tuples of (method, estimator)
-where method is the name of the fit method and estimator is the name of the estimator.</p></div>
+where method is the name of the fit method and estimator is the name of the estimator.</p>
+<p>The fit functions available are:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1D</td>
+<td>decayexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>biexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>decayexponentialstretched</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussian</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussiandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussianlinearoffset</td>
+</tr>
+<tr>
+<td></td>
+<td>hyperbolicsaturation</td>
+</tr>
+<tr>
+<td></td>
+<td>linear</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentzian</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziantriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sine</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedouble</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithtwoexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sineexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinestretchedexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewiththreeexpdecay</td>
+</tr>
+<tr>
+<td>2D</td>
+<td>twoDgaussian</td>
+</tr>
+</tbody>
+</table></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -2419,7 +2620,102 @@ measurement_folder: Path to the measurement folder.</p>
 <dd>
 <div class="desc"><p>Class for storing fit methods and estimators.
 Fit methods are stored as tuples of (method, estimator)
-where method is the name of the fit method and estimator is the name of the estimator.</p></div>
+where method is the name of the fit method and estimator is the name of the estimator.</p>
+<p>The fit functions available are:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1D</td>
+<td>decayexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>biexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>decayexponentialstretched</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussian</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussiandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussianlinearoffset</td>
+</tr>
+<tr>
+<td></td>
+<td>hyperbolicsaturation</td>
+</tr>
+<tr>
+<td></td>
+<td>linear</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentzian</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziantriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sine</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedouble</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithtwoexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sineexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinestretchedexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewiththreeexpdecay</td>
+</tr>
+<tr>
+<td>2D</td>
+<td>twoDgaussian</td>
+</tr>
+</tbody>
+</table></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -2429,6 +2725,33 @@ where method is the name of the fit method and estimator is the name of the esti
         Class for storing fit methods and estimators.
         Fit methods are stored as tuples of (method, estimator)
         where method is the name of the fit method and estimator is the name of the estimator.
+
+
+        The fit functions available are:
+
+        | Dimension | Fit                           |
+        |-----------|-------------------------------|
+        | 1D        | decayexponential              |
+        |           | biexponential                 |
+        |           | decayexponentialstretched     |
+        |           | gaussian                      |
+        |           | gaussiandouble                |
+        |           | gaussianlinearoffset          |
+        |           | hyperbolicsaturation          |
+        |           | linear                        |
+        |           | lorentzian                    |
+        |           | lorentziandouble              |
+        |           | lorentziantriple              |
+        |           | sine                          |
+        |           | sinedouble                    |
+        |           | sinedoublewithexpdecay        |
+        |           | sinedoublewithtwoexpdecay     |
+        |           | sineexponentialdecay          |
+        |           | sinestretchedexponentialdecay |
+        |           | sinetriple                    |
+        |           | sinetriplewithexpdecay        |
+        |           | sinetriplewiththreeexpdecay   |
+        | 2D        | twoDgaussian                  |
     &#34;&#34;&#34;
     # Fit methods with corresponding estimators
     antibunching: tuple = (&#34;antibunching&#34;, &#34;dip&#34;)

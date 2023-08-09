@@ -55,6 +55,33 @@ class FitMethodsAndEstimators:
         Class for storing fit methods and estimators.
         Fit methods are stored as tuples of (method, estimator)
         where method is the name of the fit method and estimator is the name of the estimator.
+
+
+        The fit functions available are:
+
+        | Dimension | Fit                           |
+        |-----------|-------------------------------|
+        | 1D        | decayexponential              |
+        |           | biexponential                 |
+        |           | decayexponentialstretched     |
+        |           | gaussian                      |
+        |           | gaussiandouble                |
+        |           | gaussianlinearoffset          |
+        |           | hyperbolicsaturation          |
+        |           | linear                        |
+        |           | lorentzian                    |
+        |           | lorentziandouble              |
+        |           | lorentziantriple              |
+        |           | sine                          |
+        |           | sinedouble                    |
+        |           | sinedoublewithexpdecay        |
+        |           | sinedoublewithtwoexpdecay     |
+        |           | sineexponentialdecay          |
+        |           | sinestretchedexponentialdecay |
+        |           | sinetriple                    |
+        |           | sinetriplewithexpdecay        |
+        |           | sinetriplewiththreeexpdecay   |
+        | 2D        | twoDgaussian                  |
     &#34;&#34;&#34;
     # Fit methods with corresponding estimators
     antibunching: tuple = (&#34;antibunching&#34;, &#34;dip&#34;)
@@ -986,7 +1013,102 @@ class AnalysisLogic(FitLogic):
 <dd>
 <div class="desc"><p>Class for storing fit methods and estimators.
 Fit methods are stored as tuples of (method, estimator)
-where method is the name of the fit method and estimator is the name of the estimator.</p></div>
+where method is the name of the fit method and estimator is the name of the estimator.</p>
+<p>The fit functions available are:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1D</td>
+<td>decayexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>biexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>decayexponentialstretched</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussian</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussiandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussianlinearoffset</td>
+</tr>
+<tr>
+<td></td>
+<td>hyperbolicsaturation</td>
+</tr>
+<tr>
+<td></td>
+<td>linear</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentzian</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziantriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sine</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedouble</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithtwoexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sineexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinestretchedexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewiththreeexpdecay</td>
+</tr>
+<tr>
+<td>2D</td>
+<td>twoDgaussian</td>
+</tr>
+</tbody>
+</table></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -1810,7 +1932,102 @@ then optimizing the hyperparameters for them.</p>
 <dd>
 <div class="desc"><p>Class for storing fit methods and estimators.
 Fit methods are stored as tuples of (method, estimator)
-where method is the name of the fit method and estimator is the name of the estimator.</p></div>
+where method is the name of the fit method and estimator is the name of the estimator.</p>
+<p>The fit functions available are:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Fit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1D</td>
+<td>decayexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>biexponential</td>
+</tr>
+<tr>
+<td></td>
+<td>decayexponentialstretched</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussian</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussiandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>gaussianlinearoffset</td>
+</tr>
+<tr>
+<td></td>
+<td>hyperbolicsaturation</td>
+</tr>
+<tr>
+<td></td>
+<td>linear</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentzian</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziandouble</td>
+</tr>
+<tr>
+<td></td>
+<td>lorentziantriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sine</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedouble</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinedoublewithtwoexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sineexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinestretchedexponentialdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriple</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewithexpdecay</td>
+</tr>
+<tr>
+<td></td>
+<td>sinetriplewiththreeexpdecay</td>
+</tr>
+<tr>
+<td>2D</td>
+<td>twoDgaussian</td>
+</tr>
+</tbody>
+</table></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1820,6 +2037,33 @@ where method is the name of the fit method and estimator is the name of the esti
         Class for storing fit methods and estimators.
         Fit methods are stored as tuples of (method, estimator)
         where method is the name of the fit method and estimator is the name of the estimator.
+
+
+        The fit functions available are:
+
+        | Dimension | Fit                           |
+        |-----------|-------------------------------|
+        | 1D        | decayexponential              |
+        |           | biexponential                 |
+        |           | decayexponentialstretched     |
+        |           | gaussian                      |
+        |           | gaussiandouble                |
+        |           | gaussianlinearoffset          |
+        |           | hyperbolicsaturation          |
+        |           | linear                        |
+        |           | lorentzian                    |
+        |           | lorentziandouble              |
+        |           | lorentziantriple              |
+        |           | sine                          |
+        |           | sinedouble                    |
+        |           | sinedoublewithexpdecay        |
+        |           | sinedoublewithtwoexpdecay     |
+        |           | sineexponentialdecay          |
+        |           | sinestretchedexponentialdecay |
+        |           | sinetriple                    |
+        |           | sinetriplewithexpdecay        |
+        |           | sinetriplewiththreeexpdecay   |
+        | 2D        | twoDgaussian                  |
     &#34;&#34;&#34;
     # Fit methods with corresponding estimators
     antibunching: tuple = (&#34;antibunching&#34;, &#34;dip&#34;)
