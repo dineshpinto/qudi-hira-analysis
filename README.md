@@ -50,8 +50,8 @@ dh = DataHandler(
     measurement_folder=Path("20230101_NV1")  # Measurement folder name (optional)
 )
 
-# Lazy-load all measurements with "odmr" in the path into a Dataclass
-odmr_measurements = dh.load_measurements("odmr")
+# Lazy-load all pulsed measurements with "odmr" in the path into a Dataclass
+odmr_measurements = dh.load_measurements("odmr", pulsed=True)
 
 # Extract ODMR data into a pandas DataFrame and fit with a double Lorentzian
 odmr = odmr_measurements["20230101-0420-00"]

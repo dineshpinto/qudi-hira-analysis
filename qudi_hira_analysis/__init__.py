@@ -23,8 +23,8 @@ with the data folder path to form the full path to the measurement data.
 ### Loading data
 
 ```python
-# Search and lazy-load files with "odmr" in the path
-odmr_measurements = dh.load_measurements("odmr")
+# Search and lazy-load all pulsed measurements with "odmr" in the path into a Dataclass
+odmr_measurements = dh.load_measurements("odmr", pulsed=True)
 odmr = odmr_measurements["20230101-0420-00"]
 ```
 To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.

@@ -41,8 +41,8 @@ dh = DataHandler(
 name of the measurement folder (<code>measurement_folder</code>). If a measurement folder is specified, its path will be combined
 with the data folder path to form the full path to the measurement data.</p>
 <h3 id="loading-data">Loading data</h3>
-<pre><code class="language-python"># Search and lazy-load files with &quot;odmr&quot; in the path
-odmr_measurements = dh.load_measurements(&quot;odmr&quot;)
+<pre><code class="language-python"># Search and lazy-load all pulsed measurements with &quot;odmr&quot; in the path into a Dataclass
+odmr_measurements = dh.load_measurements(&quot;odmr&quot;, pulsed=True)
 odmr = odmr_measurements[&quot;20230101-0420-00&quot;]
 </code></pre>
 <p>To load a specific set of measurements from the data folder, use the <code><a title="qudi_hira_analysis.DataHandler.load_measurements" href="#qudi_hira_analysis.DataHandler.load_measurements">DataHandler.load_measurements()</a></code> method.
@@ -364,8 +364,8 @@ with the data folder path to form the full path to the measurement data.
 ### Loading data
 
 ```python
-# Search and lazy-load files with &#34;odmr&#34; in the path
-odmr_measurements = dh.load_measurements(&#34;odmr&#34;)
+# Search and lazy-load all pulsed measurements with &#34;odmr&#34; in the path into a Dataclass
+odmr_measurements = dh.load_measurements(&#34;odmr&#34;, pulsed=True)
 odmr = odmr_measurements[&#34;20230101-0420-00&#34;]
 ```
 To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
