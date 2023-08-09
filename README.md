@@ -28,12 +28,10 @@ should cite [this work](https://doi.org/10.5281/zenodo.7604670).
 
 ## Features
 
-- Easy-to-use modular architecture
 - Automated data import and handling
-- Works natively with data from [Qudi](https://github.com/Ulm-IQO/qudi)
-  and [Qudi-Hira](https://github.com/projecthira/qudi-hira)
-- Supports all fitting routines and file formats used in NV magnetometry, AFM, MFM and NV-SPM
-- Fast and robust curve fitting for 2D ODMR data
+- Works natively with data from [Qudi](https://github.com/Ulm-IQO/qudi) and [Qudi-Hira](https://github.com/projecthira/qudi-hira)
+- Fast and robust curve fitting for NV-ODMR 2D maps, Autocorrelation, Rabi, Ramsey, T1, T2 and more...
+- Supports all file formats used in NV magnetometry, AFM, MFM and NV-SPM
 - Uses a Dataclass-centered design for easy access to data and metadata
 
 ## Usage
@@ -58,9 +56,15 @@ odmr = odmr_measurements["20230101-0420-00"]
 x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
                               fit_function=dh.fit_function.lorentziandouble, data=odmr.data)
 
-# Plot the data and fit
+# Plot the data and the fit
 ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label="Data")
 sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
+
+# Calculate the ODMR splitting
+ax.axvline(result.best_values["l0_center"], ls="--", color="C1")
+ax.axvline(result.best_values["l1_center"], ls="--", color="C1")
+splitting = (result.best_values["l1_center"] - result.best_values["l0_center"]) / 1e6
+ax.set_title(f"Splitting = {round(splitting, 2)} MHz")
 
 # Generate fit report
 print(result.fit_report())
