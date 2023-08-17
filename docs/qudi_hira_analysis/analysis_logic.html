@@ -537,12 +537,7 @@ class AnalysisLogic(FitLogic):
                 pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
 
             image[row, col] = pixel_avg
-        return image
-
-    # Aliases for backwards compatibility
-    analyse_mean = analyze_mean
-    analyse_mean_norm = analyze_mean_norm
-    analyse_mean_reference = analyze_mean_reference</code></pre>
+        return image</code></pre>
 </details>
 </section>
 <section>
@@ -992,12 +987,7 @@ class AnalysisLogic(FitLogic):
                 pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
 
             image[row, col] = pixel_avg
-        return image
-
-    # Aliases for backwards compatibility
-    analyse_mean = analyze_mean
-    analyse_mean_norm = analyze_mean_norm
-    analyse_mean_reference = analyze_mean_reference</code></pre>
+        return image</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1113,256 +1103,6 @@ where method is the name of the fit method and estimator is the name of the esti
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean"><code class="name flex">
-<span>def <span class="ident">analyse_mean</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Calculate the mean of the signal window.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>laser_data</code></strong></dt>
-<dd>2D array of laser data</dd>
-<dt><strong><code>signal_start</code></strong></dt>
-<dd>start of the signal window in seconds</dd>
-<dt><strong><code>signal_end</code></strong></dt>
-<dd>end of the signal window in seconds</dd>
-<dt><strong><code>bin_width</code></strong></dt>
-<dd>width of a bin in seconds</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>Mean of the signal window and measurement error</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def analyze_mean(
-        laser_data: np.ndarray,
-        signal_start: float = 100e-9,
-        signal_end: float = 300e-9,
-        bin_width: float = 1e-9
-) -&gt; Tuple[np.ndarray, np.ndarray]:
-    &#34;&#34;&#34;
-    Calculate the mean of the signal window.
-
-    Args:
-        laser_data: 2D array of laser data
-        signal_start: start of the signal window in seconds
-        signal_end: end of the signal window in seconds
-        bin_width: width of a bin in seconds
-
-    Returns:
-        Mean of the signal window and measurement error
-    &#34;&#34;&#34;
-    # Get number of lasers
-    num_of_lasers = laser_data.shape[0]
-
-    if not isinstance(bin_width, float):
-        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
-
-    # Convert the times in seconds to bins (i.e. array indices)
-    signal_start_bin = round(signal_start / bin_width)
-    signal_end_bin = round(signal_end / bin_width)
-
-    # initialize data arrays for signal and measurement error
-    signal_data = np.empty(num_of_lasers, dtype=float)
-    error_data = np.empty(num_of_lasers, dtype=float)
-
-    # loop over all laser pulses and analyze them
-    for ii, laser_arr in enumerate(laser_data):
-        # calculate the mean of the data in the signal window
-        signal = laser_arr[signal_start_bin:signal_end_bin].mean()
-        signal_sum = laser_arr[signal_start_bin:signal_end_bin].sum()
-        signal_error = np.sqrt(signal_sum) / (signal_end_bin - signal_start_bin)
-
-        # Avoid numpy C type variables overflow and NaN values
-        if signal &lt; 0 or signal != signal:
-            signal_data[ii] = 0.0
-            error_data[ii] = 0.0
-        else:
-            signal_data[ii] = signal
-            error_data[ii] = signal_error
-
-    return signal_data, error_data</code></pre>
-</details>
-</dd>
-<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm"><code class="name flex">
-<span>def <span class="ident">analyse_mean_norm</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end=2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Divides the mean of the signal window from the mean of the reference window.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>laser_data</code></strong></dt>
-<dd>2D array of laser data</dd>
-<dt><strong><code>signal_start</code></strong></dt>
-<dd>start of the signal window in seconds</dd>
-<dt><strong><code>signal_end</code></strong></dt>
-<dd>end of the signal window in seconds</dd>
-<dt><strong><code>norm_start</code></strong></dt>
-<dd>start of the reference window in seconds</dd>
-<dt><strong><code>norm_end</code></strong></dt>
-<dd>end of the reference window in seconds</dd>
-<dt><strong><code>bin_width</code></strong></dt>
-<dd>width of a bin in seconds</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>Normalized mean of the signal window and measurement error</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def analyze_mean_norm(
-        laser_data: np.ndarray,
-        signal_start: float = 100e-9,
-        signal_end: float = 300e-9,
-        norm_start: float = 1000e-9,
-        norm_end=2000e-9,
-        bin_width: float = 1e-9
-) -&gt; Tuple[np.ndarray, np.ndarray]:
-    &#34;&#34;&#34;
-    Divides the mean of the signal window from the mean of the reference window.
-
-    Args:
-        laser_data: 2D array of laser data
-        signal_start: start of the signal window in seconds
-        signal_end: end of the signal window in seconds
-        norm_start: start of the reference window in seconds
-        norm_end: end of the reference window in seconds
-        bin_width: width of a bin in seconds
-
-    Returns:
-        Normalized mean of the signal window and measurement error
-    &#34;&#34;&#34;
-    # Get number of lasers
-    num_of_lasers = laser_data.shape[0]
-
-    if not isinstance(bin_width, float):
-        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
-
-    # Convert the times in seconds to bins (i.e. array indices)
-    signal_start_bin = round(signal_start / bin_width)
-    signal_end_bin = round(signal_end / bin_width)
-    norm_start_bin = round(norm_start / bin_width)
-    norm_end_bin = round(norm_end / bin_width)
-
-    # initialize data arrays for signal and measurement error
-    signal_data = np.empty(num_of_lasers, dtype=float)
-    error_data = np.empty(num_of_lasers, dtype=float)
-
-    # loop over all laser pulses and analyze them
-    for ii, laser_arr in enumerate(laser_data):
-        # calculate the sum and mean of the data in the normalization window
-        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
-        reference_sum = np.sum(tmp_data)
-        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
-
-        # calculate the sum and mean of the data in the signal window
-        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
-        signal_sum = np.sum(tmp_data)
-        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
-
-        # Calculate normalized signal while avoiding division by zero
-        if reference_mean &gt; 0 and signal_mean &gt;= 0:
-            signal_data[ii] = signal_mean / reference_mean
-        else:
-            signal_data[ii] = 0.0
-
-        # Calculate measurement error while avoiding division by zero
-        if reference_sum &gt; 0 and signal_sum &gt; 0:
-            # calculate with respect to gaussian error &#39;evolution&#39;
-            error_data[ii] = signal_data[ii] * np.sqrt(1 / signal_sum + 1 / reference_sum)
-        else:
-            error_data[ii] = 0.0
-
-    return signal_data, error_data</code></pre>
-</details>
-</dd>
-<dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference"><code class="name flex">
-<span>def <span class="ident">analyse_mean_reference</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, norm_start: float = 1e-06, norm_end: float = 2e-06, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Subtracts the mean of the signal window from the mean of the reference window.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>laser_data</code></strong></dt>
-<dd>2D array of laser data</dd>
-<dt><strong><code>signal_start</code></strong></dt>
-<dd>start of the signal window in seconds</dd>
-<dt><strong><code>signal_end</code></strong></dt>
-<dd>end of the signal window in seconds</dd>
-<dt><strong><code>norm_start</code></strong></dt>
-<dd>start of the reference window in seconds</dd>
-<dt><strong><code>norm_end</code></strong></dt>
-<dd>end of the reference window in seconds</dd>
-<dt><strong><code>bin_width</code></strong></dt>
-<dd>width of a bin in seconds</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>Referenced mean of the signal window and measurement error</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def analyze_mean_reference(
-        laser_data: np.ndarray,
-        signal_start: float = 100e-9,
-        signal_end: float = 300e-9,
-        norm_start: float = 1000e-9,
-        norm_end: float = 2000e-9,
-        bin_width: float = 1e-9) -&gt; Tuple[np.ndarray, np.ndarray]:
-    &#34;&#34;&#34;
-    Subtracts the mean of the signal window from the mean of the reference window.
-
-    Args:
-        laser_data: 2D array of laser data
-        signal_start: start of the signal window in seconds
-        signal_end: end of the signal window in seconds
-        norm_start: start of the reference window in seconds
-        norm_end: end of the reference window in seconds
-        bin_width: width of a bin in seconds
-
-    Returns:
-        Referenced mean of the signal window and measurement error
-    &#34;&#34;&#34;
-    # Get number of lasers
-    num_of_lasers = laser_data.shape[0]
-
-    if not isinstance(bin_width, float):
-        return np.zeros(num_of_lasers), np.zeros(num_of_lasers)
-
-    # Convert the times in seconds to bins (i.e. array indices)
-    signal_start_bin = round(signal_start / bin_width)
-    signal_end_bin = round(signal_end / bin_width)
-    norm_start_bin = round(norm_start / bin_width)
-    norm_end_bin = round(norm_end / bin_width)
-
-    # initialize data arrays for signal and measurement error
-    signal_data = np.empty(num_of_lasers, dtype=float)
-    error_data = np.empty(num_of_lasers, dtype=float)
-
-    # loop over all laser pulses and analyze them
-    for ii, laser_arr in enumerate(laser_data):
-        # calculate the sum and mean of the data in the normalization window
-        tmp_data = laser_arr[norm_start_bin:norm_end_bin]
-        reference_sum = np.sum(tmp_data)
-        reference_mean = (reference_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
-
-        # calculate the sum and mean of the data in the signal window
-        tmp_data = laser_arr[signal_start_bin:signal_end_bin]
-        signal_sum = np.sum(tmp_data)
-        signal_mean = (signal_sum / len(tmp_data)) if len(tmp_data) != 0 else 0.0
-
-        signal_data[ii] = signal_mean - reference_mean
-
-        # calculate with respect to gaussian error &#39;evolution&#39;
-        error_data[ii] = signal_data[ii] * np.sqrt(1 / abs(signal_sum) + 1 / abs(reference_sum))
-
-    return signal_data, error_data</code></pre>
-</details>
-</dd>
 <dt id="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean"><code class="name flex">
 <span>def <span class="ident">analyze_mean</span></span>(<span>laser_data: np.ndarray, signal_start: float = 1e-07, signal_end: float = 3e-07, bin_width: float = 1e-09) ‑> Tuple[numpy.ndarray, numpy.ndarray]</span>
 </code></dt>
@@ -2200,9 +1940,6 @@ where method is the name of the fit method and estimator is the name of the esti
 <li>
 <h4><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic">AnalysisLogic</a></code></h4>
 <ul class="">
-<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
-<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
-<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean">analyze_mean</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm">analyze_mean_norm</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference" href="#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference">analyze_mean_reference</a></code></li>

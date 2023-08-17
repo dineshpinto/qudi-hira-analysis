@@ -510,8 +510,3 @@ class AnalysisLogic(FitLogic):
 
             image[row, col] = pixel_avg
         return image
-
-    # Aliases for backwards compatibility
-    analyse_mean = analyze_mean
-    analyse_mean_norm = analyze_mean_norm
-    analyse_mean_reference = analyze_mean_reference

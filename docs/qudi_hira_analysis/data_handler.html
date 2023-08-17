@@ -104,7 +104,7 @@ class DataHandler(DataLoader, AnalysisLogic):
     &#34;&#34;&#34;
     Handles automated data searching and extraction into dataclasses.
 
-    Parameters:
+    Args:
         data_folder: Path to the data folder.
         figure_folder: Path to the figure folder.
         measurement_folder: Path to the measurement folder.
@@ -338,7 +338,7 @@ class DataHandler(DataLoader, AnalysisLogic):
             extension: str = &#34;.dat&#34;
     ) -&gt; dict[str: MeasurementDataclass]:
         &#34;&#34;&#34;
-        Lazy load all measurements of a given type into a dictionary of dataclasses.
+        Lazy-load all measurements of a given type into a dictionary of dataclasses.
 
         Args:
             measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc.
@@ -349,12 +349,13 @@ class DataHandler(DataLoader, AnalysisLogic):
             extension: The file extension of the measurement files (default: .dat).
 
         Returns:
-            dict: A dictionary of dataclasses containing the measurement data.
+            dict: A dictionary where keys are the measurement timestamps and values are dataclasses containing the
+                  measurement data.
 
         Examples:
             `dh` is an instance of the `DataHandler` class.
 
-            Load all T1 measurements:
+            Load all ODMR measurements:
 
             &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
 
@@ -393,10 +394,15 @@ class DataHandler(DataLoader, AnalysisLogic):
 </code></dt>
 <dd>
 <div class="desc"><p>Handles automated data searching and extraction into dataclasses.</p>
-<h2 id="parameters">Parameters</h2>
-<p>data_folder: Path to the data folder.
-figure_folder: Path to the figure folder.
-measurement_folder: Path to the measurement folder.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data_folder</code></strong></dt>
+<dd>Path to the data folder.</dd>
+<dt><strong><code>figure_folder</code></strong></dt>
+<dd>Path to the figure folder.</dd>
+<dt><strong><code>measurement_folder</code></strong></dt>
+<dd>Path to the measurement folder.</dd>
+</dl>
 <h2 id="examples">Examples</h2>
 <p>Create an instance of the DataHandler class:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; dh = DataHandler(
@@ -413,7 +419,7 @@ measurement_folder: Path to the measurement folder.</p>
     &#34;&#34;&#34;
     Handles automated data searching and extraction into dataclasses.
 
-    Parameters:
+    Args:
         data_folder: Path to the data folder.
         figure_folder: Path to the figure folder.
         measurement_folder: Path to the measurement folder.
@@ -647,7 +653,7 @@ measurement_folder: Path to the measurement folder.</p>
             extension: str = &#34;.dat&#34;
     ) -&gt; dict[str: MeasurementDataclass]:
         &#34;&#34;&#34;
-        Lazy load all measurements of a given type into a dictionary of dataclasses.
+        Lazy-load all measurements of a given type into a dictionary of dataclasses.
 
         Args:
             measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc.
@@ -658,12 +664,13 @@ measurement_folder: Path to the measurement folder.</p>
             extension: The file extension of the measurement files (default: .dat).
 
         Returns:
-            dict: A dictionary of dataclasses containing the measurement data.
+            dict: A dictionary where keys are the measurement timestamps and values are dataclasses containing the
+                  measurement data.
 
         Examples:
             `dh` is an instance of the `DataHandler` class.
 
-            Load all T1 measurements:
+            Load all ODMR measurements:
 
             &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
 
@@ -729,7 +736,7 @@ measurement_folder: Path to the measurement folder.</p>
 <span>def <span class="ident">load_measurements</span></span>(<span>self, measurement_str: str, qudi: bool = True, pulsed: bool = False, extension: str = '.dat') ‑> dict[slice(<class 'str'>, <class '<a title="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass" href="measurement_dataclass.html#qudi_hira_analysis.measurement_dataclass.MeasurementDataclass">MeasurementDataclass</a>'>, None)]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Lazy load all measurements of a given type into a dictionary of dataclasses.</p>
+<div class="desc"><p>Lazy-load all measurements of a given type into a dictionary of dataclasses.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>measurement_str</code></strong></dt>
@@ -746,11 +753,12 @@ Case-insensitive (i.e. "odmr" == "ODMR" == "Odmr").</dd>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>dict</code></dt>
-<dd>A dictionary of dataclasses containing the measurement data.</dd>
+<dd>A dictionary where keys are the measurement timestamps and values are dataclasses containing the
+measurement data.</dd>
 </dl>
 <h2 id="examples">Examples</h2>
 <p><code>dh</code> is an instance of the <code><a title="qudi_hira_analysis.data_handler.DataHandler" href="#qudi_hira_analysis.data_handler.DataHandler">DataHandler</a></code> class.</p>
-<p>Load all T1 measurements:</p>
+<p>Load all ODMR measurements:</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; dh.load_measurements(measurement_str=&quot;ODMR&quot;, pulsed=True)
 </code></pre>
 <p>Load all confocal data:</p>
@@ -774,7 +782,7 @@ Case-insensitive (i.e. "odmr" == "ODMR" == "Odmr").</dd>
         extension: str = &#34;.dat&#34;
 ) -&gt; dict[str: MeasurementDataclass]:
     &#34;&#34;&#34;
-    Lazy load all measurements of a given type into a dictionary of dataclasses.
+    Lazy-load all measurements of a given type into a dictionary of dataclasses.
 
     Args:
         measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc.
@@ -785,12 +793,13 @@ Case-insensitive (i.e. "odmr" == "ODMR" == "Odmr").</dd>
         extension: The file extension of the measurement files (default: .dat).
 
     Returns:
-        dict: A dictionary of dataclasses containing the measurement data.
+        dict: A dictionary where keys are the measurement timestamps and values are dataclasses containing the
+              measurement data.
 
     Examples:
         `dh` is an instance of the `DataHandler` class.
 
-        Load all T1 measurements:
+        Load all ODMR measurements:
 
         &gt;&gt;&gt; dh.load_measurements(measurement_str=&#34;ODMR&#34;, pulsed=True)
 
@@ -844,9 +853,6 @@ Case-insensitive (i.e. "odmr" == "ODMR" == "Odmr").</dd>
 </li>
 <li><code><b><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic">AnalysisLogic</a></b></code>:
 <ul class="hlist">
-<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean">analyse_mean</a></code></li>
-<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_norm">analyse_mean_norm</a></code></li>
-<li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyse_mean_reference">analyse_mean_reference</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean">analyze_mean</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_norm">analyze_mean_norm</a></code></li>
 <li><code><a title="qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference" href="analysis_logic.html#qudi_hira_analysis.analysis_logic.AnalysisLogic.analyze_mean_reference">analyze_mean_reference</a></code></li>

@@ -76,7 +76,7 @@ class DataHandler(DataLoader, AnalysisLogic):
     """
     Handles automated data searching and extraction into dataclasses.
 
-    Parameters:
+    Args:
         data_folder: Path to the data folder.
         figure_folder: Path to the figure folder.
         measurement_folder: Path to the measurement folder.
@@ -310,7 +310,7 @@ class DataHandler(DataLoader, AnalysisLogic):
             extension: str = ".dat"
     ) -> dict[str: MeasurementDataclass]:
         """
-        Lazy load all measurements of a given type into a dictionary of dataclasses.
+        Lazy-load all measurements of a given type into a dictionary of dataclasses.
 
         Args:
             measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc.
@@ -321,12 +321,13 @@ class DataHandler(DataLoader, AnalysisLogic):
             extension: The file extension of the measurement files (default: .dat).
 
         Returns:
-            dict: A dictionary of dataclasses containing the measurement data.
+            dict: A dictionary where keys are the measurement timestamps and values are dataclasses containing the
+                  measurement data.
 
         Examples:
             `dh` is an instance of the `DataHandler` class.
 
-            Load all T1 measurements:
+            Load all ODMR measurements:
 
             >>> dh.load_measurements(measurement_str="ODMR", pulsed=True)
 
