@@ -201,10 +201,8 @@ class DataHandler(DataLoader, AnalysisLogic):
             # Get set of unique timestamps containing pulsed_measurement_str
             for filepath in self._get_measurement_filepaths(measurement=measurement_str, extension=extension,
                                                             exclude_str="image_1.dat"):
-                filename = filepath.name
-                if measurement_str in filename:
-                    timestamps.add(filename[:16])
-                    filtered_filepaths.append(filepath)
+                timestamps.add(filepath.name[:16])
+                filtered_filepaths.append(filepath)
 
             pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
 
@@ -315,8 +313,10 @@ class DataHandler(DataLoader, AnalysisLogic):
         Lazy load all measurements of a given type into a dictionary of dataclasses.
 
         Args:
-            measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc. Recursively searches through the path defined by data_folder and measurement_folder
-            qudi: Whether the measurement is a qudi measurement (default: False).
+            measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc.
+                             Recursively searches through the path defined by data_folder and measurement_folder.
+                             Case-insensitive (i.e. "odmr" == "ODMR" == "Odmr").
+            qudi: Whether the measurement is a qudi measurement (default: True).
             pulsed: Whether the measurement is a pulsed measurement (default: False).
             extension: The file extension of the measurement files (default: .dat).
 
