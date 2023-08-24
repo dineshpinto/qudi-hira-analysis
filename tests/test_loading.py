@@ -25,6 +25,10 @@ class TestLoading(TestCase):
         self.assertAlmostEqual(odmr.data["Controlled variable(Hz)"][0], 2.850000000000000e+09)
         self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e+00)
 
+    def test_pulsedmeasurement_load_with_fail(self):
+        with self.assertRaises(IOError):
+            self.dh.load_measurements(measurement_str="ramsey", pulsed=True)
+
     def test_spectrometer_load(self):
         spectrometry = self.dh.load_measurements(measurement_str="Spectrometry")
         spectrum = spectrometry['20230306-2324-19']
@@ -115,3 +119,11 @@ class TestLoading(TestCase):
         self.assertIn("Approx. measurement time (s)", odmr.pulsed.measurement.params)
 
         self.assertEqual(odmr.get_param_from_filename(unit="dBm"), 22.0)
+
+    def test_data_folder_tree(self):
+        tree = self.dh.data_folder_tree(print_tree=False)
+        self.assertIn("PulsedMeasurement", tree)
+
+    def test_figure_folder_tree(self):
+        tree = self.dh.figure_folder_tree(print_tree=False)
+        self.assertEqual("", tree)

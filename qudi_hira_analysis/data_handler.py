@@ -155,15 +155,40 @@ class DataHandler(DataLoader, AnalysisLogic):
                 # i.e. space because last, └── , above so no more |
                 yield from self.__tree(path, prefix=prefix + extension)
 
-    def data_folder_tree(self):
-        """ Print a tree of the data folder. """
-        for line in self.__tree(self.data_folder_path):
-            print(line)
+    def __print_or_return_tree(self, folder: Path, print_tree: bool) -> str | None:
+        """ Print or return a tree of the data and figure folders. """
+        if print_tree:
+            for line in self.__tree(folder):
+                print(line)
+        else:
+            tree = ""
+            for line in self.__tree(folder):
+                tree += line + "\n"
+            return tree
 
-    def figure_folder_tree(self):
-        """ Print a tree of the figure folder. """
-        for line in self.__tree(self.figure_folder_path):
-            print(line)
+    def data_folder_tree(self, print_tree: bool = True) -> str | None:
+        """
+        Print or return a string tree of the data folder.
+
+        Args:
+            print_tree: Whether to print the tree or return it as a string (default: True).
+
+        Returns:
+            str: The tree as a string if `print_tree is False.
+        """
+        return self.__print_or_return_tree(self.data_folder_path, print_tree=print_tree)
+
+    def figure_folder_tree(self, print_tree: bool = True) -> str | None:
+        """
+        Print or return a string tree of the figure folder.
+
+        Args:
+            print_tree: Whether to print the tree or return it as a string (default: True).
+
+        Returns:
+            str: The tree as a string if `print_tree is False.
+        """
+        return self.__print_or_return_tree(self.figure_folder_path, print_tree=print_tree)
 
     def _get_measurement_filepaths(
             self,
@@ -206,7 +231,7 @@ class DataHandler(DataLoader, AnalysisLogic):
 
             pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
 
-            for ts in timestamps:
+            for idx, ts in enumerate(timestamps):
                 pm, lp, rt = None, None, None
 
                 for filepath in filtered_filepaths:
@@ -221,6 +246,9 @@ class DataHandler(DataLoader, AnalysisLogic):
 
                     if lp and pm and rt:
                         break
+
+                if not (lp and pm and rt):
+                    raise IOError(f"File '{filtered_filepaths[idx]}' is not a valid pulsed measurement.")
 
                 pulsed_measurement_data[ts] = (
                     MeasurementDataclass(

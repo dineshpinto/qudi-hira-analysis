@@ -2000,15 +2000,40 @@ then optimizing the hyperparameters for them.</p>
                 # i.e. space because last, └── , above so no more |
                 yield from self.__tree(path, prefix=prefix + extension)
 
-    def data_folder_tree(self):
-        &#34;&#34;&#34; Print a tree of the data folder. &#34;&#34;&#34;
-        for line in self.__tree(self.data_folder_path):
-            print(line)
+    def __print_or_return_tree(self, folder: Path, print_tree: bool) -&gt; str | None:
+        &#34;&#34;&#34; Print or return a tree of the data and figure folders. &#34;&#34;&#34;
+        if print_tree:
+            for line in self.__tree(folder):
+                print(line)
+        else:
+            tree = &#34;&#34;
+            for line in self.__tree(folder):
+                tree += line + &#34;\n&#34;
+            return tree
 
-    def figure_folder_tree(self):
-        &#34;&#34;&#34; Print a tree of the figure folder. &#34;&#34;&#34;
-        for line in self.__tree(self.figure_folder_path):
-            print(line)
+    def data_folder_tree(self, print_tree: bool = True) -&gt; str | None:
+        &#34;&#34;&#34;
+        Print or return a string tree of the data folder.
+
+        Args:
+            print_tree: Whether to print the tree or return it as a string (default: True).
+
+        Returns:
+            str: The tree as a string if `print_tree is False.
+        &#34;&#34;&#34;
+        return self.__print_or_return_tree(self.data_folder_path, print_tree=print_tree)
+
+    def figure_folder_tree(self, print_tree: bool = True) -&gt; str | None:
+        &#34;&#34;&#34;
+        Print or return a string tree of the figure folder.
+
+        Args:
+            print_tree: Whether to print the tree or return it as a string (default: True).
+
+        Returns:
+            str: The tree as a string if `print_tree is False.
+        &#34;&#34;&#34;
+        return self.__print_or_return_tree(self.figure_folder_path, print_tree=print_tree)
 
     def _get_measurement_filepaths(
             self,
@@ -2051,7 +2076,7 @@ then optimizing the hyperparameters for them.</p>
 
             pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
 
-            for ts in timestamps:
+            for idx, ts in enumerate(timestamps):
                 pm, lp, rt = None, None, None
 
                 for filepath in filtered_filepaths:
@@ -2066,6 +2091,9 @@ then optimizing the hyperparameters for them.</p>
 
                     if lp and pm and rt:
                         break
+
+                if not (lp and pm and rt):
+                    raise IOError(f&#34;File &#39;{filtered_filepaths[idx]}&#39; is not a valid pulsed measurement.&#34;)
 
                 pulsed_measurement_data[ts] = (
                     MeasurementDataclass(
@@ -2205,33 +2233,67 @@ then optimizing the hyperparameters for them.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="qudi_hira_analysis.DataHandler.data_folder_tree"><code class="name flex">
-<span>def <span class="ident">data_folder_tree</span></span>(<span>self)</span>
+<span>def <span class="ident">data_folder_tree</span></span>(<span>self, print_tree: bool = True) ‑> str | None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Print a tree of the data folder.</p></div>
+<div class="desc"><p>Print or return a string tree of the data folder.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>print_tree</code></strong></dt>
+<dd>Whether to print the tree or return it as a string (default: True).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The tree as a string if `print_tree is False.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def data_folder_tree(self):
-    &#34;&#34;&#34; Print a tree of the data folder. &#34;&#34;&#34;
-    for line in self.__tree(self.data_folder_path):
-        print(line)</code></pre>
+<pre><code class="python">def data_folder_tree(self, print_tree: bool = True) -&gt; str | None:
+    &#34;&#34;&#34;
+    Print or return a string tree of the data folder.
+
+    Args:
+        print_tree: Whether to print the tree or return it as a string (default: True).
+
+    Returns:
+        str: The tree as a string if `print_tree is False.
+    &#34;&#34;&#34;
+    return self.__print_or_return_tree(self.data_folder_path, print_tree=print_tree)</code></pre>
 </details>
 </dd>
 <dt id="qudi_hira_analysis.DataHandler.figure_folder_tree"><code class="name flex">
-<span>def <span class="ident">figure_folder_tree</span></span>(<span>self)</span>
+<span>def <span class="ident">figure_folder_tree</span></span>(<span>self, print_tree: bool = True) ‑> str | None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Print a tree of the figure folder.</p></div>
+<div class="desc"><p>Print or return a string tree of the figure folder.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>print_tree</code></strong></dt>
+<dd>Whether to print the tree or return it as a string (default: True).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The tree as a string if `print_tree is False.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def figure_folder_tree(self):
-    &#34;&#34;&#34; Print a tree of the figure folder. &#34;&#34;&#34;
-    for line in self.__tree(self.figure_folder_path):
-        print(line)</code></pre>
+<pre><code class="python">def figure_folder_tree(self, print_tree: bool = True) -&gt; str | None:
+    &#34;&#34;&#34;
+    Print or return a string tree of the figure folder.
+
+    Args:
+        print_tree: Whether to print the tree or return it as a string (default: True).
+
+    Returns:
+        str: The tree as a string if `print_tree is False.
+    &#34;&#34;&#34;
+    return self.__print_or_return_tree(self.figure_folder_path, print_tree=print_tree)</code></pre>
 </details>
 </dd>
 <dt id="qudi_hira_analysis.DataHandler.load_measurements"><code class="name flex">
