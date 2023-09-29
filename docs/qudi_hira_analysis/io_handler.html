@@ -27,13 +27,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import ast
+import contextlib
 import datetime
 import inspect
 import itertools
 import pickle
 from functools import wraps
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -44,7 +45,11 @@ import pySPM
 class IOHandler:
     &#34;&#34;&#34; Handle all read and write operations. &#34;&#34;&#34;
 
-    def __init__(self, base_read_path: Path = None, base_write_path: Path = None):
+    def __init__(
+            self,
+            base_read_path: Optional[Path] = None,
+            base_write_path: Optional[Path] = None
+    ):
         super().__init__()
         self.base_read_path = base_read_path
         self.base_write_path = base_write_path
@@ -110,7 +115,9 @@ class IOHandler:
                 elif filepath.suffix == &#34;&#34;:
                     return func(self, filepath.with_suffix(ext), **kwargs)
                 else:
-                    raise IOError(f&#34;Invalid extension &#39;{filepath.suffix}&#39; in &#39;{filepath}&#39;, extension should be &#39;{ext}&#39;&#34;)
+                    raise OSError(
+                        f&#34;Invalid extension &#39;{filepath.suffix}&#39; in &#39;{filepath}&#39;, &#34;
+                        f&#34;extension should be &#39;{ext}&#39;&#34;)
 
             return wrapper
 
@@ -141,13 +148,16 @@ class IOHandler:
                             # Add params to dictionary
                             label, value = line.split(&#34;:&#34;)
                             if value != &#34;\n&#34;:
-                                params[label] = ast.literal_eval(inspect.cleandoc(value))
+                                params[label] = ast.literal_eval(
+                                    inspect.cleandoc(value))
                         elif line.count(&#34;:&#34;) == 3:
                             # Handle files with timestamps in them
                             label = line.split(&#34;:&#34;)[0]
                             timestamp_str = &#34;&#34;.join(line.split(&#34;:&#34;)[1:]).strip()
-                            datetime_str = datetime.datetime.strptime(timestamp_str, &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;).replace(
-                                tzinfo=datetime.timezone.utc)
+                            datetime_str = datetime.datetime.strptime(
+                                timestamp_str,
+                                &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;
+                            ).replace(tzinfo=datetime.timezone.utc)
                             params[label] = datetime_str
                     except Exception as _:
                         pass
@@ -166,7 +176,8 @@ class IOHandler:
         &#34;&#34;&#34;
         with open(filepath) as handle:
             # Generate column names for DataFrame by parsing the file
-            *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;), handle)
+            *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;),
+                                                    handle)
             names = names[1:].strip().split(&#34;\t&#34;)
         return pd.read_csv(filepath, names=names, comment=&#34;#&#34;, sep=&#34;\t&#34;)
 
@@ -186,7 +197,7 @@ class IOHandler:
         &#34;&#34;&#34; Read a qudi confocal data file into a pandas DataFrame for analysis. &#34;&#34;&#34;
         confocal_params = self.read_qudi_parameters(filepath)
         data = self.read_into_ndarray(filepath, delimiter=&#34;\t&#34;)
-        # Use the confocal parameters to generate the index and columns for the DataFrame
+        # Use the confocal parameters to generate the index &amp; columns for the DataFrame
         index = np.linspace(
             confocal_params[&#39;X image min (m)&#39;],
             confocal_params[&#39;X image max (m)&#39;],
@@ -218,7 +229,7 @@ class IOHandler:
         &#34;&#34;&#34; Read raw .pys data files into a dictionary. &#34;&#34;&#34;
         byte_dict = np.load(str(filepath), encoding=&#34;bytes&#34;, allow_pickle=True)
         # Convert byte string keys to normal strings
-        return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict.keys()}
+        return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict}
 
     @_add_base_read_path
     @_check_extension(&#34;.pkl&#34;)
@@ -274,11 +285,8 @@ class IOHandler:
                     pass
                 else:
                     label, value, _ = line.split(&#34;\t&#34;)
-                    try:
-                        # Convert strings to number where possible
+                    with contextlib.suppress(ValueError):
                         value = float(value)
-                    except ValueError:
-                        pass
                     if &#34;Oscillation Control&gt;&#34; in label:
                         label = label.replace(&#34;Oscillation Control&gt;&#34;, &#34;&#34;)
                     parameters[label] = value
@@ -344,7 +352,9 @@ class IOHandler:
             DataFrame containing the data.
         &#34;&#34;&#34;
         # Extract only the origin timestamp
-        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+        origin = pd.read_excel(
+            filepath, skiprows=1, nrows=1, usecols=[1], header=None
+        )[1][0]
         # Remove any tzinfo to prevent future exceptions in pandas
         origin = origin.replace(&#34;CET&#34;, &#34;&#34;)
         # Parse datetime object from timestamp
@@ -370,7 +380,8 @@ class IOHandler:
         Returns:
             DataFrame containing the wavelength and intensity data.
         &#34;&#34;&#34;
-        df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14, names=[&#34;wavelength&#34;, &#34;intensity&#34;])
+        df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14,
+                         names=[&#34;wavelength&#34;, &#34;intensity&#34;])
         return df
 
     @staticmethod
@@ -383,7 +394,8 @@ class IOHandler:
         backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
         return forward_counts, backward_counts
 
-    def read_pixelscanner_data(self, filepath: Path) -&gt; (pySPM.SPM_image, pySPM.SPM_image):
+    def read_pixelscanner_data(self, filepath: Path) -&gt; (
+            pySPM.SPM_image, pySPM.SPM_image):
         &#34;&#34;&#34; Read data from a PixelScanner measurement.
 
         Args:
@@ -402,7 +414,8 @@ class IOHandler:
             fwd, bwd = self.__get_forward_backward_counts(df[&#34;count_rates&#34;], num_pixels)
         except KeyError:
             try:
-                fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;], num_pixels)
+                fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;],
+                                                              num_pixels)
             except KeyError:
                 # Support old data format
                 fwd = df[&#34;forward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
@@ -482,7 +495,7 @@ class IOHandler:
 <dl>
 <dt id="qudi_hira_analysis.io_handler.IOHandler"><code class="flex name class">
 <span>class <span class="ident">IOHandler</span></span>
-<span>(</span><span>base_read_path: pathlib.Path = None, base_write_path: pathlib.Path = None)</span>
+<span>(</span><span>base_read_path: Optional[pathlib.Path] = None, base_write_path: Optional[pathlib.Path] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Handle all read and write operations.</p></div>
@@ -493,7 +506,11 @@ class IOHandler:
 <pre><code class="python">class IOHandler:
     &#34;&#34;&#34; Handle all read and write operations. &#34;&#34;&#34;
 
-    def __init__(self, base_read_path: Path = None, base_write_path: Path = None):
+    def __init__(
+            self,
+            base_read_path: Optional[Path] = None,
+            base_write_path: Optional[Path] = None
+    ):
         super().__init__()
         self.base_read_path = base_read_path
         self.base_write_path = base_write_path
@@ -559,7 +576,9 @@ class IOHandler:
                 elif filepath.suffix == &#34;&#34;:
                     return func(self, filepath.with_suffix(ext), **kwargs)
                 else:
-                    raise IOError(f&#34;Invalid extension &#39;{filepath.suffix}&#39; in &#39;{filepath}&#39;, extension should be &#39;{ext}&#39;&#34;)
+                    raise OSError(
+                        f&#34;Invalid extension &#39;{filepath.suffix}&#39; in &#39;{filepath}&#39;, &#34;
+                        f&#34;extension should be &#39;{ext}&#39;&#34;)
 
             return wrapper
 
@@ -590,13 +609,16 @@ class IOHandler:
                             # Add params to dictionary
                             label, value = line.split(&#34;:&#34;)
                             if value != &#34;\n&#34;:
-                                params[label] = ast.literal_eval(inspect.cleandoc(value))
+                                params[label] = ast.literal_eval(
+                                    inspect.cleandoc(value))
                         elif line.count(&#34;:&#34;) == 3:
                             # Handle files with timestamps in them
                             label = line.split(&#34;:&#34;)[0]
                             timestamp_str = &#34;&#34;.join(line.split(&#34;:&#34;)[1:]).strip()
-                            datetime_str = datetime.datetime.strptime(timestamp_str, &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;).replace(
-                                tzinfo=datetime.timezone.utc)
+                            datetime_str = datetime.datetime.strptime(
+                                timestamp_str,
+                                &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;
+                            ).replace(tzinfo=datetime.timezone.utc)
                             params[label] = datetime_str
                     except Exception as _:
                         pass
@@ -615,7 +637,8 @@ class IOHandler:
         &#34;&#34;&#34;
         with open(filepath) as handle:
             # Generate column names for DataFrame by parsing the file
-            *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;), handle)
+            *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;),
+                                                    handle)
             names = names[1:].strip().split(&#34;\t&#34;)
         return pd.read_csv(filepath, names=names, comment=&#34;#&#34;, sep=&#34;\t&#34;)
 
@@ -635,7 +658,7 @@ class IOHandler:
         &#34;&#34;&#34; Read a qudi confocal data file into a pandas DataFrame for analysis. &#34;&#34;&#34;
         confocal_params = self.read_qudi_parameters(filepath)
         data = self.read_into_ndarray(filepath, delimiter=&#34;\t&#34;)
-        # Use the confocal parameters to generate the index and columns for the DataFrame
+        # Use the confocal parameters to generate the index &amp; columns for the DataFrame
         index = np.linspace(
             confocal_params[&#39;X image min (m)&#39;],
             confocal_params[&#39;X image max (m)&#39;],
@@ -667,7 +690,7 @@ class IOHandler:
         &#34;&#34;&#34; Read raw .pys data files into a dictionary. &#34;&#34;&#34;
         byte_dict = np.load(str(filepath), encoding=&#34;bytes&#34;, allow_pickle=True)
         # Convert byte string keys to normal strings
-        return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict.keys()}
+        return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict}
 
     @_add_base_read_path
     @_check_extension(&#34;.pkl&#34;)
@@ -723,11 +746,8 @@ class IOHandler:
                     pass
                 else:
                     label, value, _ = line.split(&#34;\t&#34;)
-                    try:
-                        # Convert strings to number where possible
+                    with contextlib.suppress(ValueError):
                         value = float(value)
-                    except ValueError:
-                        pass
                     if &#34;Oscillation Control&gt;&#34; in label:
                         label = label.replace(&#34;Oscillation Control&gt;&#34;, &#34;&#34;)
                     parameters[label] = value
@@ -793,7 +813,9 @@ class IOHandler:
             DataFrame containing the data.
         &#34;&#34;&#34;
         # Extract only the origin timestamp
-        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+        origin = pd.read_excel(
+            filepath, skiprows=1, nrows=1, usecols=[1], header=None
+        )[1][0]
         # Remove any tzinfo to prevent future exceptions in pandas
         origin = origin.replace(&#34;CET&#34;, &#34;&#34;)
         # Parse datetime object from timestamp
@@ -819,7 +841,8 @@ class IOHandler:
         Returns:
             DataFrame containing the wavelength and intensity data.
         &#34;&#34;&#34;
-        df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14, names=[&#34;wavelength&#34;, &#34;intensity&#34;])
+        df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14,
+                         names=[&#34;wavelength&#34;, &#34;intensity&#34;])
         return df
 
     @staticmethod
@@ -832,7 +855,8 @@ class IOHandler:
         backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
         return forward_counts, backward_counts
 
-    def read_pixelscanner_data(self, filepath: Path) -&gt; (pySPM.SPM_image, pySPM.SPM_image):
+    def read_pixelscanner_data(self, filepath: Path) -&gt; (
+            pySPM.SPM_image, pySPM.SPM_image):
         &#34;&#34;&#34; Read data from a PixelScanner measurement.
 
         Args:
@@ -851,7 +875,8 @@ class IOHandler:
             fwd, bwd = self.__get_forward_backward_counts(df[&#34;count_rates&#34;], num_pixels)
         except KeyError:
             try:
-                fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;], num_pixels)
+                fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;],
+                                                              num_pixels)
             except KeyError:
                 # Support old data format
                 fwd = df[&#34;forward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
@@ -970,7 +995,7 @@ def read_confocal_into_dataframe(self, filepath: Path) -&gt; pd.DataFrame:
     &#34;&#34;&#34; Read a qudi confocal data file into a pandas DataFrame for analysis. &#34;&#34;&#34;
     confocal_params = self.read_qudi_parameters(filepath)
     data = self.read_into_ndarray(filepath, delimiter=&#34;\t&#34;)
-    # Use the confocal parameters to generate the index and columns for the DataFrame
+    # Use the confocal parameters to generate the index &amp; columns for the DataFrame
     index = np.linspace(
         confocal_params[&#39;X image min (m)&#39;],
         confocal_params[&#39;X image max (m)&#39;],
@@ -1046,7 +1071,8 @@ def read_into_dataframe(self, filepath: Path) -&gt; pd.DataFrame:
     &#34;&#34;&#34;
     with open(filepath) as handle:
         # Generate column names for DataFrame by parsing the file
-        *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;), handle)
+        *_comments, names = itertools.takewhile(lambda line: line.startswith(&#39;#&#39;),
+                                                handle)
         names = names[1:].strip().split(&#34;\t&#34;)
     return pd.read_csv(filepath, names=names, comment=&#34;#&#34;, sep=&#34;\t&#34;)</code></pre>
 </details>
@@ -1109,7 +1135,9 @@ def read_lakeshore_data(self, filepath: Path) -&gt; pd.DataFrame:
         DataFrame containing the data.
     &#34;&#34;&#34;
     # Extract only the origin timestamp
-    origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+    origin = pd.read_excel(
+        filepath, skiprows=1, nrows=1, usecols=[1], header=None
+    )[1][0]
     # Remove any tzinfo to prevent future exceptions in pandas
     origin = origin.replace(&#34;CET&#34;, &#34;&#34;)
     # Parse datetime object from timestamp
@@ -1204,11 +1232,8 @@ def read_nanonis_parameters(self, filepath: Path) -&gt; dict:
                 pass
             else:
                 label, value, _ = line.split(&#34;\t&#34;)
-                try:
-                    # Convert strings to number where possible
+                with contextlib.suppress(ValueError):
                     value = float(value)
-                except ValueError:
-                    pass
                 if &#34;Oscillation Control&gt;&#34; in label:
                     label = label.replace(&#34;Oscillation Control&gt;&#34;, &#34;&#34;)
                 parameters[label] = value
@@ -1272,7 +1297,8 @@ def read_oceanoptics_data(self, filepath: str) -&gt; pd.DataFrame:
     Returns:
         DataFrame containing the wavelength and intensity data.
     &#34;&#34;&#34;
-    df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14, names=[&#34;wavelength&#34;, &#34;intensity&#34;])
+    df = pd.read_csv(filepath, sep=&#34;\t&#34;, skiprows=14,
+                     names=[&#34;wavelength&#34;, &#34;intensity&#34;])
     return df</code></pre>
 </details>
 </dd>
@@ -1331,7 +1357,8 @@ def read_pfeiffer_data(self, filepath: Path) -&gt; pd.DataFrame:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def read_pixelscanner_data(self, filepath: Path) -&gt; (pySPM.SPM_image, pySPM.SPM_image):
+<pre><code class="python">def read_pixelscanner_data(self, filepath: Path) -&gt; (
+        pySPM.SPM_image, pySPM.SPM_image):
     &#34;&#34;&#34; Read data from a PixelScanner measurement.
 
     Args:
@@ -1350,7 +1377,8 @@ def read_pfeiffer_data(self, filepath: Path) -&gt; pd.DataFrame:
         fwd, bwd = self.__get_forward_backward_counts(df[&#34;count_rates&#34;], num_pixels)
     except KeyError:
         try:
-            fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;], num_pixels)
+            fwd, bwd = self.__get_forward_backward_counts(df[&#34;Count Rates (cps)&#34;],
+                                                          num_pixels)
         except KeyError:
             # Support old data format
             fwd = df[&#34;forward (cps)&#34;].to_numpy().reshape(num_pixels, num_pixels)
@@ -1394,7 +1422,7 @@ def read_pys(self, filepath: Path) -&gt; dict:
     &#34;&#34;&#34; Read raw .pys data files into a dictionary. &#34;&#34;&#34;
     byte_dict = np.load(str(filepath), encoding=&#34;bytes&#34;, allow_pickle=True)
     # Convert byte string keys to normal strings
-    return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict.keys()}</code></pre>
+    return {key.decode(&#39;utf8&#39;): byte_dict.get(key) for key in byte_dict}</code></pre>
 </details>
 </dd>
 <dt id="qudi_hira_analysis.io_handler.IOHandler.read_qudi_parameters"><code class="name flex">
@@ -1438,13 +1466,16 @@ def read_qudi_parameters(self, filepath: Path) -&gt; dict:
                         # Add params to dictionary
                         label, value = line.split(&#34;:&#34;)
                         if value != &#34;\n&#34;:
-                            params[label] = ast.literal_eval(inspect.cleandoc(value))
+                            params[label] = ast.literal_eval(
+                                inspect.cleandoc(value))
                     elif line.count(&#34;:&#34;) == 3:
                         # Handle files with timestamps in them
                         label = line.split(&#34;:&#34;)[0]
                         timestamp_str = &#34;&#34;.join(line.split(&#34;:&#34;)[1:]).strip()
-                        datetime_str = datetime.datetime.strptime(timestamp_str, &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;).replace(
-                            tzinfo=datetime.timezone.utc)
+                        datetime_str = datetime.datetime.strptime(
+                            timestamp_str,
+                            &#34;%d.%m.%Y %Hh%Mmin%Ss&#34;
+                        ).replace(tzinfo=datetime.timezone.utc)
                         params[label] = datetime_str
                 except Exception as _:
                     pass

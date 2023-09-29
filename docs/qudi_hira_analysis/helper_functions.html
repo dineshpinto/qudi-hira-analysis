@@ -57,12 +57,14 @@ def format_exponent_as_str(
             count -= 1
 
     if only_exp:
-        formatted_str = r&#34;$10^{{ {} }}$&#34;.format(count)
+        formatted_str = fr&#34;$10^{{ {count} }}$&#34;
     else:
         if decimals == 0:
-            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(int(number_to_format), separator, count)
+            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(
+                int(number_to_format), separator, count)
         else:
-            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(round(number_to_format, decimals), separator, count)
+            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(
+                round(number_to_format, decimals), separator, count)
 
     return formatted_str
 
@@ -72,19 +74,21 @@ def log_tick_formatter(val, pos=None):
     return rf&#34;$10^{{{val:.0f}}}$&#34;
 
 
-def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9, niter: int = 10) -&gt; np.ndarray:
+def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9,
+                 niter: int = 10) -&gt; np.ndarray:
     &#34;&#34;&#34;
     Asymmetric least squares baseline.
-    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric Least Squares Smoothing (2005).
+    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric
+    Least Squares Smoothing (2005).
     &#34;&#34;&#34;
-    L = len(y)
-    D = sparse.csc_matrix(np.diff(np.eye(L), 2))
+    L = len(y)  # noqa: N806
+    D = sparse.csc_matrix(np.diff(np.eye(L), 2))  # noqa: N806
     w = np.ones(L)
 
     z = None
-    for i in range(niter):
-        W = sparse.spdiags(w, 0, L, L)
-        Z = W + lam * D.dot(D.transpose())
+    for _ in range(niter):
+        W = sparse.spdiags(w, 0, L, L)  # noqa: N806
+        Z = W + lam * D.dot(D.transpose())  # noqa: N806
         z = sparse.linalg.spsolve(Z, w * y)
         w = p * (y &gt; z) + (1 - p) * (y &lt; z)
     return z</code></pre>
@@ -102,24 +106,27 @@ def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9, niter: int = 1
 </code></dt>
 <dd>
 <div class="desc"><p>Asymmetric least squares baseline.
-Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric Least Squares Smoothing (2005).</p></div>
+Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric
+Least Squares Smoothing (2005).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9, niter: int = 10) -&gt; np.ndarray:
+<pre><code class="python">def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9,
+                 niter: int = 10) -&gt; np.ndarray:
     &#34;&#34;&#34;
     Asymmetric least squares baseline.
-    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric Least Squares Smoothing (2005).
+    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric
+    Least Squares Smoothing (2005).
     &#34;&#34;&#34;
-    L = len(y)
-    D = sparse.csc_matrix(np.diff(np.eye(L), 2))
+    L = len(y)  # noqa: N806
+    D = sparse.csc_matrix(np.diff(np.eye(L), 2))  # noqa: N806
     w = np.ones(L)
 
     z = None
-    for i in range(niter):
-        W = sparse.spdiags(w, 0, L, L)
-        Z = W + lam * D.dot(D.transpose())
+    for _ in range(niter):
+        W = sparse.spdiags(w, 0, L, L)  # noqa: N806
+        Z = W + lam * D.dot(D.transpose())  # noqa: N806
         z = sparse.linalg.spsolve(Z, w * y)
         w = p * (y &gt; z) + (1 - p) * (y &lt; z)
     return z</code></pre>
@@ -173,12 +180,14 @@ imes 10^{-4}$</p></div>
             count -= 1
 
     if only_exp:
-        formatted_str = r&#34;$10^{{ {} }}$&#34;.format(count)
+        formatted_str = fr&#34;$10^{{ {count} }}$&#34;
     else:
         if decimals == 0:
-            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(int(number_to_format), separator, count)
+            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(
+                int(number_to_format), separator, count)
         else:
-            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(round(number_to_format, decimals), separator, count)
+            formatted_str = r&#34;${{ {} }} {} 10^{{ {} }}$&#34;.format(
+                round(number_to_format, decimals), separator, count)
 
     return formatted_str</code></pre>
 </details>

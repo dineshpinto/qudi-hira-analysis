@@ -31,18 +31,20 @@
 import logging
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Tuple
+from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
+from PIL import Image
 
 if TYPE_CHECKING:
-    import lmfit
     import datetime
-    import numpy as np
-    from PIL import Image
+    from pathlib import Path
 
-logging.basicConfig(format=&#39;%(name)s :: %(levelname)s :: %(message)s&#39;, level=logging.INFO)
+    import lmfit
+    import numpy as np
+
+logging.basicConfig(format=&#39;%(name)s :: %(levelname)s :: %(message)s&#39;,
+                    level=logging.INFO)
 
 
 @dataclass
@@ -122,11 +124,13 @@ class PulsedMeasurementDataclass:
     timetrace: RawTimetrace = field(default=None)
 
     def __post_init__(self):
-        self.base_filename = self.measurement.filepath.name.replace(&#34;_pulsed_measurement.dat&#34;, &#34;&#34;)
+        self.base_filename = self.measurement.filepath.name.replace(
+            &#34;_pulsed_measurement.dat&#34;, &#34;&#34;)
 
     def show_image(self) -&gt; Image:
         &#34;&#34;&#34; Use PIL to open the measurement image saved on the disk &#34;&#34;&#34;
-        return Image.open(str(self.measurement.filepath).replace(&#34;.dat&#34;, &#34;_fig.png&#34;))
+        return Image.open(
+            str(self.measurement.filepath).replace(&#34;.dat&#34;,&#34;_fig.png&#34;))
 
 
 @dataclass
@@ -140,7 +144,7 @@ class MeasurementDataclass:
     __params: dict = field(default=None)
     _fit_data: pd.DataFrame = field(default=None)
     _fit_model: lmfit.Model = field(default=None)
-    _xy_position: Tuple[int, int] = field(default=None)
+    _xy_position: tuple[int, int] = field(default=None)
 
     def __post_init__(self):
         self.log = logging.getLogger(__name__)
@@ -151,7 +155,8 @@ class MeasurementDataclass:
             self.filename = self.filepath.name
 
     def __repr__(self) -&gt; str:
-        return f&#34;MeasurementDataclass(timestamp=&#39;{self.timestamp}&#39;, filename=&#39;{self.filename}&#39;)&#34;
+        return (f&#34;MeasurementDataclass(timestamp=&#39;{self.timestamp}&#39;, &#34;
+                f&#34;filename=&#39;{self.filename}&#39;)&#34;)
 
     @property
     def data(self) -&gt; np.ndarray | pd.DataFrame:
@@ -193,12 +198,12 @@ class MeasurementDataclass:
         self._fit_model = fit_model
 
     @property
-    def xy_position(self) -&gt; Tuple[int, int]:
+    def xy_position(self) -&gt; tuple[int, int]:
         &#34;&#34;&#34; (row, col) position of measurement in image &#34;&#34;&#34;
         return self._xy_position
 
     @xy_position.setter
-    def xy_position(self, xy_position: Tuple[int, int]):
+    def xy_position(self, xy_position: tuple[int, int]):
         self._xy_position = xy_position
 
     def get_param_from_filename(self, unit: str) -&gt; float | None:
@@ -239,10 +244,15 @@ class MeasurementDataclass:
             # Handle exponents in filename
             if filename[params.start() - 1] == &#34;e&#34;:
                 try:
-                    params = re.search(rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename).group(0)[1:]
+                    params = re.search(
+                        rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename
+                    ).group(0)[1:]
                     return float(params)
-                except AttributeError:
-                    raise Exception(f&#34;Parameter with unit &#39;{unit}&#39; not found in filename &#39;{filename}&#39;&#34;)
+                except AttributeError as exc:
+                    raise Exception(
+                        f&#34;Parameter with unit &#39;{unit}&#39; not found in &#34;
+                        f&#34;filename &#39;{filename}&#39;&#34;
+                    ) from exc
             else:
                 return float(params.group(0))
         else:
@@ -258,7 +268,8 @@ class MeasurementDataclass:
             raise IndexError(&#34;Unable to find column &#39;Time (s)&#39; in DataFrame&#34;)
 
         self.__data[&#39;Time (s)&#39;] += self.__params[&#39;Start counting time&#39;].timestamp()
-        self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;, utc=True)
+        self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;,
+                                             utc=True)
         self.__data.set_index(self.__data[&#34;Time&#34;], inplace=True)
         self.__data.tz_convert(&#39;Europe/Berlin&#39;)
         self.__data.drop([&#34;Time&#34;, &#34;Time (s)&#34;], inplace=True, axis=1)
@@ -372,7 +383,7 @@ class MeasurementDataclass:
     __params: dict = field(default=None)
     _fit_data: pd.DataFrame = field(default=None)
     _fit_model: lmfit.Model = field(default=None)
-    _xy_position: Tuple[int, int] = field(default=None)
+    _xy_position: tuple[int, int] = field(default=None)
 
     def __post_init__(self):
         self.log = logging.getLogger(__name__)
@@ -383,7 +394,8 @@ class MeasurementDataclass:
             self.filename = self.filepath.name
 
     def __repr__(self) -&gt; str:
-        return f&#34;MeasurementDataclass(timestamp=&#39;{self.timestamp}&#39;, filename=&#39;{self.filename}&#39;)&#34;
+        return (f&#34;MeasurementDataclass(timestamp=&#39;{self.timestamp}&#39;, &#34;
+                f&#34;filename=&#39;{self.filename}&#39;)&#34;)
 
     @property
     def data(self) -&gt; np.ndarray | pd.DataFrame:
@@ -425,12 +437,12 @@ class MeasurementDataclass:
         self._fit_model = fit_model
 
     @property
-    def xy_position(self) -&gt; Tuple[int, int]:
+    def xy_position(self) -&gt; tuple[int, int]:
         &#34;&#34;&#34; (row, col) position of measurement in image &#34;&#34;&#34;
         return self._xy_position
 
     @xy_position.setter
-    def xy_position(self, xy_position: Tuple[int, int]):
+    def xy_position(self, xy_position: tuple[int, int]):
         self._xy_position = xy_position
 
     def get_param_from_filename(self, unit: str) -&gt; float | None:
@@ -471,10 +483,15 @@ class MeasurementDataclass:
             # Handle exponents in filename
             if filename[params.start() - 1] == &#34;e&#34;:
                 try:
-                    params = re.search(rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename).group(0)[1:]
+                    params = re.search(
+                        rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename
+                    ).group(0)[1:]
                     return float(params)
-                except AttributeError:
-                    raise Exception(f&#34;Parameter with unit &#39;{unit}&#39; not found in filename &#39;{filename}&#39;&#34;)
+                except AttributeError as exc:
+                    raise Exception(
+                        f&#34;Parameter with unit &#39;{unit}&#39; not found in &#34;
+                        f&#34;filename &#39;{filename}&#39;&#34;
+                    ) from exc
             else:
                 return float(params.group(0))
         else:
@@ -490,7 +507,8 @@ class MeasurementDataclass:
             raise IndexError(&#34;Unable to find column &#39;Time (s)&#39; in DataFrame&#34;)
 
         self.__data[&#39;Time (s)&#39;] += self.__params[&#39;Start counting time&#39;].timestamp()
-        self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;, utc=True)
+        self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;,
+                                             utc=True)
         self.__data.set_index(self.__data[&#34;Time&#34;], inplace=True)
         self.__data.tz_convert(&#39;Europe/Berlin&#39;)
         self.__data.drop([&#34;Time&#34;, &#34;Time (s)&#34;], inplace=True, axis=1)
@@ -575,7 +593,7 @@ def params(self) -&gt; dict:
         return self.__params</code></pre>
 </details>
 </dd>
-<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.xy_position"><code class="name">var <span class="ident">xy_position</span> : Tuple[int, int]</code></dt>
+<dt id="qudi_hira_analysis.measurement_dataclass.MeasurementDataclass.xy_position"><code class="name">var <span class="ident">xy_position</span> : tuple[int, int]</code></dt>
 <dd>
 <div class="desc"><p>(row, col) position of measurement in image</p></div>
 <details class="source">
@@ -583,7 +601,7 @@ def params(self) -&gt; dict:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def xy_position(self) -&gt; Tuple[int, int]:
+def xy_position(self) -&gt; tuple[int, int]:
     &#34;&#34;&#34; (row, col) position of measurement in image &#34;&#34;&#34;
     return self._xy_position</code></pre>
 </details>
@@ -664,10 +682,15 @@ with keyword 'minus' or a decimal point with keyword 'point'.</p>
         # Handle exponents in filename
         if filename[params.start() - 1] == &#34;e&#34;:
             try:
-                params = re.search(rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename).group(0)[1:]
+                params = re.search(
+                    rf&#34;(-?_\d)[^a]+?(?={unit})&#34;, filename
+                ).group(0)[1:]
                 return float(params)
-            except AttributeError:
-                raise Exception(f&#34;Parameter with unit &#39;{unit}&#39; not found in filename &#39;{filename}&#39;&#34;)
+            except AttributeError as exc:
+                raise Exception(
+                    f&#34;Parameter with unit &#39;{unit}&#39; not found in &#34;
+                    f&#34;filename &#39;{filename}&#39;&#34;
+                ) from exc
         else:
             return float(params.group(0))
     else:
@@ -693,7 +716,8 @@ with keyword 'minus' or a decimal point with keyword 'point'.</p>
         raise IndexError(&#34;Unable to find column &#39;Time (s)&#39; in DataFrame&#34;)
 
     self.__data[&#39;Time (s)&#39;] += self.__params[&#39;Start counting time&#39;].timestamp()
-    self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;, utc=True)
+    self.__data[&#34;Time&#34;] = pd.to_datetime(self.__data[&#39;Time (s)&#39;], unit=&#39;s&#39;,
+                                         utc=True)
     self.__data.set_index(self.__data[&#34;Time&#34;], inplace=True)
     self.__data.tz_convert(&#39;Europe/Berlin&#39;)
     self.__data.drop([&#34;Time&#34;, &#34;Time (s)&#34;], inplace=True, axis=1)
@@ -797,11 +821,13 @@ class PulsedMeasurementDataclass:
     timetrace: RawTimetrace = field(default=None)
 
     def __post_init__(self):
-        self.base_filename = self.measurement.filepath.name.replace(&#34;_pulsed_measurement.dat&#34;, &#34;&#34;)
+        self.base_filename = self.measurement.filepath.name.replace(
+            &#34;_pulsed_measurement.dat&#34;, &#34;&#34;)
 
     def show_image(self) -&gt; Image:
         &#34;&#34;&#34; Use PIL to open the measurement image saved on the disk &#34;&#34;&#34;
-        return Image.open(str(self.measurement.filepath).replace(&#34;.dat&#34;, &#34;_fig.png&#34;))</code></pre>
+        return Image.open(
+            str(self.measurement.filepath).replace(&#34;.dat&#34;,&#34;_fig.png&#34;))</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -821,7 +847,7 @@ class PulsedMeasurementDataclass:
 <h3>Methods</h3>
 <dl>
 <dt id="qudi_hira_analysis.measurement_dataclass.PulsedMeasurementDataclass.show_image"><code class="name flex">
-<span>def <span class="ident">show_image</span></span>(<span>self) ‑> Image</span>
+<span>def <span class="ident">show_image</span></span>(<span>self) ‑> <module 'PIL.Image' from '/Users/dineshpinto/Library/Caches/pypoetry/virtualenvs/qudi-hira-analysis-Ekp3h_Qi-py3.11/lib/python3.11/site-packages/PIL/Image.py'></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Use PIL to open the measurement image saved on the disk</p></div>
@@ -831,7 +857,8 @@ class PulsedMeasurementDataclass:
 </summary>
 <pre><code class="python">def show_image(self) -&gt; Image:
     &#34;&#34;&#34; Use PIL to open the measurement image saved on the disk &#34;&#34;&#34;
-    return Image.open(str(self.measurement.filepath).replace(&#34;.dat&#34;, &#34;_fig.png&#34;))</code></pre>
+    return Image.open(
+        str(self.measurement.filepath).replace(&#34;.dat&#34;,&#34;_fig.png&#34;))</code></pre>
 </details>
 </dd>
 </dl>
