@@ -29,12 +29,14 @@ def format_exponent_as_str(
             count -= 1
 
     if only_exp:
-        formatted_str = r"$10^{{ {} }}$".format(count)
+        formatted_str = fr"$10^{{ {count} }}$"
     else:
         if decimals == 0:
-            formatted_str = r"${{ {} }} {} 10^{{ {} }}$".format(int(number_to_format), separator, count)
+            formatted_str = r"${{ {} }} {} 10^{{ {} }}$".format(
+                int(number_to_format), separator, count)
         else:
-            formatted_str = r"${{ {} }} {} 10^{{ {} }}$".format(round(number_to_format, decimals), separator, count)
+            formatted_str = r"${{ {} }} {} 10^{{ {} }}$".format(
+                round(number_to_format, decimals), separator, count)
 
     return formatted_str
 
@@ -44,19 +46,21 @@ def log_tick_formatter(val, pos=None):
     return rf"$10^{{{val:.0f}}}$"
 
 
-def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9, niter: int = 10) -> np.ndarray:
+def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9,
+                 niter: int = 10) -> np.ndarray:
     """
     Asymmetric least squares baseline.
-    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric Least Squares Smoothing (2005).
+    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric
+    Least Squares Smoothing (2005).
     """
-    L = len(y)
-    D = sparse.csc_matrix(np.diff(np.eye(L), 2))
+    L = len(y)  # noqa: N806
+    D = sparse.csc_matrix(np.diff(np.eye(L), 2))  # noqa: N806
     w = np.ones(L)
 
     z = None
-    for i in range(niter):
-        W = sparse.spdiags(w, 0, L, L)
-        Z = W + lam * D.dot(D.transpose())
+    for _ in range(niter):
+        W = sparse.spdiags(w, 0, L, L)  # noqa: N806
+        Z = W + lam * D.dot(D.transpose())  # noqa: N806
         z = sparse.linalg.spsolve(Z, w * y)
         w = p * (y > z) + (1 - p) * (y < z)
     return z

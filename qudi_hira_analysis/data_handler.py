@@ -3,20 +3,25 @@ from __future__ import annotations
 import datetime
 import logging
 from pathlib import Path
-from typing import List, TYPE_CHECKING, Callable
-
-import pySPM
+from typing import TYPE_CHECKING, Callable
 
 from qudi_hira_analysis.analysis_logic import AnalysisLogic
 from qudi_hira_analysis.io_handler import IOHandler
-from qudi_hira_analysis.measurement_dataclass import RawTimetrace, PulsedMeasurement, PulsedMeasurementDataclass, \
-    LaserPulses, MeasurementDataclass
+from qudi_hira_analysis.measurement_dataclass import (
+    LaserPulses,
+    MeasurementDataclass,
+    PulsedMeasurement,
+    PulsedMeasurementDataclass,
+    RawTimetrace,
+)
 
 if TYPE_CHECKING:
-    import pandas as pd
     import numpy as np
+    import pandas as pd
+    import pySPM
 
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s',
+                    level=logging.INFO)
 
 
 class DataLoader(IOHandler):
@@ -29,24 +34,29 @@ class DataLoader(IOHandler):
         super().__init__(**kwargs)
 
         # Create callables used in measurement dataclasses
-        self.default_qudi_loader: (Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
+        self.default_qudi_loader: (
+            Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
             self.read_into_dataframe,
             self.read_qudi_parameters
         )
-        self.confocal_qudi_loader: (Callable[[Path], np.ndarray], Callable[[Path], dict]) = (
+        self.confocal_qudi_loader: (
+            Callable[[Path], np.ndarray], Callable[[Path], dict]) = (
             self.read_confocal_into_dataframe,
             self.read_qudi_parameters
         )
         self.pixelscanner_qudi_loader: (
-            Callable[[Path], (pySPM.SPM_image, pySPM.SPM_image)], Callable[[Path], dict]) = (
+            Callable[[Path], (pySPM.SPM_image, pySPM.SPM_image)],
+            Callable[[Path], dict]) = (
             self.read_pixelscanner_data,
             self.read_qudi_parameters
         )
-        self.trace_qudi_loader: (Callable[[Path], np.ndarray], Callable[[Path], dict]) = (
+        self.trace_qudi_loader: (
+            Callable[[Path], np.ndarray], Callable[[Path], dict]) = (
             self.read_into_ndarray_transposed,
             self.read_qudi_parameters
         )
-        self.nanonis_loader: (Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
+        self.nanonis_loader: (
+            Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
             self.read_nanonis_data,
             self.read_nanonis_parameters
         )
@@ -100,29 +110,33 @@ class DataHandler(DataLoader, AnalysisLogic):
     ):
         self.log = logging.getLogger(__name__)
 
-        self.data_folder_path = self.__get_data_folder_path(data_folder, measurement_folder)
+        self.data_folder_path = self.__get_data_folder_path(data_folder,
+                                                            measurement_folder)
 
         if copy_measurement_folder_structure:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, measurement_folder)
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder,
+                                                                    measurement_folder)
         else:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder, Path())
+            self.figure_folder_path = self.__get_figure_folder_path(figure_folder,
+                                                                    Path())
 
-        super().__init__(base_read_path=self.data_folder_path, base_write_path=self.figure_folder_path)
+        super().__init__(base_read_path=self.data_folder_path,
+                         base_write_path=self.figure_folder_path)
 
         self.timestamp_format_str = "%Y%m%d-%H%M-%S"
 
     def __get_data_folder_path(self, data_folder: Path, folder_name: Path) -> Path:
-        """ Check if folder exists, if not, create it and return absolute folder paths. """
+        """ Check if folder exists, if not, create and return absolute folder paths. """
         path = data_folder / folder_name
 
         if not path.exists():
-            raise IOError("Data folder path does not exist.")
+            raise OSError("Data folder path does not exist.")
 
         self.log.info(f"Data folder path is {path}")
         return path
 
     def __get_figure_folder_path(self, figure_folder: Path, folder_name: Path) -> Path:
-        """ Check if folder exists, if not, create it and return absolute folder paths. """
+        """ Check if folder exists, if not, create and return absolute folder paths. """
         path = figure_folder / folder_name
 
         if not path.exists():
@@ -171,7 +185,7 @@ class DataHandler(DataLoader, AnalysisLogic):
         Print or return a string tree of the data folder.
 
         Args:
-            print_tree: Whether to print the tree or return it as a string (default: True).
+            print_tree: Print the tree or return it as a string (default: True).
 
         Returns:
             str: The tree as a string if `print_tree is False.
@@ -183,12 +197,13 @@ class DataHandler(DataLoader, AnalysisLogic):
         Print or return a string tree of the figure folder.
 
         Args:
-            print_tree: Whether to print the tree or return it as a string (default: True).
+            print_tree: Print the tree or return it as a string (default: True).
 
         Returns:
             str: The tree as a string if `print_tree is False.
         """
-        return self.__print_or_return_tree(self.figure_folder_path, print_tree=print_tree)
+        return self.__print_or_return_tree(self.figure_folder_path,
+                                           print_tree=print_tree)
 
     def _get_measurement_filepaths(
             self,
@@ -200,10 +215,11 @@ class DataHandler(DataLoader, AnalysisLogic):
         List all measurement files for a single measurement type, regardless of date
         within a similar set (i.e. top level folder).
         """
-        filepaths: List[Path] = []
+        filepaths: list[Path] = []
 
         for path in self.data_folder_path.rglob("*"):
-            if path.is_file() and measurement.lower() in str(path).lower():
+            if path.is_file() and measurement.lower() in str(
+                    path).lower():
                 if exclude_str is None or exclude_str not in str(path):
                     if extension:
                         if path.suffix == extension:
@@ -224,7 +240,8 @@ class DataHandler(DataLoader, AnalysisLogic):
             timestamps = set()
 
             # Get set of unique timestamps containing pulsed_measurement_str
-            for filepath in self._get_measurement_filepaths(measurement=measurement_str, extension=extension,
+            for filepath in self._get_measurement_filepaths(measurement=measurement_str,
+                                                            extension=extension,
                                                             exclude_str="image_1.dat"):
                 timestamps.add(filepath.name[:16])
                 filtered_filepaths.append(filepath)
@@ -238,21 +255,28 @@ class DataHandler(DataLoader, AnalysisLogic):
                     filename = filepath.name
                     if filename.startswith(ts):
                         if str(filename).endswith("laser_pulses.dat"):
-                            lp = LaserPulses(filepath=filepath, loaders=self.trace_qudi_loader)
+                            lp = LaserPulses(filepath=filepath,
+                                             loaders=self.trace_qudi_loader)
                         elif str(filename).endswith("pulsed_measurement.dat"):
-                            pm = PulsedMeasurement(filepath=filepath, loaders=self.default_qudi_loader)
+                            pm = PulsedMeasurement(filepath=filepath,
+                                                   loaders=self.default_qudi_loader)
                         elif str(filename).endswith("raw_timetrace.dat"):
-                            rt = RawTimetrace(filepath=filepath, loaders=self.trace_qudi_loader)
+                            rt = RawTimetrace(filepath=filepath,
+                                              loaders=self.trace_qudi_loader)
 
                     if lp and pm and rt:
                         break
 
                 if not (lp and pm and rt):
-                    raise IOError(f"File '{filtered_filepaths[idx]}' is not a valid pulsed measurement.")
+                    raise OSError(
+                        f"'{filtered_filepaths[idx]}' is a invalid pulsed measurement.")
 
                 pulsed_measurement_data[ts] = (
                     MeasurementDataclass(
-                        timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                        timestamp=datetime.datetime.strptime(
+                            ts,
+                            self.timestamp_format_str
+                        ),
                         pulsed=PulsedMeasurementDataclass(
                             measurement=pm,
                             laser_pulses=lp,
@@ -274,12 +298,16 @@ class DataHandler(DataLoader, AnalysisLogic):
 
             measurement_data: dict[str: MeasurementDataclass] = {}
 
-            for filepath in self._get_measurement_filepaths(measurement_str, extension, exclude_str):
+            for filepath in self._get_measurement_filepaths(measurement_str, extension,
+                                                            exclude_str):
                 ts = filepath.name[:16]
                 measurement_data[ts] = (
                     MeasurementDataclass(
                         filepath=filepath,
-                        timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                        timestamp=datetime.datetime.strptime(
+                            ts,
+                            self.timestamp_format_str
+                        ),
                         _loaders=loaders
                     )
                 )
@@ -317,9 +345,11 @@ class DataHandler(DataLoader, AnalysisLogic):
             loaders = self.default_qudi_loader
             exclude_str = None
 
-        for filepath in self._get_measurement_filepaths(measurement_str, extension, exclude_str):
+        for filepath in self._get_measurement_filepaths(measurement_str, extension,
+                                                        exclude_str):
             timestamp = datetime.datetime.fromtimestamp(filepath.stat().st_mtime)
-            self.log.warning("Extracting timestamp from file modified time, may not be accurate.")
+            self.log.warning(
+                "Extracting timestamp from file modified time, may not be accurate.")
             ts = datetime.datetime.strftime(timestamp, self.timestamp_format_str)
             measurement_list[ts] = (
                 MeasurementDataclass(
@@ -341,16 +371,18 @@ class DataHandler(DataLoader, AnalysisLogic):
         Lazy-load all measurements of a given type into a dictionary of dataclasses.
 
         Args:
-            measurement_str: The name of the measurement type to load e.g. t1, t2, confocal etc.
-                             Recursively searches through the path defined by data_folder and measurement_folder.
+            measurement_str: The name of the measurement type to load e.g. t1, t2,
+                             confocal etc.
+                             Recursively searches through the path defined by
+                             data_folder and measurement_folder.
                              Case-insensitive (i.e. "odmr" == "ODMR" == "Odmr").
             qudi: Whether the measurement is a qudi measurement (default: True).
             pulsed: Whether the measurement is a pulsed measurement (default: False).
             extension: The file extension of the measurement files (default: .dat).
 
         Returns:
-            dict: A dictionary where keys are the measurement timestamps and values are dataclasses containing the
-                  measurement data.
+            dict: A dictionary where keys are the measurement timestamps and values are
+                  dataclasses containing the measurement data.
 
         Examples:
             `dh` is an instance of the `DataHandler` class.
@@ -374,6 +406,10 @@ class DataHandler(DataLoader, AnalysisLogic):
 
         measurement_str = measurement_str.lower()
         if qudi:
-            return self.__load_qudi_measurements_into_dataclass(measurement_str, pulsed=pulsed, extension=".dat")
+            return self.__load_qudi_measurements_into_dataclass(
+                measurement_str, pulsed=pulsed, extension=".dat"
+            )
         else:
-            return self.__load_standard_measurements_into_dataclass(measurement_str, extension=extension)
+            return self.__load_standard_measurements_into_dataclass(
+                measurement_str, extension=extension
+            )

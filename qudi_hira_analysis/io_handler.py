@@ -1,11 +1,12 @@
 import ast
+import contextlib
 import datetime
 import inspect
 import itertools
 import pickle
 from functools import wraps
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,7 +17,11 @@ import pySPM
 class IOHandler:
     """ Handle all read and write operations. """
 
-    def __init__(self, base_read_path: Path = None, base_write_path: Path = None):
+    def __init__(
+            self,
+            base_read_path: Optional[Path] = None,
+            base_write_path: Optional[Path] = None
+    ):
         super().__init__()
         self.base_read_path = base_read_path
         self.base_write_path = base_write_path
@@ -82,7 +87,9 @@ class IOHandler:
                 elif filepath.suffix == "":
                     return func(self, filepath.with_suffix(ext), **kwargs)
                 else:
-                    raise IOError(f"Invalid extension '{filepath.suffix}' in '{filepath}', extension should be '{ext}'")
+                    raise OSError(
+                        f"Invalid extension '{filepath.suffix}' in '{filepath}', "
+                        f"extension should be '{ext}'")
 
             return wrapper
 
@@ -113,13 +120,16 @@ class IOHandler:
                             # Add params to dictionary
                             label, value = line.split(":")
                             if value != "\n":
-                                params[label] = ast.literal_eval(inspect.cleandoc(value))
+                                params[label] = ast.literal_eval(
+                                    inspect.cleandoc(value))
                         elif line.count(":") == 3:
                             # Handle files with timestamps in them
                             label = line.split(":")[0]
                             timestamp_str = "".join(line.split(":")[1:]).strip()
-                            datetime_str = datetime.datetime.strptime(timestamp_str, "%d.%m.%Y %Hh%Mmin%Ss").replace(
-                                tzinfo=datetime.timezone.utc)
+                            datetime_str = datetime.datetime.strptime(
+                                timestamp_str,
+                                "%d.%m.%Y %Hh%Mmin%Ss"
+                            ).replace(tzinfo=datetime.timezone.utc)
                             params[label] = datetime_str
                     except Exception as _:
                         pass
@@ -138,7 +148,8 @@ class IOHandler:
         """
         with open(filepath) as handle:
             # Generate column names for DataFrame by parsing the file
-            *_comments, names = itertools.takewhile(lambda line: line.startswith('#'), handle)
+            *_comments, names = itertools.takewhile(lambda line: line.startswith('#'),
+                                                    handle)
             names = names[1:].strip().split("\t")
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
 
@@ -158,7 +169,7 @@ class IOHandler:
         """ Read a qudi confocal data file into a pandas DataFrame for analysis. """
         confocal_params = self.read_qudi_parameters(filepath)
         data = self.read_into_ndarray(filepath, delimiter="\t")
-        # Use the confocal parameters to generate the index and columns for the DataFrame
+        # Use the confocal parameters to generate the index & columns for the DataFrame
         index = np.linspace(
             confocal_params['X image min (m)'],
             confocal_params['X image max (m)'],
@@ -190,7 +201,7 @@ class IOHandler:
         """ Read raw .pys data files into a dictionary. """
         byte_dict = np.load(str(filepath), encoding="bytes", allow_pickle=True)
         # Convert byte string keys to normal strings
-        return {key.decode('utf8'): byte_dict.get(key) for key in byte_dict.keys()}
+        return {key.decode('utf8'): byte_dict.get(key) for key in byte_dict}
 
     @_add_base_read_path
     @_check_extension(".pkl")
@@ -246,11 +257,8 @@ class IOHandler:
                     pass
                 else:
                     label, value, _ = line.split("\t")
-                    try:
-                        # Convert strings to number where possible
+                    with contextlib.suppress(ValueError):
                         value = float(value)
-                    except ValueError:
-                        pass
                     if "Oscillation Control>" in label:
                         label = label.replace("Oscillation Control>", "")
                     parameters[label] = value
@@ -316,7 +324,9 @@ class IOHandler:
             DataFrame containing the data.
         """
         # Extract only the origin timestamp
-        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[1][0]
+        origin = pd.read_excel(
+            filepath, skiprows=1, nrows=1, usecols=[1], header=None
+        )[1][0]
         # Remove any tzinfo to prevent future exceptions in pandas
         origin = origin.replace("CET", "")
         # Parse datetime object from timestamp
@@ -342,7 +352,8 @@ class IOHandler:
         Returns:
             DataFrame containing the wavelength and intensity data.
         """
-        df = pd.read_csv(filepath, sep="\t", skiprows=14, names=["wavelength", "intensity"])
+        df = pd.read_csv(filepath, sep="\t", skiprows=14,
+                         names=["wavelength", "intensity"])
         return df
 
     @staticmethod
@@ -355,7 +366,8 @@ class IOHandler:
         backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
         return forward_counts, backward_counts
 
-    def read_pixelscanner_data(self, filepath: Path) -> (pySPM.SPM_image, pySPM.SPM_image):
+    def read_pixelscanner_data(self, filepath: Path) -> (
+            pySPM.SPM_image, pySPM.SPM_image):
         """ Read data from a PixelScanner measurement.
 
         Args:
@@ -374,7 +386,8 @@ class IOHandler:
             fwd, bwd = self.__get_forward_backward_counts(df["count_rates"], num_pixels)
         except KeyError:
             try:
-                fwd, bwd = self.__get_forward_backward_counts(df["Count Rates (cps)"], num_pixels)
+                fwd, bwd = self.__get_forward_backward_counts(df["Count Rates (cps)"],
+                                                              num_pixels)
             except KeyError:
                 # Support old data format
                 fwd = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
@@ -441,4 +454,3 @@ class IOHandler:
 
         for ext in extensions:
             fig.savefig(filepath.with_suffix(ext), dpi=200, **kwargs)
-

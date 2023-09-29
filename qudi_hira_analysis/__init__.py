@@ -2,10 +2,11 @@
 
 ## Getting started
 
-Start by creating an instance of the `DataHandler` class. Specify the location you want to load data from
-(`data_folder`), the location you want to save figures to (`figure_folder`) and (optionally) the
-name of the measurement folder (`measurement_folder`). If a measurement folder is specified, its path will be combined
-with the data folder path to form the full path to the measurement data.
+Start by creating an instance of the `DataHandler` class. Specify the location you
+want to load data from (`data_folder`), the location you want to save figures to (
+`figure_folder`) and (optionally) the name of the measurement folder (
+`measurement_folder`). If a measurement folder is specified, its path will be
+combined with the data folder path to form the full path to the measurement data.
 
 ```python
 from pathlib import Path
@@ -26,10 +27,12 @@ dh = DataHandler(
 
 ### Loading data
 
-To load a specific set of measurements from the data folder, use the `DataHandler.load_measurements()` method.
-The method takes a string as an argument and searches for files with the string in the path. The files are lazy-loaded,
-so the data is only loaded when it is needed. The method returns a dictionary, where the keys are the timestamps of the
-measurements and the values are `measurement_dataclass.MeasurementDataclass()` objects.
+To load a specific set of measurements from the data folder, use the
+`DataHandler.load_measurements()` method. The method takes a string as an argument
+and searches for files with the string in the path. The files are lazy-loaded,
+so the data is only loaded when it is needed. The method returns a dictionary,
+where the keys are the timestamps of the measurements and the values are
+`measurement_dataclass.MeasurementDataclass()` objects.
 
 
 ```python
@@ -53,8 +56,9 @@ MeasurementDataclass(timestamp='2023-01-01 04:20:00', filename='odmr.dat')
 
 ### Fitting data
 
-To fit data, call the `DataHandler.fit()` method. This method accepts pandas DataFrames, numpy arrays or pandas Series
-as inputs. To get the full list of available fit routines, explore the `DataHandler.fit_function` attribute or call
+To fit data, call the `DataHandler.fit()` method. This method accepts pandas
+DataFrames, numpy arrays or pandas Series as inputs. To get the full list of
+available fit routines, explore the `DataHandler.fit_function` attribute or call
 `AnalysisLogic.get_all_fits()`.
 
 The fit functions available are:
@@ -132,9 +136,9 @@ sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
 ### Saving data
 
 To save figures, call the `DataHandler.save_figures()` method. By default,
-the figures are saved as JPG, PDF, PNG and SVG.
-This can be changed by setting the `only_jpg` or `only_pdf` arguments to `True`. All other keyword arguments
-are passed to the `matplotlib.pyplot.savefig()` function.
+the figures are saved as JPG, PDF, PNG and SVG. This can be changed by setting the
+`only_jpg` or `only_pdf` arguments to `True`. All other keyword arguments are passed
+to the `matplotlib.pyplot.savefig()` function.
 
 
 ```python
