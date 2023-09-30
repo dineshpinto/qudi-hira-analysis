@@ -1,7 +1,10 @@
+import logging
 from pathlib import Path
 from unittest import TestCase
 
 from qudi_hira_analysis import DataHandler
+
+logging.disable(logging.CRITICAL)
 
 
 class TestLoading(TestCase):
@@ -77,6 +80,7 @@ class TestLoading(TestCase):
 
         self.assertEqual(mfm.channel, "Phase")
         self.assertEqual(mfm.type, "Bruker MFM")
+        bruker_data.file.close()
 
     def test_pys_load(self):
         pys_measurements = self.dh.load_measurements(measurement_str="ndmin",
@@ -96,7 +100,7 @@ class TestLoading(TestCase):
                                           qudi=False)
         temp = temps[next(iter(temps))].data
         self.assertIn("Tip Holder", temp.columns)
-        self.assertAlmostEqual(temp.iloc[0][0], 119.403)
+        self.assertAlmostEqual(temp.iloc[0, 0], 119.403)
 
     def test_measurement_dataclass(self):
         odmr_list = self.dh.load_measurements(measurement_str="ODMR", pulsed=True)

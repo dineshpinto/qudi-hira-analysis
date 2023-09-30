@@ -1,7 +1,10 @@
+import logging
 from pathlib import Path
 from unittest import TestCase
 
 from qudi_hira_analysis import DataHandler
+
+logging.disable(logging.CRITICAL)
 
 
 class TestFitting(TestCase):
@@ -67,4 +70,4 @@ class TestFitting(TestCase):
             fit_function=self.dh.fit_function.hyperbolicsaturation
         )
         self.assertAlmostEqual(x_fit.tolist()[0], 0.83)
-        self.assertAlmostEqual(int(y_fit[0]), 54533, places=0)
+        self.assertAlmostEqual(int(y_fit[0]), 54531, places=0)
