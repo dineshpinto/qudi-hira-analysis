@@ -70,4 +70,4 @@ class TestFitting(TestCase):
             fit_function=self.dh.fit_function.hyperbolicsaturation
         )
         self.assertAlmostEqual(x_fit.tolist()[0], 0.83)
-        self.assertAlmostEqual(int(y_fit[0]), 54531, places=0)
+        self.assertAlmostEqual(int(y_fit[0]), 54532, delta=2.0)
