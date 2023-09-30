@@ -357,7 +357,10 @@ class IOHandler:
         return df
 
     @staticmethod
-    def __get_forward_backward_counts(count_rates, num_pixels):
+    def __get_forward_backward_counts(
+            count_rates: np.ndarray,
+            num_pixels: int
+    ) -> tuple[np.ndarray, np.ndarray]:
         split_array = np.split(count_rates, 2 * num_pixels)
         # Extract forward scan array as every second element
         forward_counts = np.stack(split_array[::2])
@@ -383,11 +386,14 @@ class IOHandler:
             raise ValueError("Number of pixels does not match data length.")
 
         try:
-            fwd, bwd = self.__get_forward_backward_counts(df["count_rates"], num_pixels)
+            fwd, bwd = self.__get_forward_backward_counts(
+                df["count_rates"].to_numpy(), num_pixels
+            )
         except KeyError:
             try:
-                fwd, bwd = self.__get_forward_backward_counts(df["Count Rates (cps)"],
-                                                              num_pixels)
+                fwd, bwd = self.__get_forward_backward_counts(
+                    df["Count Rates (cps)"].to_numpy(), num_pixels
+                )
             except KeyError:
                 # Support old data format
                 fwd = df["forward (cps)"].to_numpy().reshape(num_pixels, num_pixels)
