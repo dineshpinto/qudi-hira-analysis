@@ -5,7 +5,8 @@ from lmfit.models import Model
 
 
 def make_antibunching_model(self, prefix=None):
-    def antibunching(x: np.ndarray, n: float, a: float, b: float, tau0: float, tau1: float, tau2: float) \
+    def antibunching(x: np.ndarray, n: float, a: float, b: float, tau0: float,
+                     tau1: float, tau2: float) \
             -> np.ndarray:
         """
         Fit to function
@@ -34,7 +35,8 @@ def estimate_antibunching_dip(self, x_axis, data, params):
     return error, params
 
 
-def make_antibunching_fit(self, x_axis, data, estimator, units=None, add_params=None, **kwargs):
+def make_antibunching_fit(self, x_axis, data, estimator, units=None, add_params=None,
+                          **kwargs):
     model, params = self.make_antibunching_model()
 
     error, params = estimator(x_axis, data, params)
@@ -47,7 +49,7 @@ def make_antibunching_fit(self, x_axis, data, estimator, units=None, add_params=
     except:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         self.log.warning('The 1D antibunching fit did not work. Error '
-                         'message: {0}\n'.format(result.message))
+                         f'message: {result.message}\n')
 
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()

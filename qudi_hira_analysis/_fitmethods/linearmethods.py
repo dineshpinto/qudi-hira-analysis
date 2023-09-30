@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This file contains methods for linear fitting, these methods
 are imported by class FitLogic. The functions can be used for amy
@@ -55,6 +54,7 @@ def make_constant_model(self, prefix=None):
     For further information have a look in:
     http://cars9.uchicago.edu/software/python/lmfit/builtin_models.html#models.GaussianModel
     """
+
     def constant_function(x, offset):
         """ Function of a constant value.
 
@@ -67,9 +67,10 @@ def make_constant_model(self, prefix=None):
         return offset
 
     if not isinstance(prefix, str) and prefix is not None:
-        self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
-                       'a prefix and will be ignored for now. Correct that!'.format(prefix,
-                                                                                    type(prefix)))
+        self.log.error(
+            'The passed prefix <{}> of type {} is not a string and cannot be used as '
+            'a prefix and will be ignored for now. Correct that!'.format(prefix,
+                                                                         type(prefix)))
         model = Model(constant_function, independent_vars=['x'])
     else:
         model = Model(constant_function, independent_vars=['x'], prefix=prefix)
@@ -103,9 +104,10 @@ def make_amplitude_model(self, prefix=None):
         return amplitude
 
     if not isinstance(prefix, str) and prefix is not None:
-        self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
-                       'a prefix and will be ignored for now. Correct that!'.format(prefix,
-                                                                                    type(prefix)))
+        self.log.error(
+            'The passed prefix <{}> of type {} is not a string and cannot be used as '
+            'a prefix and will be ignored for now. Correct that!'.format(prefix,
+                                                                         type(prefix)))
         model = Model(amplitude_function, independent_vars=['x'])
     else:
         model = Model(amplitude_function, independent_vars=['x'], prefix=prefix)
@@ -139,9 +141,10 @@ def make_slope_model(self, prefix=None):
         return slope
 
     if not isinstance(prefix, str) and prefix is not None:
-        self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
-                       'a prefix and will be ignored for now. Correct that!'.format(prefix,
-                                                                                    type(prefix)))
+        self.log.error(
+            'The passed prefix <{}> of type {} is not a string and cannot be used as '
+            'a prefix and will be ignored for now. Correct that!'.format(prefix,
+                                                                         type(prefix)))
         model = Model(slope_function, independent_vars=['x'])
     else:
         model = Model(slope_function, independent_vars=['x'], prefix=prefix)
@@ -174,9 +177,10 @@ def make_linear_model(self, prefix=None):
         return x
 
     if not isinstance(prefix, str) and prefix is not None:
-        self.log.error('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
-                       'a prefix and will be ignored for now. Correct that!'.format(prefix,
-                                                                                    type(prefix)))
+        self.log.error(
+            'The passed prefix <{}> of type {} is not a string and cannot be used as '
+            'a prefix and will be ignored for now. Correct that!'.format(prefix,
+                                                                         type(prefix)))
         linear_mod = Model(linear_function, independent_vars=['x'])
     else:
         linear_mod = Model(linear_function, independent_vars=['x'], prefix=prefix)
@@ -190,7 +194,8 @@ def make_linear_model(self, prefix=None):
     return model, params
 
 
-def make_linear_fit(self, x_axis, data, estimator, units=None, add_params=None, **kwargs):
+def make_linear_fit(self, x_axis, data, estimator, units=None, add_params=None,
+                    **kwargs):
     """ Performe a linear fit on the provided data.
 
     @param numpy.array x_axis: 1D axis values
@@ -218,11 +223,11 @@ def make_linear_fit(self, x_axis, data, estimator, units=None, add_params=None, 
     if units is None:
         units = ['arb. unit', 'arb. unit']
 
-    result_str_dict = dict()
+    result_str_dict = {}
 
     result_str_dict['Slope'] = {'value': result.params['slope'].value,
                                 'error': result.params['slope'].stderr,
-                                'unit': '{0}/{1}'.format(units[1], units[0])}
+                                'unit': f'{units[1]}/{units[0]}'}
     result_str_dict['Offset'] = {'value': result.params['offset'].value,
                                  'error': result.params['offset'].stderr,
                                  'unit': units[1]}
@@ -256,10 +261,10 @@ def estimate_linear(self, x_axis, data, params):
         x_mean = x_axis.mean()
         data_mean = data.mean()
 
-        for i in range(0, len(x_axis)):
-            a_1 += (x_axis[i]-x_mean)*(data[i]-data_mean)
-            a_2 += np.power(x_axis[i]-x_mean, 2)
-        slope = a_1/a_2
+        for i in range(len(x_axis)):
+            a_1 += (x_axis[i] - x_mean) * (data[i] - data_mean)
+            a_2 += np.power(x_axis[i] - x_mean, 2)
+        slope = a_1 / a_2
         intercept = data_mean - slope * x_mean
         params['offset'].value = intercept
         params['slope'].value = slope
@@ -269,4 +274,3 @@ def estimate_linear(self, x_axis, data, params):
         params['offset'].value = 0
 
     return error, params
-

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 This file contains the Qudi fitting logic functions needed for
 poissinian-like-methods.
@@ -24,13 +22,11 @@ top-level directory of this distribution and at <https://github.com/Ulm-IQO/qudi
 from collections import OrderedDict
 
 import numpy as np
-from lmfit import Parameters
 from lmfit.models import Model
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.ndimage import filters
 from scipy.signal import gaussian
 from scipy.special import gammaln, xlogy
-
 
 ################################################################################
 #                                                                              #
@@ -49,10 +45,7 @@ def poisson(self, x, mu):
     Author:  Travis Oliphant  2002-2011 with contributions from
              SciPy Developers 2004-2011
     """
-    if len(np.atleast_1d(x)) == 1:
-        check_val = x
-    else:
-        check_val = x[0]
+    check_val = x if len(np.atleast_1d(x)) == 1 else x[0]
 
     if check_val > 1e18:
         self.log.warning('The current value in the poissonian distribution '
@@ -94,6 +87,7 @@ def make_poissonian_model(self, prefix=None):
             lmfit.parameter.Parameter (without s) objects, keeping the
             information about the current value.
     """
+
     def poisson_function(x, mu):
         """ Function of a poisson distribution.
 
@@ -108,7 +102,7 @@ def make_poissonian_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
 
-        self.log.error('The passed prefix <{0}> of type {1} is not a string and'
+        self.log.error('The passed prefix <{}> of type {} is not a string and'
                        'cannot be used as a prefix and will be ignored for now.'
                        'Correct that!'.format(prefix, type(prefix)))
 
@@ -141,13 +135,16 @@ def make_poissonianmultiple_model(self, no_of_functions=1):
         multi_poisson_model, params = self.make_poissonian_model(prefix='p0_')
 
         for ii in range(1, no_of_functions):
-            multi_poisson_model += self.make_poissonian_model(prefix='p{0:d}_'.format(ii))[0]
+            multi_poisson_model += \
+                self.make_poissonian_model(prefix=f'p{ii:d}_')[0]
     params = multi_poisson_model.make_params()
 
     return multi_poisson_model, params
 
+
 def make_poissoniandouble_model(self):
     return self.make_poissonianmultiple_model(2)
+
 
 ################################################################################
 #                                                                              #
@@ -156,7 +153,8 @@ def make_poissoniandouble_model(self):
 ################################################################################
 
 
-def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=None, **kwargs):
+def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=None,
+                        **kwargs):
     """ Performe a poissonian fit on the provided data.
 
     @param numpy.array x_axis: 1D axis values
@@ -193,15 +191,15 @@ def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=No
     if units is None:
         units = ['arb. unit', 'arb. unit']
 
-    result_str_dict = dict()  # create result string for gui   oder OrderedDict()
+    result_str_dict = {}  # create result string for gui   oder OrderedDict()
 
     result_str_dict['Amplitude'] = {'value': result.params['amplitude'].value,
                                     'error': result.params['amplitude'].stderr,
-                                    'unit': units[1]}     # Amplitude
+                                    'unit': units[1]}  # Amplitude
 
     result_str_dict['Event rate'] = {'value': result.params['mu'].value,
-                                    'error': result.params['mu'].stderr,
-                                    'unit': units[0]}      # event rate
+                                     'error': result.params['mu'].stderr,
+                                     'unit': units[0]}  # event rate
 
     result.result_str_dict = result_str_dict
 
@@ -227,8 +225,6 @@ def estimate_poissonian(self, x_axis, data, params):
 
     # a gaussian filter is appropriate due to the well approximation of poisson
     # distribution
-    # gaus = gaussian(10,10)
-    # data_smooth = filters.convolve1d(data, gaus/gaus.sum(), mode='mirror')
     data_smooth = self.gaussian_smoothing(data=data, filter_len=10,
                                           filter_sigma=10)
 
@@ -240,7 +236,8 @@ def estimate_poissonian(self, x_axis, data, params):
     return error, params
 
 
-def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None, add_params=None, **kwargs):
+def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None,
+                              add_params=None, **kwargs):
     """ Perform a double poissonian fit on the provided data.
 
     @param numpy.array x_axis: 1D axis values
@@ -285,7 +282,7 @@ def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None, add_par
 
     result_str_dict['Event rate 1'] = {'value': result.params['p0_mu'].value,
                                        'error': result.params['p0_mu'].stderr,
-                                       'unit':  units[1]}
+                                       'unit': units[1]}
 
     result_str_dict['Amplitude 2'] = {'value': result.params['p1_amplitude'].value,
                                       'error': result.params['p1_amplitude'].stderr,
@@ -293,7 +290,7 @@ def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None, add_par
 
     result_str_dict['Event rate 2'] = {'value': result.params['p1_mu'].value,
                                        'error': result.params['p1_mu'].stderr,
-                                       'unit':  units[1]}
+                                       'unit': units[1]}
 
     result.result_str_dict = result_str_dict
 
@@ -345,10 +342,7 @@ def estimate_poissoniandouble(self, x_axis, data, params, threshold_fraction=0.4
         len_x = 10
         interpol_factor = 1
     else:
-        if len(x_axis) < 60:
-            interpol_factor = 4
-        else:
-            interpol_factor = 2
+        interpol_factor = 4 if len(x_axis) < 60 else 2
         len_x = int(len(x_axis) / 10.) + 1
 
     # Create the interpolation function, based on the data:
@@ -376,11 +370,13 @@ def estimate_poissoniandouble(self, x_axis, data, params, threshold_fraction=0.4
 
     # set the initial values for the fit:
     params['p0_mu'].set(value=x_axis_interpol[dip0_arg])
-    amplitude0 = (data_smooth[dip0_arg] / self.poisson(x_axis_interpol[dip0_arg], x_axis_interpol[dip0_arg]))
+    amplitude0 = (data_smooth[dip0_arg] / self.poisson(x_axis_interpol[dip0_arg],
+                                                       x_axis_interpol[dip0_arg]))
     params['p0_amplitude'].set(value=amplitude0, min=1e-15)
 
     params['p1_mu'].set(value=x_axis_interpol[dip1_arg])
-    amplitude1 = (data_smooth[dip1_arg] / self.poisson(x_axis_interpol[dip1_arg], x_axis_interpol[dip1_arg]))
+    amplitude1 = (data_smooth[dip1_arg] / self.poisson(x_axis_interpol[dip1_arg],
+                                                       x_axis_interpol[dip1_arg]))
     params['p1_amplitude'].set(value=amplitude1, min=1e-15)
 
     return error, params
