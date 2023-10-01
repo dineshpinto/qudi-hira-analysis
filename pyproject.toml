@@ -21,13 +21,13 @@ xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
 pyspm = "^0.4.0"
-seaborn = "^0.13.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
 ruff = "^0.0.291"
 ruff-lsp = "^0.0.39"
+seaborn = "^0.13.0"
 
 [tool.poetry.group.test.dependencies]
 coverage = "^7.2.5"
