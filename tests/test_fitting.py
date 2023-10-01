@@ -2,6 +2,8 @@ import logging
 from pathlib import Path
 from unittest import TestCase
 
+import lmfit
+
 from qudi_hira_analysis import DataHandler
 
 logging.disable(logging.CRITICAL)
@@ -37,13 +39,14 @@ class TestFitting(TestCase):
         odmr_list = self.dh.load_measurements(measurement_str="ODMR", pulsed=True)
         odmr = odmr_list["20220315-2050-39"]
 
-        x_fit, y_fit, _ = self.dh.fit(
+        x_fit, y_fit, res = self.dh.fit(
             x="Controlled variable(Hz)",
             y="Signal",
             data=odmr.data,
             fit_function=self.dh.fit_function.lorentziandouble
         )
-
+        odmr.fit_model = res
+        self.assertIsInstance(odmr.fit_model, lmfit.model.ModelResult)
         self.assertAlmostEqual(x_fit.tolist()[0], 2850000000.0)
         self.assertAlmostEqual(y_fit.tolist()[0], 1.1015461033795304)
 

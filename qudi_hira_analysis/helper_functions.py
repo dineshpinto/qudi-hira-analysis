@@ -1,5 +1,3 @@
-import numpy as np
-from scipy import sparse
 
 
 def decibelm_to_watts(dbm_value: float) -> float:
@@ -44,23 +42,3 @@ def format_exponent_as_str(
 def log_tick_formatter(val, pos=None):
     """ Format ticks for log10 scale plots """
     return rf"$10^{{{val:.0f}}}$"
-
-
-def baseline_als(y: np.ndarray, lam: float = 1e6, p: float = 0.9,
-                 niter: int = 10) -> np.ndarray:
-    """
-    Asymmetric least squares baseline.
-    Source: Paul H. C. Eilers, Hans F.M. Boelens. Baseline Correction with Asymmetric
-    Least Squares Smoothing (2005).
-    """
-    L = len(y)  # noqa: N806
-    D = sparse.csc_matrix(np.diff(np.eye(L), 2))  # noqa: N806
-    w = np.ones(L)
-
-    z = None
-    for _ in range(niter):
-        W = sparse.spdiags(w, 0, L, L)  # noqa: N806
-        Z = W + lam * D.dot(D.transpose())  # noqa: N806
-        z = sparse.linalg.spsolve(Z, w * y)
-        w = p * (y > z) + (1 - p) * (y < z)
-    return z

@@ -75,9 +75,12 @@ class TestLoading(TestCase):
         bruker_measurements = self.dh.load_measurements(measurement_str="",
                                                         extension=".001", qudi=False)
 
-        bruker_data = bruker_measurements[next(iter(bruker_measurements))].data
+        bruker = bruker_measurements[next(iter(bruker_measurements))]
+        bruker_data = bruker.data
+        scan_size = bruker.get_param_from_filename(unit="um")
         mfm = bruker_data.get_channel("Phase", mfm=True)
 
+        self.assertEqual(scan_size, 15.0)
         self.assertEqual(mfm.channel, "Phase")
         self.assertEqual(mfm.type, "Bruker MFM")
         bruker_data.file.close()
