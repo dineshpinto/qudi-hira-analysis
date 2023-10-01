@@ -540,8 +540,6 @@ def estimate_lorentziandouble_dip(x_axis, data, params,
     lorentz1_sigma = abs(numerical_integral_1 / (np.pi * lorentz1_amplitude))
 
     # esstimate amplitude
-    # lorentz0_amplitude = -1*abs(lorentz0_amplitude*np.pi*lorentz0_sigma)
-    # lorentz1_amplitude = -1*abs(lorentz1_amplitude*np.pi*lorentz1_sigma)
 
     stepsize = x_axis[1] - x_axis[0]
     full_width = x_axis[-1] - x_axis[0]
@@ -585,7 +583,7 @@ def make_lorentziandouble_fit(x_axis, data, model, params, units=None, **kwargs)
     except:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         log.error('The double lorentzian fit did not '
-                  'work: {0}'.format(result.message))
+                  f'work: {result.message}')
 
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()

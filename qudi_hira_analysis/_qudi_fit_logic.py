@@ -80,7 +80,8 @@ class FitLogic:
                         path_list.append(method_import_path)
             else:
                 self.log.error(
-                    'ConfigOption additional_predefined_methods_path needs to either be a string or '
+                    'ConfigOption additional_predefined_methods_path needs to either '
+                    'be a string or'
                     'a list of strings.')
 
         for path in path_list:
@@ -111,13 +112,18 @@ class FitLogic:
                     try:
                         # import methods in Fitlogic
                         setattr(FitLogic, method, ref)
-                        # append method to a list of methods to include in the fit_list dictionary
-                        if method_str.startswith('make_') and method_str.endswith(
-                                '_fit'):
+                        # append method to a list of methods to include in the
+                        # fit_list dictionary
+                        if (
+                                method_str.startswith('make_') and
+                                method_str.endswith('_fit')
+                        ):
                             fits_for_dict.append(
                                 method_str.split('_', 1)[1].rsplit('_', 1)[0])
-                        elif method_str.startswith('make_') and method_str.endswith(
-                                '_model'):
+                        elif (
+                                method_str.startswith('make_') and
+                                method_str.endswith('_model')
+                        ):
                             models_for_dict.append(
                                 method_str.split('_', 1)[1].rsplit('_', 1)[0])
                         elif method_str.startswith('estimate_'):
@@ -129,7 +135,8 @@ class FitLogic:
         fits_for_dict.sort()
         models_for_dict.sort()
         estimators_for_dict.sort()
-        # Now attach the fit, model and estimator methods to the proper dictionary fields
+        # Now attach the fit, model and estimator methods to the proper dictionary
+        # fields
         for fit_name in fits_for_dict:
             fit_method = 'make_' + fit_name + '_fit'
             model_method = 'make_' + fit_name + '_model'
@@ -160,25 +167,29 @@ class FitLogic:
             for estimator_name in estimators_for_dict:
                 estimator_method = 'estimate_' + estimator_name
                 if fit_name == estimator_name:
-                    self.fit_list[dimension][fit_name]['generic'] = getattr(self,
-                                                                            estimator_method)
+                    self.fit_list[dimension][fit_name]['generic'] = getattr(
+                        self, estimator_method
+                    )
                     found_estimator = True
                 elif estimator_name.startswith(fit_name + '_'):
                     custom_name = estimator_name.split('_', 1)[1]
-                    self.fit_list[dimension][fit_name][custom_name] = getattr(self,
-                                                                              estimator_method)
+                    self.fit_list[dimension][fit_name][custom_name] = getattr(
+                        self, estimator_method
+                    )
                     found_estimator = True
             if not found_estimator:
                 self.log.error('No estimator method for fit "{}" found in FitLogic.'
                                ''.format(fit_name))
 
-        # self.log.info('Methods were included to FitLogic, but only if naming is right: check the'
-        #               ' doxygen documentation if you added a new method and it does not show.')
+        # self.log.info('Methods were included to FitLogic, but only if naming is
+        # right: check the' ' doxygen documentation if you added a new method and it
+        # does not show.')
 
     def on_activate(self):
         """ Initialisation performed during activation of the module.
         """
-        # FIXME: load all the fits here, otherwise reloading this module is really questionable
+        # FIXME: load all the fits here, otherwise reloading this module is really
+        #  questionable
         fitversion = LooseVersion(lmfit.__version__)
         if fitversion < LooseVersion('0.9.2'):
             raise Exception('lmfit needs to be at least version 0.9.2!')
@@ -280,9 +291,9 @@ class FitContainer:
     def __init__(self, fit_logic, name, dimension):
         """ Create a fit container.
 
-            @param fit_logic FitLogic: reference to a FitLogic instance
-            @param name str: user-friendly name for this container
-            @param dimension str: dimension for fit input in this container, '1d', '2d' or '3d'
+            @param fit_logic FitLogic: reference to a FitLogic instance @param name
+            str: user-friendly name for this container @param dimension str:
+            dimension for fit input in this container, '1d', '2d' or '3d'
         """
         super().__init__()
 
@@ -317,8 +328,8 @@ class FitContainer:
             self.units = units
 
     def load_from_dict(self, fit_dict):
-        """ Take a list of fits from a storable dictionary, load to self.fit_list and check.
-            @param fit_dict dict: fit dictionary with function references etc
+        """ Take a list of fits from a storable dictionary, load to self.fit_list and
+        check. @param fit_dict dict: fit dictionary with function references etc
 
         """
         try:
@@ -351,8 +362,9 @@ class FitContainer:
         """ Check and set the current fit for this container by name.
             @param current_fit str: name of configured fit to be used as current fit
 
-        If the name given is not in the list of fits, the current fit will be 'No Fit'.
-        This is a reserved name that will do nothing and should not display a fit line if set.
+        If the name given is not in the list of fits, the current fit will be 'No
+        Fit'. This is a reserved name that will do nothing and should not display a
+        fit line if set.
         """
         if current_fit not in self.fit_list and current_fit != 'No Fit':
             self.fit_logic.log.warning(
@@ -430,8 +442,8 @@ class FitContainer:
 
         else:
             self.fit_logic.log.warning(
-                'The Fit Function "{}" is not implemented to be used in the ODMR Logic. '
-                'Correct that! Fit Call will be skipped and Fit Function will be set to '
+                'The Fit Function "{}" is not implemented to be used in the ODMR Logic.'
+                'Correct that! Fit Call will be skipped and Fit Function will be set to'
                 '"No Fit".'.format(self.current_fit))
 
             self.current_fit = 'No Fit'
