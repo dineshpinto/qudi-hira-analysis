@@ -218,106 +218,110 @@ class DataHandler(DataLoader, AnalysisLogic):
         filepaths: list[Path] = []
 
         for path in self.data_folder_path.rglob("*"):
-            if path.is_file() and measurement.lower() in str(
-                    path).lower():
-                if exclude_str is None or exclude_str not in str(path):
-                    if extension:
-                        if path.suffix == extension:
-                            filepaths.append(path)
-                    else:
-                        filepaths.append(path)
+            if (
+                    path.is_file() and
+                    measurement.lower() in str(path).lower() and
+                    path.suffix == extension and
+                    (exclude_str is None or exclude_str not in str(path))
+            ):
+                filepaths.append(path)
         return filepaths
+
+    def __load_qudi_pulsed_measurement_into_dataclass(
+            self,
+            measurement_str: str,
+            extension: str
+    ) -> dict[str: MeasurementDataclass]:
+        """ Load all qudi pulsed measurements into a dictionary of dataclasses. """
+        filtered_filepaths = []
+        timestamps = set()
+
+        # Get set of unique timestamps containing pulsed_measurement_str
+        for filepath in self._get_measurement_filepaths(measurement=measurement_str,
+                                                        extension=extension,
+                                                        exclude_str="image_1.dat"):
+            timestamps.add(filepath.name[:16])
+            filtered_filepaths.append(filepath)
+
+        pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
+
+        for idx, ts in enumerate(timestamps):
+            pm, lp, rt = None, None, None
+
+            for filepath in filtered_filepaths:
+                filename = filepath.name
+                if filename.startswith(ts):
+                    if str(filename).endswith("laser_pulses.dat"):
+                        lp = LaserPulses(filepath=filepath,
+                                         loaders=self.trace_qudi_loader)
+                    elif str(filename).endswith("pulsed_measurement.dat"):
+                        pm = PulsedMeasurement(filepath=filepath,
+                                               loaders=self.default_qudi_loader)
+                    elif str(filename).endswith("raw_timetrace.dat"):
+                        rt = RawTimetrace(filepath=filepath,
+                                          loaders=self.trace_qudi_loader)
+
+                if lp and pm and rt:
+                    break
+
+            if not (lp and pm and rt):
+                raise OSError(
+                    f"'{filtered_filepaths[idx]}' is a invalid pulsed measurement.")
+
+            pulsed_measurement_data[ts] = (
+                MeasurementDataclass(
+                    timestamp=datetime.datetime.strptime(
+                        ts,
+                        self.timestamp_format_str
+                    ),
+                    pulsed=PulsedMeasurementDataclass(
+                        measurement=pm,
+                        laser_pulses=lp,
+                        timetrace=rt
+                    )
+                )
+            )
+        return pulsed_measurement_data
 
     def __load_qudi_measurements_into_dataclass(
             self,
             measurement_str: str,
-            pulsed: bool,
             extension: str
     ) -> dict[str: MeasurementDataclass]:
-
-        if pulsed:
-            filtered_filepaths = []
-            timestamps = set()
-
-            # Get set of unique timestamps containing pulsed_measurement_str
-            for filepath in self._get_measurement_filepaths(measurement=measurement_str,
-                                                            extension=extension,
-                                                            exclude_str="image_1.dat"):
-                timestamps.add(filepath.name[:16])
-                filtered_filepaths.append(filepath)
-
-            pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
-
-            for idx, ts in enumerate(timestamps):
-                pm, lp, rt = None, None, None
-
-                for filepath in filtered_filepaths:
-                    filename = filepath.name
-                    if filename.startswith(ts):
-                        if str(filename).endswith("laser_pulses.dat"):
-                            lp = LaserPulses(filepath=filepath,
-                                             loaders=self.trace_qudi_loader)
-                        elif str(filename).endswith("pulsed_measurement.dat"):
-                            pm = PulsedMeasurement(filepath=filepath,
-                                                   loaders=self.default_qudi_loader)
-                        elif str(filename).endswith("raw_timetrace.dat"):
-                            rt = RawTimetrace(filepath=filepath,
-                                              loaders=self.trace_qudi_loader)
-
-                    if lp and pm and rt:
-                        break
-
-                if not (lp and pm and rt):
-                    raise OSError(
-                        f"'{filtered_filepaths[idx]}' is a invalid pulsed measurement.")
-
-                pulsed_measurement_data[ts] = (
-                    MeasurementDataclass(
-                        timestamp=datetime.datetime.strptime(
-                            ts,
-                            self.timestamp_format_str
-                        ),
-                        pulsed=PulsedMeasurementDataclass(
-                            measurement=pm,
-                            laser_pulses=lp,
-                            timetrace=rt
-                        )
-                    )
-                )
-            return pulsed_measurement_data
+        """ Load all qudi measurements into a dictionary of dataclasses. """
+        if measurement_str.lower() == "confocal":
+            loaders = self.confocal_qudi_loader
+            exclude_str = "xy_data.dat"
+        elif measurement_str.lower() == "pixelscanner":
+            loaders = self.pixelscanner_qudi_loader
+            exclude_str = None
         else:
-            if measurement_str.lower() == "confocal":
-                loaders = self.confocal_qudi_loader
-                exclude_str = "xy_data.dat"
-            elif measurement_str.lower() == "pixelscanner":
-                loaders = self.pixelscanner_qudi_loader
-                exclude_str = None
-            else:
-                loaders = self.default_qudi_loader
-                exclude_str = None
+            loaders = self.default_qudi_loader
+            exclude_str = None
 
-            measurement_data: dict[str: MeasurementDataclass] = {}
+        measurement_data: dict[str: MeasurementDataclass] = {}
 
-            for filepath in self._get_measurement_filepaths(measurement_str, extension,
-                                                            exclude_str):
-                ts = filepath.name[:16]
-                measurement_data[ts] = (
-                    MeasurementDataclass(
-                        filepath=filepath,
-                        timestamp=datetime.datetime.strptime(
-                            ts,
-                            self.timestamp_format_str
-                        ),
-                        _loaders=loaders
-                    )
+        for filepath in self._get_measurement_filepaths(measurement_str, extension,
+                                                        exclude_str):
+            ts = filepath.name[:16]
+            measurement_data[ts] = (
+                MeasurementDataclass(
+                    filepath=filepath,
+                    timestamp=datetime.datetime.strptime(
+                        ts,
+                        self.timestamp_format_str
+                    ),
+                    _loaders=loaders
                 )
-            return measurement_data
+            )
+        return measurement_data
 
     def __load_standard_measurements_into_dataclass(
             self,
             measurement_str: str,
             extension: str
     ) -> dict[str: MeasurementDataclass]:
+        """ Load all standard measurements into a dictionary of dataclasses. """
         measurement_list: dict[str: MeasurementDataclass] = {}
 
         # Try and infer measurement type
@@ -406,9 +410,14 @@ class DataHandler(DataLoader, AnalysisLogic):
 
         measurement_str = measurement_str.lower()
         if qudi:
-            return self.__load_qudi_measurements_into_dataclass(
-                measurement_str, pulsed=pulsed, extension=".dat"
-            )
+            if pulsed:
+                return self.__load_qudi_pulsed_measurement_into_dataclass(
+                    measurement_str, extension=".dat"
+                )
+            else:
+                return self.__load_qudi_measurements_into_dataclass(
+                    measurement_str, extension=".dat"
+                )
         else:
             return self.__load_standard_measurements_into_dataclass(
                 measurement_str, extension=extension
