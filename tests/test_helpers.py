@@ -16,12 +16,12 @@ class TestFitting(TestCase):
 
     def test_format_exponent_as_str(self):
         self.assertEqual(
-            "${ 1.0 } \cdot 10^{ -4 }$",
+            r"${ 1.0 } \cdot 10^{ -4 }$",
             format_exponent_as_str(0.0001)
         )
 
     def test_log_tick_formatter(self):
         self.assertEqual(
-            "$10^{1}$",
+            r"$10^{1}$",
             log_tick_formatter(1)
         )
