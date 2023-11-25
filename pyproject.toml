@@ -20,7 +20,7 @@ pandas = "^2.0.0"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
-pyspm = "^0.4.0"
+pyspm = "^0.5.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^3.6.2"
