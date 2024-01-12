@@ -25,8 +25,7 @@ import lmfit
 import numpy as np
 from lmfit import Parameters
 from scipy.ndimage import convolve1d
-from scipy.signal import gaussian
-
+from scipy.signal.windows import gaussian
 
 ############################################################################
 #                                                                          #

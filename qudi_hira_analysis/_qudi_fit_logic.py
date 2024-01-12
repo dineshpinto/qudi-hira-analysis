@@ -189,7 +189,6 @@ class FitLogic:
         """
         # FIXME: load all the fits here, otherwise reloading this module is really
         #  questionable
-        pass
 
     def on_deactivate(self):
         """ """

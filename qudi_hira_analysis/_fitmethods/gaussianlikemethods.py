@@ -26,7 +26,6 @@ import numpy as np
 from lmfit.models import Model
 from scipy.ndimage import filters
 
-
 ############################################################################
 #                                                                          #
 #                          Defining models                                 #

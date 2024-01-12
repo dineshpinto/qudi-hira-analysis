@@ -41,7 +41,7 @@ const_model = None
 def make_constant_model(prefix=None):
     global const_model
     if not isinstance(prefix, str) and prefix is not None:
-        log.warning('The passed prefix <{0}> of type {1} is not a string and cannot be used as '
+        log.warning('The passed prefix <{}> of type {} is not a string and cannot be used as '
                     'a prefix and will be ignored for now. Correct that!'.format(prefix,
                                                                                  type(prefix)))
         const_model = Model(constant_function, independent_vars=['x'])
@@ -63,7 +63,7 @@ amp_model = None
 def make_amplitude_model(prefix=None):
     global amp_model
     if not isinstance(prefix, str) and prefix is not None:
-        print('The passed prefix <{0}> of type {1} is not a string and cannot'
+        print('The passed prefix <{}> of type {} is not a string and cannot'
               'be used as a prefix and will be ignored for now. Correct that!'.format(prefix, type(prefix)))
         amp_model = Model(amplitude_function, independent_vars=['x'])
     else:
@@ -86,9 +86,9 @@ def make_lorentzianwithoutoffset_model(prefix=None):
     global lorentz_model
     if not isinstance(prefix, str) and prefix is not None:
         log.error(
-            'The passed prefix <{0}> of type {1} is not a string and'
+            f'The passed prefix <{prefix}> of type {type(prefix)} is not a string and'
             'cannot be used as a prefix and will be ignored for now.'
-            'Correct that!'.format(prefix, type(prefix)))
+            'Correct that!')
         lorentz_model = Model(physical_lorentzian, independent_vars=['x'])
     else:
         lorentz_model = Model(
@@ -102,8 +102,8 @@ def make_lorentzianwithoutoffset_model(prefix=None):
     if prefix is None:
         prefix = ''
     full_lorentz_model.set_param_hint(
-        '{0!s}fwhm'.format(prefix),
-        expr="2*{0!s}sigma".format(prefix))
+        f'{prefix!s}fwhm',
+        expr=f"2*{prefix!s}sigma")
     return full_lorentz_model, params
 
 
@@ -123,8 +123,8 @@ def make_lorentzian_model(prefix=None):
     if prefix is None:
         prefix = ''
 
-    lorentz_offset_model.set_param_hint('{0}contrast'.format(prefix),
-                                        expr='({0}amplitude/offset)*100'.format(prefix))
+    lorentz_offset_model.set_param_hint(f'{prefix}contrast',
+                                        expr=f'({prefix}amplitude/offset)*100')
 
     params = lorentz_offset_model.make_params()
 
@@ -146,15 +146,15 @@ def make_multiplelorentzian_model(no_of_functions=1):
         multi_lorentz_model = multi_lorentz_model + constant_model
 
         multi_lorentz_model.set_param_hint(
-            '{0}contrast'.format(prefix),
-            expr='({0}amplitude/offset)*100'.format(prefix))
+            f'{prefix}contrast',
+            expr=f'({prefix}amplitude/offset)*100')
 
         for ii in range(1, no_of_functions):
-            prefix = 'l{0:d}_'.format(ii)
+            prefix = f'l{ii:d}_'
             multi_lorentz_model += make_lorentzianwithoutoffset_model(prefix=prefix)[0]
             multi_lorentz_model.set_param_hint(
-                '{0}contrast'.format(prefix),
-                expr='({0}amplitude/offset)*100'.format(prefix))
+                f'{prefix}contrast',
+                expr=f'({prefix}amplitude/offset)*100')
 
     params = multi_lorentz_model.make_params()
 
@@ -194,7 +194,6 @@ def find_offset_parameter(x_values=None, data=None):
 
 def estimate_lorentzian_dip(x_axis, data, params):
     # check if parameters make sense
-    # error = self._check_1D_input(x_axis=x_axis, data=data, params=params)
     error = None
 
     # check if input x-axis is ordered and increasing
@@ -205,7 +204,6 @@ def estimate_lorentzian_dip(x_axis, data, params):
 
     data_smooth, offset = find_offset_parameter(x_axis, data)
 
-    # data_level = data-offset
     data_level = data_smooth - offset
 
     # calculate from the leveled data the amplitude:
@@ -243,7 +241,7 @@ def make_lorentzian_fit(x_axis, data, model, params, units=None, **kwargs):
     except:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         log.error('The 1D lorentzian fit did not work. Error '
-                  'message: {0}\n'.format(result.message))
+                  f'message: {result.message}\n')
 
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()
@@ -381,7 +379,7 @@ def _search_double_dip(x_axis, data, threshold_fraction=0.3,
         log.info('Right sigma of main peak: ', x_axis[sigma0_argright])
 
     # ======== search for second lorentzian dip ========
-    left_index = int(0)
+    left_index = 0
     right_index = len(x_axis) - 1
 
     mid_index_left = sigma0_argleft
@@ -437,7 +435,7 @@ def _search_double_dip(x_axis, data, threshold_fraction=0.3,
                 # no minimum at all over threshold so lowering threshold
                 #  and resetting search area
                 threshold *= 0.9
-                left_index = int(0)
+                left_index = 0
                 right_index = len(x_axis) - 1
                 mid_index_left = sigma0_argleft
                 mid_index_right = sigma0_argright
@@ -457,7 +455,6 @@ def _search_double_dip(x_axis, data, threshold_fraction=0.3,
     # if the dip is exactly at one of the boarders that means
     # the dips are most probably overlapping
     if dip1_arg in (sigma0_argleft, sigma0_argright):
-        # print('Dips are overlapping')
         distance_left = abs(dip0_arg - sigma0_argleft)
         distance_right = abs(dip0_arg - sigma0_argright)
         sigma1_argleft = sigma0_argleft
@@ -468,7 +465,6 @@ def _search_double_dip(x_axis, data, threshold_fraction=0.3,
             dip1_arg = dip0_arg + abs(distance_left - distance_right)
         else:
             dip1_arg = dip0_arg
-        # print(distance_left,distance_right,dip1_arg)
     else:
         # if the peaks are not overlapping search for left and right
         # boarder of the dip
