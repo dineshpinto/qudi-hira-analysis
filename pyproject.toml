@@ -22,6 +22,9 @@ openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
 pyspm = "^0.5.0"
 
+[tool.poetry.group.dev]
+optional = true
+
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
@@ -29,8 +32,14 @@ ruff = "^0.0.291"
 ruff-lsp = "^0.0.39"
 seaborn = "^0.13.0"
 
+[tool.poetry.group.test]
+optional = true
+
 [tool.poetry.group.test.dependencies]
 coverage = "^7.2.5"
+
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
 pdoc3 = "^0.10.0"
