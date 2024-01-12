@@ -20,8 +20,9 @@ if TYPE_CHECKING:
     import pandas as pd
     import pySPM
 
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format="%(name)s :: %(levelname)s :: %(message)s", level=logging.INFO
+)
 
 
 class DataLoader(IOHandler):
@@ -35,50 +36,41 @@ class DataLoader(IOHandler):
 
         # Create callables used in measurement dataclasses
         self.default_qudi_loader: (
-            Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
-            self.read_into_dataframe,
-            self.read_qudi_parameters
-        )
+            Callable[[Path], pd.DataFrame],
+            Callable[[Path], dict],
+        ) = (self.read_into_dataframe, self.read_qudi_parameters)
         self.confocal_qudi_loader: (
-            Callable[[Path], np.ndarray], Callable[[Path], dict]) = (
-            self.read_confocal_into_dataframe,
-            self.read_qudi_parameters
-        )
+            Callable[[Path], np.ndarray],
+            Callable[[Path], dict],
+        ) = (self.read_confocal_into_dataframe, self.read_qudi_parameters)
         self.pixelscanner_qudi_loader: (
             Callable[[Path], (pySPM.SPM_image, pySPM.SPM_image)],
-            Callable[[Path], dict]) = (
-            self.read_pixelscanner_data,
-            self.read_qudi_parameters
-        )
+            Callable[[Path], dict],
+        ) = (self.read_pixelscanner_data, self.read_qudi_parameters)
         self.trace_qudi_loader: (
-            Callable[[Path], np.ndarray], Callable[[Path], dict]) = (
-            self.read_into_ndarray_transposed,
-            self.read_qudi_parameters
-        )
+            Callable[[Path], np.ndarray],
+            Callable[[Path], dict],
+        ) = (self.read_into_ndarray_transposed, self.read_qudi_parameters)
         self.nanonis_loader: (
-            Callable[[Path], pd.DataFrame], Callable[[Path], dict]) = (
-            self.read_nanonis_data,
-            self.read_nanonis_parameters
-        )
+            Callable[[Path], pd.DataFrame],
+            Callable[[Path], dict],
+        ) = (self.read_nanonis_data, self.read_nanonis_parameters)
         self.nanonis_spm_loader: (Callable[[Path], pySPM.SXM], None) = (
             self.read_nanonis_spm_data,
-            None
+            None,
         )
         self.bruker_spm_loader: (Callable[[Path], pySPM.Bruker], None) = (
             self.read_bruker_spm_data,
-            None
+            None,
         )
         self.temperature_loader: (Callable[[Path], pd.DataFrame], None) = (
             self.read_lakeshore_data,
-            None
+            None,
         )
-        self.pys_loader: (Callable[[Path], dict], None) = (
-            self.read_pys,
-            None
-        )
+        self.pys_loader: (Callable[[Path], dict], None) = (self.read_pys, None)
         self.pressure_loader: (Callable[[Path], pd.DataFrame], None) = (
             self.read_pfeiffer_data,
-            None
+            None,
         )
 
 
@@ -102,31 +94,36 @@ class DataHandler(DataLoader, AnalysisLogic):
     """
 
     def __init__(
-            self,
-            data_folder: Path,
-            figure_folder: Path,
-            measurement_folder: Path = Path(),
-            copy_measurement_folder_structure: bool = True,
+        self,
+        data_folder: Path,
+        figure_folder: Path,
+        measurement_folder: Path = Path(),
+        copy_measurement_folder_structure: bool = True,
     ):
         self.log = logging.getLogger(__name__)
 
-        self.data_folder_path = self.__get_data_folder_path(data_folder,
-                                                            measurement_folder)
+        self.data_folder_path = self.__get_data_folder_path(
+            data_folder, measurement_folder
+        )
 
         if copy_measurement_folder_structure:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder,
-                                                                    measurement_folder)
+            self.figure_folder_path = self.__get_figure_folder_path(
+                figure_folder, measurement_folder
+            )
         else:
-            self.figure_folder_path = self.__get_figure_folder_path(figure_folder,
-                                                                    Path())
+            self.figure_folder_path = self.__get_figure_folder_path(
+                figure_folder, Path()
+            )
 
-        super().__init__(base_read_path=self.data_folder_path,
-                         base_write_path=self.figure_folder_path)
+        super().__init__(
+            base_read_path=self.data_folder_path,
+            base_write_path=self.figure_folder_path,
+        )
 
         self.timestamp_format_str = "%Y%m%d-%H%M-%S"
 
     def __get_data_folder_path(self, data_folder: Path, folder_name: Path) -> Path:
-        """ Check if folder exists, if not, create and return absolute folder paths. """
+        """Check if folder exists, if not, create and return absolute folder paths."""
         path = data_folder / folder_name
 
         if not path.exists():
@@ -136,7 +133,7 @@ class DataHandler(DataLoader, AnalysisLogic):
         return path
 
     def __get_figure_folder_path(self, figure_folder: Path, folder_name: Path) -> Path:
-        """ Check if folder exists, if not, create and return absolute folder paths. """
+        """Check if folder exists, if not, create and return absolute folder paths."""
         path = figure_folder / folder_name
 
         if not path.exists():
@@ -146,18 +143,18 @@ class DataHandler(DataLoader, AnalysisLogic):
             self.log.info(f"Figure folder path is {path}")
         return path
 
-    def __tree(self, dir_path: Path, prefix: str = ''):
+    def __tree(self, dir_path: Path, prefix: str = ""):
         """
         A recursive generator, given a directory Path object
         will yield a visual tree structure line by line
         with each line prefixed by the same characters
         """
         # prefix components:
-        space = '    '
-        branch = '│   '
+        space = "    "
+        branch = "│   "
         # pointers:
-        tee = '├── '
-        last = '└── '
+        tee = "├── "
+        last = "└── "
 
         contents = list(dir_path.iterdir())
         # contents each get pointers that are ├── with a final └── :
@@ -170,7 +167,7 @@ class DataHandler(DataLoader, AnalysisLogic):
                 yield from self.__tree(path, prefix=prefix + extension)
 
     def __print_or_return_tree(self, folder: Path, print_tree: bool) -> str | None:
-        """ Print or return a tree of the data and figure folders. """
+        """Print or return a tree of the data and figure folders."""
         if print_tree:
             for line in self.__tree(folder):
                 print(line)
@@ -202,14 +199,12 @@ class DataHandler(DataLoader, AnalysisLogic):
         Returns:
             str: The tree as a string if `print_tree is False.
         """
-        return self.__print_or_return_tree(self.figure_folder_path,
-                                           print_tree=print_tree)
+        return self.__print_or_return_tree(
+            self.figure_folder_path, print_tree=print_tree
+        )
 
     def _get_measurement_filepaths(
-            self,
-            measurement: str,
-            extension: str,
-            exclude_str: str | None = None
+        self, measurement: str, extension: str, exclude_str: str | None = None
     ) -> list[Path]:
         """
         List all measurement files for a single measurement type, regardless of date
@@ -219,31 +214,29 @@ class DataHandler(DataLoader, AnalysisLogic):
 
         for path in self.data_folder_path.rglob("*"):
             if (
-                    path.is_file() and
-                    measurement.lower() in str(path).lower() and
-                    path.suffix == extension and
-                    (exclude_str is None or exclude_str not in str(path))
+                path.is_file()
+                and measurement.lower() in str(path).lower()
+                and path.suffix == extension
+                and (exclude_str is None or exclude_str not in str(path))
             ):
                 filepaths.append(path)
         return filepaths
 
     def __load_qudi_pulsed_measurement_into_dataclass(
-            self,
-            measurement_str: str,
-            extension: str
-    ) -> dict[str: MeasurementDataclass]:
-        """ Load all qudi pulsed measurements into a dictionary of dataclasses. """
+        self, measurement_str: str, extension: str
+    ) -> dict[str:MeasurementDataclass]:
+        """Load all qudi pulsed measurements into a dictionary of dataclasses."""
         filtered_filepaths = []
         timestamps = set()
 
         # Get set of unique timestamps containing pulsed_measurement_str
-        for filepath in self._get_measurement_filepaths(measurement=measurement_str,
-                                                        extension=extension,
-                                                        exclude_str="image_1.dat"):
+        for filepath in self._get_measurement_filepaths(
+            measurement=measurement_str, extension=extension, exclude_str="image_1.dat"
+        ):
             timestamps.add(filepath.name[:16])
             filtered_filepaths.append(filepath)
 
-        pulsed_measurement_data: dict[str: MeasurementDataclass] = {}
+        pulsed_measurement_data: dict[str:MeasurementDataclass] = {}
 
         for idx, ts in enumerate(timestamps):
             pm, lp, rt = None, None, None
@@ -252,43 +245,38 @@ class DataHandler(DataLoader, AnalysisLogic):
                 filename = filepath.name
                 if filename.startswith(ts):
                     if str(filename).endswith("laser_pulses.dat"):
-                        lp = LaserPulses(filepath=filepath,
-                                         loaders=self.trace_qudi_loader)
+                        lp = LaserPulses(
+                            filepath=filepath, loaders=self.trace_qudi_loader
+                        )
                     elif str(filename).endswith("pulsed_measurement.dat"):
-                        pm = PulsedMeasurement(filepath=filepath,
-                                               loaders=self.default_qudi_loader)
+                        pm = PulsedMeasurement(
+                            filepath=filepath, loaders=self.default_qudi_loader
+                        )
                     elif str(filename).endswith("raw_timetrace.dat"):
-                        rt = RawTimetrace(filepath=filepath,
-                                          loaders=self.trace_qudi_loader)
+                        rt = RawTimetrace(
+                            filepath=filepath, loaders=self.trace_qudi_loader
+                        )
 
                 if lp and pm and rt:
                     break
 
             if not (lp and pm and rt):
                 raise OSError(
-                    f"'{filtered_filepaths[idx]}' is a invalid pulsed measurement.")
-
-            pulsed_measurement_data[ts] = (
-                MeasurementDataclass(
-                    timestamp=datetime.datetime.strptime(
-                        ts,
-                        self.timestamp_format_str
-                    ),
-                    pulsed=PulsedMeasurementDataclass(
-                        measurement=pm,
-                        laser_pulses=lp,
-                        timetrace=rt
-                    )
+                    f"'{filtered_filepaths[idx]}' is a invalid pulsed measurement."
                 )
+
+            pulsed_measurement_data[ts] = MeasurementDataclass(
+                timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                pulsed=PulsedMeasurementDataclass(
+                    measurement=pm, laser_pulses=lp, timetrace=rt
+                ),
             )
         return pulsed_measurement_data
 
     def __load_qudi_measurements_into_dataclass(
-            self,
-            measurement_str: str,
-            extension: str
-    ) -> dict[str: MeasurementDataclass]:
-        """ Load all qudi measurements into a dictionary of dataclasses. """
+        self, measurement_str: str, extension: str
+    ) -> dict[str:MeasurementDataclass]:
+        """Load all qudi measurements into a dictionary of dataclasses."""
         if measurement_str.lower() == "confocal":
             loaders = self.confocal_qudi_loader
             exclude_str = "xy_data.dat"
@@ -299,30 +287,24 @@ class DataHandler(DataLoader, AnalysisLogic):
             loaders = self.default_qudi_loader
             exclude_str = None
 
-        measurement_data: dict[str: MeasurementDataclass] = {}
+        measurement_data: dict[str:MeasurementDataclass] = {}
 
-        for filepath in self._get_measurement_filepaths(measurement_str, extension,
-                                                        exclude_str):
+        for filepath in self._get_measurement_filepaths(
+            measurement_str, extension, exclude_str
+        ):
             ts = filepath.name[:16]
-            measurement_data[ts] = (
-                MeasurementDataclass(
-                    filepath=filepath,
-                    timestamp=datetime.datetime.strptime(
-                        ts,
-                        self.timestamp_format_str
-                    ),
-                    _loaders=loaders
-                )
+            measurement_data[ts] = MeasurementDataclass(
+                filepath=filepath,
+                timestamp=datetime.datetime.strptime(ts, self.timestamp_format_str),
+                _loaders=loaders,
             )
         return measurement_data
 
     def __load_standard_measurements_into_dataclass(
-            self,
-            measurement_str: str,
-            extension: str
-    ) -> dict[str: MeasurementDataclass]:
-        """ Load all standard measurements into a dictionary of dataclasses. """
-        measurement_list: dict[str: MeasurementDataclass] = {}
+        self, measurement_str: str, extension: str
+    ) -> dict[str:MeasurementDataclass]:
+        """Load all standard measurements into a dictionary of dataclasses."""
+        measurement_list: dict[str:MeasurementDataclass] = {}
 
         # Try and infer measurement type
         if measurement_str.lower() == "temperature-monitoring":
@@ -349,28 +331,26 @@ class DataHandler(DataLoader, AnalysisLogic):
             loaders = self.default_qudi_loader
             exclude_str = None
 
-        for filepath in self._get_measurement_filepaths(measurement_str, extension,
-                                                        exclude_str):
+        for filepath in self._get_measurement_filepaths(
+            measurement_str, extension, exclude_str
+        ):
             timestamp = datetime.datetime.fromtimestamp(filepath.stat().st_mtime)
             self.log.warning(
-                "Extracting timestamp from file modified time, may not be accurate.")
+                "Extracting timestamp from file modified time, may not be accurate."
+            )
             ts = datetime.datetime.strftime(timestamp, self.timestamp_format_str)
-            measurement_list[ts] = (
-                MeasurementDataclass(
-                    filepath=filepath,
-                    timestamp=timestamp,
-                    _loaders=loaders
-                )
+            measurement_list[ts] = MeasurementDataclass(
+                filepath=filepath, timestamp=timestamp, _loaders=loaders
             )
         return measurement_list
 
     def load_measurements(
-            self,
-            measurement_str: str,
-            qudi: bool = True,
-            pulsed: bool = False,
-            extension: str = ".dat"
-    ) -> dict[str: MeasurementDataclass]:
+        self,
+        measurement_str: str,
+        qudi: bool = True,
+        pulsed: bool = False,
+        extension: str = ".dat",
+    ) -> dict[str:MeasurementDataclass]:
         """
         Lazy-load all measurements of a given type into a dictionary of dataclasses.
 

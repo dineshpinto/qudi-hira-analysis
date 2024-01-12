@@ -4,7 +4,7 @@ import shutil
 
 
 def get_list_of_empty_folders(root_folder: str) -> list:
-    """ Find folders with only log files in them """
+    """Find folders with only log files in them"""
     empty_folders = []
     for root, dirs, files in os.walk(root_folder):
         extensions = set()
@@ -59,8 +59,10 @@ if __name__ == "__main__":
     --------
     python remove_empty_data_folders.py --path "C:\\Data"
     """
-    parser = argparse.ArgumentParser(description='Delete folders with only log files in them.')
-    parser.add_argument('--path', type=dir_path, help="Path to measurement folder")
+    parser = argparse.ArgumentParser(
+        description="Delete folders with only log files in them."
+    )
+    parser.add_argument("--path", type=dir_path, help="Path to measurement folder")
 
     folder_path = parser.parse_args().path
 

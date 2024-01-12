@@ -15,12 +15,12 @@ import pySPM
 
 
 class IOHandler:
-    """ Handle all read and write operations. """
+    """Handle all read and write operations."""
 
     def __init__(
-            self,
-            base_read_path: Optional[Path] = None,
-            base_write_path: Optional[Path] = None
+        self,
+        base_read_path: Optional[Path] = None,
+        base_write_path: Optional[Path] = None,
     ):
         super().__init__()
         self.base_read_path = base_read_path
@@ -89,7 +89,8 @@ class IOHandler:
                 else:
                     raise OSError(
                         f"Invalid extension '{filepath.suffix}' in '{filepath}', "
-                        f"extension should be '{ext}'")
+                        f"extension should be '{ext}'"
+                    )
 
             return wrapper
 
@@ -109,7 +110,7 @@ class IOHandler:
         params = {}
         with open(filepath) as file:
             for line in file:
-                if line == '#=====\n':
+                if line == "#=====\n":
                     break
                 else:
                     # noinspection PyBroadException
@@ -121,14 +122,14 @@ class IOHandler:
                             label, value = line.split(":")
                             if value != "\n":
                                 params[label] = ast.literal_eval(
-                                    inspect.cleandoc(value))
+                                    inspect.cleandoc(value)
+                                )
                         elif line.count(":") == 3:
                             # Handle files with timestamps in them
                             label = line.split(":")[0]
                             timestamp_str = "".join(line.split(":")[1:]).strip()
                             datetime_str = datetime.datetime.strptime(
-                                timestamp_str,
-                                "%d.%m.%Y %Hh%Mmin%Ss"
+                                timestamp_str, "%d.%m.%Y %Hh%Mmin%Ss"
                             ).replace(tzinfo=datetime.timezone.utc)
                             params[label] = datetime_str
                     except Exception as _:
@@ -148,37 +149,38 @@ class IOHandler:
         """
         with open(filepath) as handle:
             # Generate column names for DataFrame by parsing the file
-            *_comments, names = itertools.takewhile(lambda line: line.startswith('#'),
-                                                    handle)
+            *_comments, names = itertools.takewhile(
+                lambda line: line.startswith("#"), handle
+            )
             names = names[1:].strip().split("\t")
         return pd.read_csv(filepath, names=names, comment="#", sep="\t")
 
     @_add_base_read_path
     def read_csv(self, filepath: Path, **kwargs) -> pd.DataFrame:
-        """ Read a csv file into a pandas DataFrame. """
+        """Read a csv file into a pandas DataFrame."""
         return pd.read_csv(filepath, **kwargs)
 
     @_add_base_read_path
     def read_excel(self, filepath: Path, **kwargs) -> pd.DataFrame:
-        """ Read a csv file into a pandas DataFrame. """
+        """Read a csv file into a pandas DataFrame."""
         return pd.read_excel(filepath, **kwargs)
 
     @_add_base_read_path
     @_check_extension(".dat")
     def read_confocal_into_dataframe(self, filepath: Path) -> pd.DataFrame:
-        """ Read a qudi confocal data file into a pandas DataFrame for analysis. """
+        """Read a qudi confocal data file into a pandas DataFrame for analysis."""
         confocal_params = self.read_qudi_parameters(filepath)
         data = self.read_into_ndarray(filepath, delimiter="\t")
         # Use the confocal parameters to generate the index & columns for the DataFrame
         index = np.linspace(
-            confocal_params['X image min (m)'],
-            confocal_params['X image max (m)'],
-            data.shape[0]
+            confocal_params["X image min (m)"],
+            confocal_params["X image max (m)"],
+            data.shape[0],
         )
         columns = np.linspace(
-            confocal_params['Y image min'],
-            confocal_params['Y image max'],
-            data.shape[1]
+            confocal_params["Y image min"],
+            confocal_params["Y image max"],
+            data.shape[1],
         )
         df = pd.DataFrame(data, index=index, columns=columns)
         # Sort the index to get origin (0, 0) in the lower left corner of the DataFrame
@@ -187,27 +189,27 @@ class IOHandler:
 
     @_add_base_read_path
     def read_into_ndarray(self, filepath: Path, **kwargs) -> np.ndarray:
-        """ Read a file into a numpy ndarray. """
+        """Read a file into a numpy ndarray."""
         return np.genfromtxt(filepath, **kwargs)
 
     @_add_base_read_path
     def read_into_ndarray_transposed(self, filepath: Path, **kwargs) -> np.ndarray:
-        """ Read a file into a transposed numpy ndarray. """
+        """Read a file into a transposed numpy ndarray."""
         return np.genfromtxt(filepath, **kwargs).T
 
     @_add_base_read_path
     @_check_extension(".pys")
     def read_pys(self, filepath: Path) -> dict:
-        """ Read raw .pys data files into a dictionary. """
+        """Read raw .pys data files into a dictionary."""
         byte_dict = np.load(str(filepath), encoding="bytes", allow_pickle=True)
         # Convert byte string keys to normal strings
-        return {key.decode('utf8'): byte_dict.get(key) for key in byte_dict}
+        return {key.decode("utf8"): byte_dict.get(key) for key in byte_dict}
 
     @_add_base_read_path
     @_check_extension(".pkl")
     def read_pkl(self, filepath: Path) -> dict:
-        """ Read pickle files into a dictionary. """
-        with open(filepath, 'rb') as f:
+        """Read pickle files into a dictionary."""
+        with open(filepath, "rb") as f:
             file = pickle.load(f)
         return file
 
@@ -324,9 +326,9 @@ class IOHandler:
             DataFrame containing the data.
         """
         # Extract only the origin timestamp
-        origin = pd.read_excel(
-            filepath, skiprows=1, nrows=1, usecols=[1], header=None
-        )[1][0]
+        origin = pd.read_excel(filepath, skiprows=1, nrows=1, usecols=[1], header=None)[
+            1
+        ][0]
         # Remove any tzinfo to prevent future exceptions in pandas
         origin = origin.replace("CET", "")
         # Parse datetime object from timestamp
@@ -352,14 +354,14 @@ class IOHandler:
         Returns:
             DataFrame containing the wavelength and intensity data.
         """
-        df = pd.read_csv(filepath, sep="\t", skiprows=14,
-                         names=["wavelength", "intensity"])
+        df = pd.read_csv(
+            filepath, sep="\t", skiprows=14, names=["wavelength", "intensity"]
+        )
         return df
 
     @staticmethod
     def __get_forward_backward_counts(
-            count_rates: np.ndarray,
-            num_pixels: int
+        count_rates: np.ndarray, num_pixels: int
     ) -> tuple[np.ndarray, np.ndarray]:
         split_array = np.split(count_rates, 2 * num_pixels)
         # Extract forward scan array as every second element
@@ -369,9 +371,10 @@ class IOHandler:
         backward_counts = np.flip(np.stack(split_array[1::2]), axis=1)
         return forward_counts, backward_counts
 
-    def read_pixelscanner_data(self, filepath: Path) -> (
-            pySPM.SPM_image, pySPM.SPM_image):
-        """ Read data from a PixelScanner measurement.
+    def read_pixelscanner_data(
+        self, filepath: Path
+    ) -> (pySPM.SPM_image, pySPM.SPM_image):
+        """Read data from a PixelScanner measurement.
 
         Args:
             filepath: Path to the data file.
@@ -382,7 +385,7 @@ class IOHandler:
         df = self.read_into_dataframe(filepath)
         num_pixels = int(np.sqrt(len(df) // 2))
 
-        if num_pixels ** 2 != len(df) // 2:
+        if num_pixels**2 != len(df) // 2:
             raise ValueError("Number of pixels does not match data length.")
 
         try:
@@ -412,7 +415,7 @@ class IOHandler:
             filepath: Path to the data file.
             obj: Object to be saved.
         """
-        with open(filepath, 'wb') as f:
+        with open(filepath, "wb") as f:
             pickle.dump(obj, f)
 
     @_add_base_write_path
@@ -424,14 +427,14 @@ class IOHandler:
             filepath: Path to the data file.
             dictionary: Dictionary to be saved.
         """
-        with open(filepath, 'wb') as f:
+        with open(filepath, "wb") as f:
             pickle.dump(dictionary, f, 1)
 
     @_add_base_write_path
     @_check_extension(".pys")
     def save_df(self, filepath: Path, df: pd.DataFrame):
-        """ Save Dataframe as csv. """
-        df.to_csv(filepath, sep='\t', encoding='utf-8')
+        """Save Dataframe as csv."""
+        df.to_csv(filepath, sep="\t", encoding="utf-8")
 
     @_add_base_write_path
     def save_figures(self, filepath: Path, fig: plt.Figure, **kwargs):

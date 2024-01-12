@@ -48,9 +48,11 @@ def poisson(self, x, mu):
     check_val = x if len(np.atleast_1d(x)) == 1 else x[0]
 
     if check_val > 1e18:
-        self.log.warning('The current value in the poissonian distribution '
-                         'exceeds 1e18! Due to numerical imprecision a valid '
-                         'functional output cannot be guaranteed any more!')
+        self.log.warning(
+            "The current value in the poissonian distribution "
+            "exceeds 1e18! Due to numerical imprecision a valid "
+            "functional output cannot be guaranteed any more!"
+        )
 
     # According to the central limit theorem, a poissonian distribution becomes
     # a gaussian distribution for large enough x. Since the numerical precision
@@ -66,7 +68,7 @@ def poisson(self, x, mu):
 
 
 def make_poissonian_model(self, prefix=None):
-    """ Create a model of a single poissonian with an offset.
+    """Create a model of a single poissonian with an offset.
 
     param str prefix: optional string, which serves as a prefix for all
                        parameters used in this model. That will prevent
@@ -89,7 +91,7 @@ def make_poissonian_model(self, prefix=None):
     """
 
     def poisson_function(x, mu):
-        """ Function of a poisson distribution.
+        """Function of a poisson distribution.
 
         @param numpy.array x: 1D array as the independent variable - e.g. occurences
         @param float mu: expectation value
@@ -101,17 +103,18 @@ def make_poissonian_model(self, prefix=None):
     amplitude_model, params = self.make_amplitude_model(prefix=prefix)
 
     if not isinstance(prefix, str) and prefix is not None:
+        self.log.error(
+            "The passed prefix <{}> of type {} is not a string and"
+            "cannot be used as a prefix and will be ignored for now."
+            "Correct that!".format(prefix, type(prefix))
+        )
 
-        self.log.error('The passed prefix <{}> of type {} is not a string and'
-                       'cannot be used as a prefix and will be ignored for now.'
-                       'Correct that!'.format(prefix, type(prefix)))
-
-        poissonian_model = Model(poisson_function, independent_vars=['x'])
+        poissonian_model = Model(poisson_function, independent_vars=["x"])
 
     else:
-
-        poissonian_model = Model(poisson_function, independent_vars=['x'],
-                                 prefix=prefix)
+        poissonian_model = Model(
+            poisson_function, independent_vars=["x"], prefix=prefix
+        )
 
     poissonian_ampl_model = amplitude_model * poissonian_model
     params = poissonian_ampl_model.make_params()
@@ -120,7 +123,7 @@ def make_poissonian_model(self, prefix=None):
 
 
 def make_poissonianmultiple_model(self, no_of_functions=1):
-    """ Create a model with multiple poissonians with amplitude.
+    """Create a model with multiple poissonians with amplitude.
 
     @param no_of_functions: for default=1 there is one poissonian, else
                             more functions are added
@@ -132,11 +135,10 @@ def make_poissonianmultiple_model(self, no_of_functions=1):
     if no_of_functions == 1:
         multi_poisson_model, params = self.make_poissonian_model()
     else:
-        multi_poisson_model, params = self.make_poissonian_model(prefix='p0_')
+        multi_poisson_model, params = self.make_poissonian_model(prefix="p0_")
 
         for ii in range(1, no_of_functions):
-            multi_poisson_model += \
-                self.make_poissonian_model(prefix=f'p{ii:d}_')[0]
+            multi_poisson_model += self.make_poissonian_model(prefix=f"p{ii:d}_")[0]
     params = multi_poisson_model.make_params()
 
     return multi_poisson_model, params
@@ -153,9 +155,10 @@ def make_poissoniandouble_model(self):
 ################################################################################
 
 
-def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=None,
-                        **kwargs):
-    """ Performe a poissonian fit on the provided data.
+def make_poissonian_fit(
+    self, x_axis, data, estimator, units=None, add_params=None, **kwargs
+):
+    """Performe a poissonian fit on the provided data.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -175,31 +178,36 @@ def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=No
 
     error, params = estimator(x_axis, data, params)
 
-    params = self._substitute_params(initial_params=params,
-                                     update_params=add_params)
+    params = self._substitute_params(initial_params=params, update_params=add_params)
 
     try:
         result = poissonian_model.fit(data, x=x_axis, params=params, **kwargs)
     except:
-        self.log.warning('The poissonian fit did not work. Check if a poisson '
-                         'distribution is needed or a normal approximation can be'
-                         'used. For values above 10 a normal/ gaussian distribution '
-                         'is a good approximation.')
+        self.log.warning(
+            "The poissonian fit did not work. Check if a poisson "
+            "distribution is needed or a normal approximation can be"
+            "used. For values above 10 a normal/ gaussian distribution "
+            "is a good approximation."
+        )
         result = poissonian_model.fit(data, x=x_axis, params=params, **kwargs)
         print(result.message)
 
     if units is None:
-        units = ['arb. unit', 'arb. unit']
+        units = ["arb. unit", "arb. unit"]
 
     result_str_dict = {}  # create result string for gui   oder OrderedDict()
 
-    result_str_dict['Amplitude'] = {'value': result.params['amplitude'].value,
-                                    'error': result.params['amplitude'].stderr,
-                                    'unit': units[1]}  # Amplitude
+    result_str_dict["Amplitude"] = {
+        "value": result.params["amplitude"].value,
+        "error": result.params["amplitude"].stderr,
+        "unit": units[1],
+    }  # Amplitude
 
-    result_str_dict['Event rate'] = {'value': result.params['mu'].value,
-                                     'error': result.params['mu'].stderr,
-                                     'unit': units[0]}  # event rate
+    result_str_dict["Event rate"] = {
+        "value": result.params["mu"].value,
+        "error": result.params["mu"].stderr,
+        "unit": units[0],
+    }  # event rate
 
     result.result_str_dict = result_str_dict
 
@@ -207,7 +215,7 @@ def make_poissonian_fit(self, x_axis, data, estimator, units=None, add_params=No
 
 
 def estimate_poissonian(self, x_axis, data, params):
-    """ Provide an estimator for initial values of a poissonian function.
+    """Provide an estimator for initial values of a poissonian function.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -225,20 +233,20 @@ def estimate_poissonian(self, x_axis, data, params):
 
     # a gaussian filter is appropriate due to the well approximation of poisson
     # distribution
-    data_smooth = self.gaussian_smoothing(data=data, filter_len=10,
-                                          filter_sigma=10)
+    data_smooth = self.gaussian_smoothing(data=data, filter_len=10, filter_sigma=10)
 
     # set parameters
     mu = x_axis[np.argmax(data_smooth)]
-    params['mu'].value = mu
-    params['amplitude'].value = data_smooth.max() / self.poisson(mu, mu)
+    params["mu"].value = mu
+    params["amplitude"].value = data_smooth.max() / self.poisson(mu, mu)
 
     return error, params
 
 
-def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None,
-                              add_params=None, **kwargs):
-    """ Perform a double poissonian fit on the provided data.
+def make_poissoniandouble_fit(
+    self, x_axis, data, estimator, units=None, add_params=None, **kwargs
+):
+    """Perform a double poissonian fit on the provided data.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -258,48 +266,64 @@ def make_poissoniandouble_fit(self, x_axis, data, estimator, units=None,
 
     error, params = estimator(x_axis, data, params)
 
-    params = self._substitute_params(initial_params=params,
-                                     update_params=add_params)
+    params = self._substitute_params(initial_params=params, update_params=add_params)
 
     try:
         result = double_poissonian_model.fit(data, x=x_axis, params=params, **kwargs)
     except:
-        self.log.warning('The double poissonian fit did not work. Check if a '
-                         'poisson distribution is needed or a normal '
-                         'approximation can be used. For values above 10 a '
-                         'normal/ gaussian distribution is a good '
-                         'approximation.')
+        self.log.warning(
+            "The double poissonian fit did not work. Check if a "
+            "poisson distribution is needed or a normal "
+            "approximation can be used. For values above 10 a "
+            "normal/ gaussian distribution is a good "
+            "approximation."
+        )
         result = double_poissonian_model.fit(data, x=x_axis, params=params, **kwargs)
 
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()
     if units is None:
-        units = ["arb. units", 'arb. unit']
+        units = ["arb. units", "arb. unit"]
 
-    result_str_dict['Amplitude 1'] = {'value': result.params['p0_amplitude'].value,
-                                      'error': result.params['p0_amplitude'].stderr,
-                                      'unit': units[0]}
+    result_str_dict["Amplitude 1"] = {
+        "value": result.params["p0_amplitude"].value,
+        "error": result.params["p0_amplitude"].stderr,
+        "unit": units[0],
+    }
 
-    result_str_dict['Event rate 1'] = {'value': result.params['p0_mu'].value,
-                                       'error': result.params['p0_mu'].stderr,
-                                       'unit': units[1]}
+    result_str_dict["Event rate 1"] = {
+        "value": result.params["p0_mu"].value,
+        "error": result.params["p0_mu"].stderr,
+        "unit": units[1],
+    }
 
-    result_str_dict['Amplitude 2'] = {'value': result.params['p1_amplitude'].value,
-                                      'error': result.params['p1_amplitude'].stderr,
-                                      'unit': units[0]}
+    result_str_dict["Amplitude 2"] = {
+        "value": result.params["p1_amplitude"].value,
+        "error": result.params["p1_amplitude"].stderr,
+        "unit": units[0],
+    }
 
-    result_str_dict['Event rate 2'] = {'value': result.params['p1_mu'].value,
-                                       'error': result.params['p1_mu'].stderr,
-                                       'unit': units[1]}
+    result_str_dict["Event rate 2"] = {
+        "value": result.params["p1_mu"].value,
+        "error": result.params["p1_mu"].stderr,
+        "unit": units[1],
+    }
 
     result.result_str_dict = result_str_dict
 
     return result
 
 
-def estimate_poissoniandouble(self, x_axis, data, params, threshold_fraction=0.4,
-                              minimal_threshold=0.1, sigma_threshold_fraction=0.2):
-    """ Provide initial values for a double poissonian fit.
+def estimate_poissoniandouble(
+    self,
+    x_axis,
+    data,
+    params,
+    threshold_fraction=0.4,
+    minimal_threshold=0.1,
+    sigma_threshold_fraction=0.2,
+):
+    """Provide initial values for a double poissonian fit.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -335,15 +359,15 @@ def estimate_poissoniandouble(self, x_axis, data, params, threshold_fraction=0.4
     # interpolation is not good for the peak estimation, also too less in not
     # good.
 
-    if len(x_axis) < 20.:
+    if len(x_axis) < 20.0:
         len_x = 5
         interpol_factor = 8
-    elif len(x_axis) >= 100.:
+    elif len(x_axis) >= 100.0:
         len_x = 10
         interpol_factor = 1
     else:
         interpol_factor = 4 if len(x_axis) < 60 else 2
-        len_x = int(len(x_axis) / 10.) + 1
+        len_x = int(len(x_axis) / 10.0) + 1
 
     # Create the interpolation function, based on the data:
     interpol_function = InterpolatedUnivariateSpline(x_axis, data, k=1)
@@ -355,28 +379,32 @@ def estimate_poissoniandouble(self, x_axis, data, params, threshold_fraction=0.4
     # Use a gaussian function to convolve with the data, to smooth the datatrace.
     # Then the peak search algorithm performs much better.
     gaus = gaussian(len_x, len_x)
-    data_smooth = filters.convolve1d(interpol_data, gaus / gaus.sum(), mode='mirror')
+    data_smooth = filters.convolve1d(interpol_data, gaus / gaus.sum(), mode="mirror")
 
     # search for double gaussian
-    search_results = self._search_double_dip(x_axis_interpol,
-                                             data_smooth * (-1),
-                                             threshold_fraction,
-                                             minimal_threshold,
-                                             sigma_threshold_fraction,
-                                             make_prints=False)
+    search_results = self._search_double_dip(
+        x_axis_interpol,
+        data_smooth * (-1),
+        threshold_fraction,
+        minimal_threshold,
+        sigma_threshold_fraction,
+        make_prints=False,
+    )
     error = search_results[0]
     sigma0_argleft, dip0_arg, sigma0_argright = search_results[1:4]
     sigma1_argleft, dip1_arg, sigma1_argright = search_results[4:7]
 
     # set the initial values for the fit:
-    params['p0_mu'].set(value=x_axis_interpol[dip0_arg])
-    amplitude0 = (data_smooth[dip0_arg] / self.poisson(x_axis_interpol[dip0_arg],
-                                                       x_axis_interpol[dip0_arg]))
-    params['p0_amplitude'].set(value=amplitude0, min=1e-15)
+    params["p0_mu"].set(value=x_axis_interpol[dip0_arg])
+    amplitude0 = data_smooth[dip0_arg] / self.poisson(
+        x_axis_interpol[dip0_arg], x_axis_interpol[dip0_arg]
+    )
+    params["p0_amplitude"].set(value=amplitude0, min=1e-15)
 
-    params['p1_mu'].set(value=x_axis_interpol[dip1_arg])
-    amplitude1 = (data_smooth[dip1_arg] / self.poisson(x_axis_interpol[dip1_arg],
-                                                       x_axis_interpol[dip1_arg]))
-    params['p1_amplitude'].set(value=amplitude1, min=1e-15)
+    params["p1_mu"].set(value=x_axis_interpol[dip1_arg])
+    amplitude1 = data_smooth[dip1_arg] / self.poisson(
+        x_axis_interpol[dip1_arg], x_axis_interpol[dip1_arg]
+    )
+    params["p1_amplitude"].set(value=amplitude1, min=1e-15)
 
     return error, params

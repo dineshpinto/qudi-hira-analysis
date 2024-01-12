@@ -5,18 +5,33 @@ from lmfit.models import Model
 
 
 def make_antibunching_model(self, prefix=None):
-    def antibunching(x: np.ndarray, n: float, a: float, b: float, tau0: float,
-                     tau1: float, tau2: float) \
-            -> np.ndarray:
+    def antibunching(
+        x: np.ndarray,
+        n: float,
+        a: float,
+        b: float,
+        tau0: float,
+        tau1: float,
+        tau2: float,
+    ) -> np.ndarray:
         """
         Fit to function
             f(x; n, a, tau0, tau1, tau2) =
                 a * ((1 - (1+b) * exp(-|x-tau0|/tau1) + a * exp(-|x-tau0|/tau2)) * 1/n + 1 - 1/n)
         """
-        return a * ((1 - (1 + b) * np.exp(-np.abs(x - tau0) / tau1) + b *
-                     np.exp(-np.abs(x - tau0) / tau2)) * 1 / n + 1 - 1 / n)
+        return a * (
+            (
+                1
+                - (1 + b) * np.exp(-np.abs(x - tau0) / tau1)
+                + b * np.exp(-np.abs(x - tau0) / tau2)
+            )
+            * 1
+            / n
+            + 1
+            - 1 / n
+        )
 
-    antibunching_model = Model(antibunching, independent_vars=['x'])
+    antibunching_model = Model(antibunching, independent_vars=["x"])
     params = antibunching_model.make_params()
 
     return antibunching_model, params
@@ -35,21 +50,23 @@ def estimate_antibunching_dip(self, x_axis, data, params):
     return error, params
 
 
-def make_antibunching_fit(self, x_axis, data, estimator, units=None, add_params=None,
-                          **kwargs):
+def make_antibunching_fit(
+    self, x_axis, data, estimator, units=None, add_params=None, **kwargs
+):
     model, params = self.make_antibunching_model()
 
     error, params = estimator(x_axis, data, params)
 
-    params = self._substitute_params(initial_params=params,
-                                     update_params=add_params)
+    params = self._substitute_params(initial_params=params, update_params=add_params)
 
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
     except:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-        self.log.warning('The 1D antibunching fit did not work. Error '
-                         f'message: {result.message}\n')
+        self.log.warning(
+            "The 1D antibunching fit did not work. Error "
+            f"message: {result.message}\n"
+        )
 
     # Write the parameters to allow human-readable output to be generated
     result_str_dict = OrderedDict()

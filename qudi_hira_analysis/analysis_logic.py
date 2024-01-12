@@ -20,44 +20,46 @@ if TYPE_CHECKING:
 
     from .measurement_dataclass import MeasurementDataclass
 
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format="%(name)s :: %(levelname)s :: %(message)s", level=logging.INFO
+)
 
 
 class FitMethodsAndEstimators:
     """
-        Class for storing fit methods and estimators.
-        Fit methods are stored as tuples of (method, estimator)
-        where method is the name of the fit method and estimator is the name of the
-        estimator.
+    Class for storing fit methods and estimators.
+    Fit methods are stored as tuples of (method, estimator)
+    where method is the name of the fit method and estimator is the name of the
+    estimator.
 
 
-        The fit functions available are:
+    The fit functions available are:
 
-        | Dimension | Fit                           |
-        |-----------|-------------------------------|
-        | 1D        | decayexponential              |
-        |           | biexponential                 |
-        |           | decayexponentialstretched     |
-        |           | gaussian                      |
-        |           | gaussiandouble                |
-        |           | gaussianlinearoffset          |
-        |           | hyperbolicsaturation          |
-        |           | linear                        |
-        |           | lorentzian                    |
-        |           | lorentziandouble              |
-        |           | lorentziantriple              |
-        |           | sine                          |
-        |           | sinedouble                    |
-        |           | sinedoublewithexpdecay        |
-        |           | sinedoublewithtwoexpdecay     |
-        |           | sineexponentialdecay          |
-        |           | sinestretchedexponentialdecay |
-        |           | sinetriple                    |
-        |           | sinetriplewithexpdecay        |
-        |           | sinetriplewiththreeexpdecay   |
-        | 2D        | twoDgaussian                  |
+    | Dimension | Fit                           |
+    |-----------|-------------------------------|
+    | 1D        | decayexponential              |
+    |           | biexponential                 |
+    |           | decayexponentialstretched     |
+    |           | gaussian                      |
+    |           | gaussiandouble                |
+    |           | gaussianlinearoffset          |
+    |           | hyperbolicsaturation          |
+    |           | linear                        |
+    |           | lorentzian                    |
+    |           | lorentziandouble              |
+    |           | lorentziantriple              |
+    |           | sine                          |
+    |           | sinedouble                    |
+    |           | sinedoublewithexpdecay        |
+    |           | sinedoublewithtwoexpdecay     |
+    |           | sineexponentialdecay          |
+    |           | sinestretchedexponentialdecay |
+    |           | sinetriple                    |
+    |           | sinetriplewithexpdecay        |
+    |           | sinetriplewiththreeexpdecay   |
+    | 2D        | twoDgaussian                  |
     """
+
     # Fit methods with corresponding estimators
     antibunching: tuple = ("antibunching", "dip")
     hyperbolicsaturation: tuple = ("hyperbolicsaturation", "generic")
@@ -84,7 +86,8 @@ class FitMethodsAndEstimators:
 
 
 class AnalysisLogic(FitLogic):
-    """ Class for performing analysis on measurement data """
+    """Class for performing analysis on measurement data"""
+
     fit_function = FitMethodsAndEstimators
 
     def __init__(self):
@@ -92,15 +95,17 @@ class AnalysisLogic(FitLogic):
         self.log = logging.getLogger(__name__)
 
     def _perform_fit(
-            self,
-            x: np.ndarray,
-            y: np.ndarray,
-            fit_function: str,
-            estimator: str,
-            parameters: list[Parameter] | None = None,
-            dims: str = "1d") -> tuple[np.ndarray, np.ndarray, ModelResult]:
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        fit_function: str,
+        estimator: str,
+        parameters: list[Parameter] | None = None,
+        dims: str = "1d",
+    ) -> tuple[np.ndarray, np.ndarray, ModelResult]:
         fit = {
-            dims: {'default': {'fit_function': fit_function, 'estimator': estimator}}}
+            dims: {"default": {"fit_function": fit_function, "estimator": estimator}}
+        }
         user_fit = self.validate_load_fits(fit)
 
         if parameters:
@@ -124,12 +129,12 @@ class AnalysisLogic(FitLogic):
         return fit_x, fit_y, result
 
     def fit(
-            self,
-            x: str | np.ndarray | pd.Series,
-            y: str | np.ndarray | pd.Series,
-            fit_function: FitMethodsAndEstimators,
-            data: pd.DataFrame = None,
-            parameters: list[Parameter] | None = None
+        self,
+        x: str | np.ndarray | pd.Series,
+        y: str | np.ndarray | pd.Series,
+        fit_function: FitMethodsAndEstimators,
+        data: pd.DataFrame = None,
+        parameters: list[Parameter] | None = None,
     ) -> tuple[np.ndarray, np.ndarray, ModelResult]:
         """
         Args:
@@ -165,7 +170,7 @@ class AnalysisLogic(FitLogic):
             fit_function=fit_function[0],
             estimator=fit_function[1],
             parameters=parameters,
-            dims=dims
+            dims=dims,
         )
 
     def get_all_fits(self) -> tuple[list, list]:
@@ -174,17 +179,17 @@ class AnalysisLogic(FitLogic):
         Returns:
             Tuple with list of 1d and 2d fits
         """
-        one_d_fits: list = list(self.fit_list['1d'].keys())
-        two_d_fits: list = list(self.fit_list['2d'].keys())
+        one_d_fits: list = list(self.fit_list["1d"].keys())
+        two_d_fits: list = list(self.fit_list["2d"].keys())
         self.log.info(f"1d fits: {one_d_fits}\n2d fits: {two_d_fits}")
         return one_d_fits, two_d_fits
 
     @staticmethod
     def analyze_mean(
-            laser_data: np.ndarray,
-            signal_start: float = 100e-9,
-            signal_end: float = 300e-9,
-            bin_width: float = 1e-9
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        bin_width: float = 1e-9,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Calculate the mean of the signal window.
@@ -231,12 +236,13 @@ class AnalysisLogic(FitLogic):
 
     @staticmethod
     def analyze_mean_reference(
-            laser_data: np.ndarray,
-            signal_start: float = 100e-9,
-            signal_end: float = 300e-9,
-            norm_start: float = 1000e-9,
-            norm_end: float = 2000e-9,
-            bin_width: float = 1e-9) -> tuple[np.ndarray, np.ndarray]:
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end: float = 2000e-9,
+        bin_width: float = 1e-9,
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Subtracts the mean of the signal window from the mean of the reference window.
 
@@ -283,18 +289,19 @@ class AnalysisLogic(FitLogic):
 
             # calculate with respect to gaussian error 'evolution'
             error_data[ii] = signal_data[ii] * np.sqrt(
-                1 / abs(signal_sum) + 1 / abs(reference_sum))
+                1 / abs(signal_sum) + 1 / abs(reference_sum)
+            )
 
         return signal_data, error_data
 
     @staticmethod
     def analyze_mean_norm(
-            laser_data: np.ndarray,
-            signal_start: float = 100e-9,
-            signal_end: float = 300e-9,
-            norm_start: float = 1000e-9,
-            norm_end=2000e-9,
-            bin_width: float = 1e-9
+        laser_data: np.ndarray,
+        signal_start: float = 100e-9,
+        signal_end: float = 300e-9,
+        norm_start: float = 1000e-9,
+        norm_end=2000e-9,
+        bin_width: float = 1e-9,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Divides the mean of the signal window from the mean of the reference window.
@@ -348,17 +355,18 @@ class AnalysisLogic(FitLogic):
             if reference_sum > 0 and signal_sum > 0:
                 # calculate with respect to gaussian error 'evolution'
                 error_data[ii] = signal_data[ii] * np.sqrt(
-                    1 / signal_sum + 1 / reference_sum)
+                    1 / signal_sum + 1 / reference_sum
+                )
             else:
                 error_data[ii] = 0.0
 
         return signal_data, error_data
 
     def optimize_raster_odmr_params(
-            self,
-            measurements: dict[str, MeasurementDataclass],
-            num_samples: int = 10,
-            num_params: int = 3,
+        self,
+        measurements: dict[str, MeasurementDataclass],
+        num_samples: int = 10,
+        num_params: int = 3,
     ) -> tuple[float, tuple[float, float, float]]:
         """
         This method optimizes the hyperparameters of the ODMR analysis.
@@ -374,16 +382,13 @@ class AnalysisLogic(FitLogic):
             The highest minimum R2 value and the optimized hyperparameters.
         """
         r2_threshs: np.ndarray = np.around(
-            np.linspace(start=0.9, stop=0.99, num=num_params),
-            decimals=2
+            np.linspace(start=0.9, stop=0.99, num=num_params), decimals=2
         )
         thresh_fracs: np.ndarray = np.around(
-            np.linspace(start=0.5, stop=0.9, num=num_params),
-            decimals=1
+            np.linspace(start=0.5, stop=0.9, num=num_params), decimals=1
         )
         sigma_thresh_fracs: np.ndarray = np.around(
-            np.linspace(start=0.1, stop=0.2, num=num_params),
-            decimals=1
+            np.linspace(start=0.1, stop=0.2, num=num_params), decimals=1
         )
 
         odmr_sample: dict = {}
@@ -394,14 +399,15 @@ class AnalysisLogic(FitLogic):
         optimal_params: tuple[float, float, float] = (0, 0, 0)
 
         for r2_thresh, thresh_frac, sigma_thresh_frac in product(
-                r2_threshs, thresh_fracs, sigma_thresh_fracs):
+            r2_threshs, thresh_fracs, sigma_thresh_fracs
+        ):
             odmr_sample = self.fit_raster_odmr(
                 odmr_sample,
                 r2_thresh=r2_thresh,
                 thresh_frac=thresh_frac,
                 sigma_thresh_frac=sigma_thresh_frac,
                 min_thresh=0.01,
-                progress_bar=False
+                progress_bar=False,
             )
 
             r2s: np.ndarray = np.zeros(len(odmr_sample))
@@ -417,29 +423,29 @@ class AnalysisLogic(FitLogic):
 
     @staticmethod
     def _lorentzian_fitting(
-            x: np.ndarray,
-            y: np.ndarray,
-            model1: Model,
-            model2: Model,
-            params1: Parameters,
-            params2: Parameters,
-            r2_thresh: float
+        x: np.ndarray,
+        y: np.ndarray,
+        model1: Model,
+        model2: Model,
+        params1: Parameters,
+        params2: Parameters,
+        r2_thresh: float,
     ) -> ModelResult:
-        """ Make Lorentzian fitting for single and double Lorentzian model """
+        """Make Lorentzian fitting for single and double Lorentzian model"""
         res1 = rof.make_lorentzian_fit(x, y, model1, params1)
         if res1.rsquared < r2_thresh:
             return rof.make_lorentziandouble_fit(x, y, model2, params2)
         return res1
 
     def fit_raster_odmr(
-            self,
-            odmr_measurements: dict[str, MeasurementDataclass],
-            r2_thresh: float = 0.95,
-            thresh_frac: float = 0.5,
-            sigma_thresh_frac: float = 0.15,
-            min_thresh: float = 0.01,
-            extract_pixel_from_filename: bool = True,
-            progress_bar: bool = True
+        self,
+        odmr_measurements: dict[str, MeasurementDataclass],
+        r2_thresh: float = 0.95,
+        thresh_frac: float = 0.5,
+        sigma_thresh_frac: float = 0.15,
+        min_thresh: float = 0.01,
+        extract_pixel_from_filename: bool = True,
+        progress_bar: bool = True,
     ) -> dict[str, MeasurementDataclass]:
         """
         Fit a list of ODMR data to single and double Lorentzian functions
@@ -477,17 +483,17 @@ class AnalysisLogic(FitLogic):
         # Parallel fitting
         model_results = Parallel(n_jobs=cpu_count())(
             delayed(self._lorentzian_fitting)(
-                x, y, model1, model2, params1, params2, r2_thresh) for
-            x, y, model1, model2, params1, params2, r2_thresh
-            in
-            tqdm(args, disable=not progress_bar)
+                x, y, model1, model2, params1, params2, r2_thresh
+            )
+            for x, y, model1, model2, params1, params2, r2_thresh in tqdm(
+                args, disable=not progress_bar
+            )
         )
 
         x = next(iter(odmr_measurements.values())).data["Freq(MHz)"].to_numpy()
         x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
 
         for odmr, res in zip(odmr_measurements.values(), model_results):
-
             if len(res.params) == 6:
                 # Evaluate a single Lorentzian
                 y_fit = model1.eval(x=x_fit, params=res.params)
@@ -497,14 +503,14 @@ class AnalysisLogic(FitLogic):
 
             # Plug results into the DataClass
             odmr.fit_model = res
-            odmr.fit_data = pd.DataFrame(np.vstack((x_fit, y_fit)).T,
-                                         columns=["x_fit", "y_fit"])
+            odmr.fit_data = pd.DataFrame(
+                np.vstack((x_fit, y_fit)).T, columns=["x_fit", "y_fit"]
+            )
 
             if extract_pixel_from_filename:
                 # Extract the pixel with regex from the filename
                 row, col = map(
-                    int,
-                    re.findall(r'(?<=\().*?(?=\))', odmr.filename)[0].split(",")
+                    int, re.findall(r"(?<=\().*?(?=\))", odmr.filename)[0].split(",")
                 )
                 odmr.xy_position = (row, col)
 
@@ -512,7 +518,7 @@ class AnalysisLogic(FitLogic):
 
     @staticmethod
     def average_raster_odmr_pixels(orig_image: np.ndarray) -> np.ndarray:
-        """ Average a NaN pixel to its surrounding pixels.
+        """Average a NaN pixel to its surrounding pixels.
 
         Args:
             orig_image: Image with NaN pixels
@@ -523,15 +529,15 @@ class AnalysisLogic(FitLogic):
         image: np.ndarray = orig_image.copy()
         for row, col in np.argwhere(np.isnan(image)):
             if row == 0:
-                pixel_avg = np.nanmean(image[row + 1:row + 2, col - 1:col + 2])
+                pixel_avg = np.nanmean(image[row + 1 : row + 2, col - 1 : col + 2])
             elif row == image.shape[0] - 1:
-                pixel_avg = np.nanmean(image[row - 1:row, col - 1:col + 2])
+                pixel_avg = np.nanmean(image[row - 1 : row, col - 1 : col + 2])
             elif col == 0:
-                pixel_avg = np.nanmean(image[row - 1:row + 2, col + 1:col + 2])
+                pixel_avg = np.nanmean(image[row - 1 : row + 2, col + 1 : col + 2])
             elif col == image.shape[1] - 1:
-                pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col])
+                pixel_avg = np.nanmean(image[row - 1 : row + 2, col - 1 : col])
             else:
-                pixel_avg = np.nanmean(image[row - 1:row + 2, col - 1:col + 2])
+                pixel_avg = np.nanmean(image[row - 1 : row + 2, col - 1 : col + 2])
 
             image[row, col] = pixel_avg
         return image

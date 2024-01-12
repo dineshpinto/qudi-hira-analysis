@@ -15,13 +15,15 @@ if TYPE_CHECKING:
     import lmfit
     import numpy as np
 
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format="%(name)s :: %(levelname)s :: %(message)s", level=logging.INFO
+)
 
 
 @dataclass
 class PulsedMeasurement:
-    """ Dataclass for storing pulsed data and metadata """
+    """Dataclass for storing pulsed data and metadata"""
+
     filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: pd.DataFrame = field(default=None)
@@ -29,14 +31,14 @@ class PulsedMeasurement:
 
     @property
     def data(self) -> pd.DataFrame:
-        """ Read measurement data from file into pandas DataFrame """
+        """Read measurement data from file into pandas DataFrame"""
         if self.__data is None:
             self.__data = self.loaders[0](self.filepath)
         return self.__data
 
     @property
     def params(self) -> dict:
-        """ Read measurement params from file into dict """
+        """Read measurement params from file into dict"""
         if self.__params is None:
             self.__params = self.loaders[1](self.filepath)
         return self.__params
@@ -44,7 +46,8 @@ class PulsedMeasurement:
 
 @dataclass
 class LaserPulses:
-    """ Dataclass for storing laser pulses data and metadata """
+    """Dataclass for storing laser pulses data and metadata"""
+
     filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
@@ -52,14 +55,14 @@ class LaserPulses:
 
     @property
     def data(self) -> np.ndarray:
-        """ Read measurement data from file into pandas DataFrame """
+        """Read measurement data from file into pandas DataFrame"""
         if self.__data is None:
             self.__data = self.loaders[0](self.filepath)
         return self.__data
 
     @property
     def params(self) -> dict:
-        """ Read measurement params from file into dict """
+        """Read measurement params from file into dict"""
         if self.__params is None:
             self.__params = self.loaders[1](self.filepath)
         return self.__params
@@ -67,7 +70,8 @@ class LaserPulses:
 
 @dataclass
 class RawTimetrace:
-    """ Dataclass for storing raw timetrace data and metadata """
+    """Dataclass for storing raw timetrace data and metadata"""
+
     filepath: Path
     loaders: (Callable, Callable) = field(default=None)
     __data: np.ndarray = field(default=None)
@@ -75,14 +79,14 @@ class RawTimetrace:
 
     @property
     def data(self) -> np.ndarray:
-        """ Read measurement data from file into pandas DataFrame """
+        """Read measurement data from file into pandas DataFrame"""
         if self.__data is None:
             self.__data = self.loaders[0](self.filepath)
         return self.__data
 
     @property
     def params(self) -> dict:
-        """ Read measurement params from file into dict """
+        """Read measurement params from file into dict"""
         if self.__params is None:
             self.__params = self.loaders[1](self.filepath)
         return self.__params
@@ -90,24 +94,26 @@ class RawTimetrace:
 
 @dataclass
 class PulsedMeasurementDataclass:
-    """ Dataclass for storing pulsed measurement data and metadata """
+    """Dataclass for storing pulsed measurement data and metadata"""
+
     measurement: PulsedMeasurement
     laser_pulses: LaserPulses = field(default=None)
     timetrace: RawTimetrace = field(default=None)
 
     def __post_init__(self):
         self.base_filename = self.measurement.filepath.name.replace(
-            "_pulsed_measurement.dat", "")
+            "_pulsed_measurement.dat", ""
+        )
 
     def show_image(self) -> Image:
-        """ Use PIL to open the measurement image saved on the disk """
-        return Image.open(
-            str(self.measurement.filepath).replace(".dat","_fig.png"))
+        """Use PIL to open the measurement image saved on the disk"""
+        return Image.open(str(self.measurement.filepath).replace(".dat", "_fig.png"))
 
 
 @dataclass
 class MeasurementDataclass:
-    """ Dataclass for storing measurement data and metadata """
+    """Dataclass for storing measurement data and metadata"""
+
     timestamp: datetime.datetime
     filepath: Path = field(default=None)
     _loaders: (Callable, Callable) = field(default=None)
@@ -127,12 +133,14 @@ class MeasurementDataclass:
             self.filename = self.filepath.name
 
     def __repr__(self) -> str:
-        return (f"MeasurementDataclass(timestamp='{self.timestamp}', "
-                f"filename='{self.filename}')")
+        return (
+            f"MeasurementDataclass(timestamp='{self.timestamp}', "
+            f"filename='{self.filename}')"
+        )
 
     @property
     def data(self) -> np.ndarray | pd.DataFrame:
-        """ Read measurement data from file. """
+        """Read measurement data from file."""
         if self.pulsed:
             return self.pulsed.measurement.data
         else:
@@ -142,7 +150,7 @@ class MeasurementDataclass:
 
     @property
     def params(self) -> dict:
-        """ Read measurement params from file. """
+        """Read measurement params from file."""
         if self.pulsed:
             return self.pulsed.measurement.params
         else:
@@ -152,17 +160,17 @@ class MeasurementDataclass:
 
     @property
     def fit_data(self) -> pd.DataFrame:
-        """ Fit data to a model """
+        """Fit data to a model"""
         return self._fit_data
 
     @fit_data.setter
     def fit_data(self, fit_data: pd.DataFrame):
-        """ Fit data to a model """
+        """Fit data to a model"""
         self._fit_data = fit_data
 
     @property
     def fit_model(self) -> lmfit.Model:
-        """ lmfit data model """
+        """lmfit data model"""
         return self._fit_model
 
     @fit_model.setter
@@ -171,7 +179,7 @@ class MeasurementDataclass:
 
     @property
     def xy_position(self) -> tuple[int, int]:
-        """ (row, col) position of measurement in image """
+        """(row, col) position of measurement in image"""
         return self._xy_position
 
     @xy_position.setter
@@ -216,9 +224,9 @@ class MeasurementDataclass:
             # Handle exponents in filename
             if filename[params.start() - 1] == "e":
                 try:
-                    params = re.search(
-                        rf"(-?_\d)[^a]+?(?={unit})", filename
-                    ).group(0)[1:]
+                    params = re.search(rf"(-?_\d)[^a]+?(?={unit})", filename).group(0)[
+                        1:
+                    ]
                     return float(params)
                 except AttributeError as exc:
                     raise Exception(
@@ -232,17 +240,18 @@ class MeasurementDataclass:
             return None
 
     def set_datetime_index(self) -> pd.DataFrame:
-        if 'Start counting time' not in self.__params:
+        if "Start counting time" not in self.__params:
             raise ValueError("'Start counting time' not in params")
         if not isinstance(self.__data, pd.DataFrame):
             raise TypeError("data is not of type pd.DataFrame")
         if "Time (s)" not in self.__data.columns:
             raise IndexError("Unable to find column 'Time (s)' in DataFrame")
 
-        self.__data['Time (s)'] += self.__params['Start counting time'].timestamp()
-        self.__data["Time"] = pd.to_datetime(self.__data['Time (s)'], unit='s',
-                                             utc=True)
+        self.__data["Time (s)"] += self.__params["Start counting time"].timestamp()
+        self.__data["Time"] = pd.to_datetime(
+            self.__data["Time (s)"], unit="s", utc=True
+        )
         self.__data.set_index(self.__data["Time"], inplace=True)
-        self.__data.tz_convert('Europe/Berlin')
+        self.__data.tz_convert("Europe/Berlin")
         self.__data.drop(["Time", "Time (s)"], inplace=True, axis=1)
         return self.__data

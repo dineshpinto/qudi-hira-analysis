@@ -16,18 +16,19 @@ class TestLoading(TestCase):
 
     def test_autocorrelation_load(self):
         autocorrs = self.dh.load_measurements(measurement_str="Autocorrelation")
-        autocorr = autocorrs['20230306-1732-05']
+        autocorr = autocorrs["20230306-1732-05"]
 
-        self.assertAlmostEqual(autocorr.data["Time (ps)"][0], -1.000000000000000e+06)
+        self.assertAlmostEqual(autocorr.data["Time (ps)"][0], -1.000000000000000e06)
         self.assertAlmostEqual(autocorr.data["g2(t) norm"][0], 8.971149729207432e-01)
 
     def test_pulsedmeasurement_load(self):
         odmr_list = self.dh.load_measurements(measurement_str="ODMR", pulsed=True)
         odmr = odmr_list["20220315-2050-39"]
 
-        self.assertAlmostEqual(odmr.data["Controlled variable(Hz)"][0],
-                               2.850000000000000e+09)
-        self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e+00)
+        self.assertAlmostEqual(
+            odmr.data["Controlled variable(Hz)"][0], 2.850000000000000e09
+        )
+        self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e00)
 
     def test_pulsedmeasurement_load_with_fail(self):
         with self.assertRaises(IOError):
@@ -35,11 +36,11 @@ class TestLoading(TestCase):
 
     def test_spectrometer_load(self):
         spectrometry = self.dh.load_measurements(measurement_str="Spectrometry")
-        spectrum = spectrometry['20230306-2324-19']
+        spectrum = spectrometry["20230306-2324-19"]
 
         self.assertAlmostEqual(spectrum.data["wavelength"][0], 3.472799682617187e-07)
-        self.assertAlmostEqual(spectrum.data["signal"][0], 1.694000000000000e+03)
-        self.assertAlmostEqual(spectrum.data["corrected"][0], -3.000000000000000e+00)
+        self.assertAlmostEqual(spectrum.data["signal"][0], 1.694000000000000e03)
+        self.assertAlmostEqual(spectrum.data["corrected"][0], -3.000000000000000e00)
 
     def test_frq_sweep_load(self):
         frq_sweeps = self.dh.load_measurements(measurement_str="frq-sweep", qudi=False)
@@ -61,8 +62,9 @@ class TestLoading(TestCase):
         self.assertAlmostEqual(fwd.pixels[0][0], 74261.87601444275)
 
     def test_nanonis_afm_load(self):
-        afm_scans = self.dh.load_measurements(measurement_str="Scan", extension=".sxm",
-                                              qudi=False)
+        afm_scans = self.dh.load_measurements(
+            measurement_str="Scan", extension=".sxm", qudi=False
+        )
         afm = afm_scans[next(iter(afm_scans))].data
 
         topo = afm.get_channel("Z")
@@ -72,8 +74,9 @@ class TestLoading(TestCase):
         self.assertAlmostEqual(exc.pixels[0][0], 1.499999761581421)
 
     def test_bruker_mfm_load(self):
-        bruker_measurements = self.dh.load_measurements(measurement_str="",
-                                                        extension=".001", qudi=False)
+        bruker_measurements = self.dh.load_measurements(
+            measurement_str="", extension=".001", qudi=False
+        )
 
         bruker = bruker_measurements[next(iter(bruker_measurements))]
         bruker_data = bruker.data
@@ -86,8 +89,9 @@ class TestLoading(TestCase):
         bruker_data.file.close()
 
     def test_pys_load(self):
-        pys_measurements = self.dh.load_measurements(measurement_str="ndmin",
-                                                     extension=".pys", qudi=False)
+        pys_measurements = self.dh.load_measurements(
+            measurement_str="ndmin", extension=".pys", qudi=False
+        )
         pys = pys_measurements[next(iter(pys_measurements))].data
 
         self.assertAlmostEqual(pys["time_bins"][0], -298.0)
@@ -99,8 +103,9 @@ class TestLoading(TestCase):
         self.assertAlmostEqual(confocal.iloc[0][0], 600.0)
 
     def test_temperature_monitoring_load(self):
-        temps = self.dh.load_measurements(measurement_str="temperature-monitoring",
-                                          qudi=False)
+        temps = self.dh.load_measurements(
+            measurement_str="temperature-monitoring", qudi=False
+        )
         temp = temps[next(iter(temps))].data
         self.assertIn("Tip Holder", temp.columns)
         self.assertAlmostEqual(temp.iloc[0, 0], 119.403)
@@ -109,9 +114,10 @@ class TestLoading(TestCase):
         odmr_list = self.dh.load_measurements(measurement_str="ODMR", pulsed=True)
         odmr = odmr_list["20220315-2050-39"]
 
-        self.assertAlmostEqual(odmr.data["Controlled variable(Hz)"][0],
-                               2.850000000000000e+09)
-        self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e+00)
+        self.assertAlmostEqual(
+            odmr.data["Controlled variable(Hz)"][0], 2.850000000000000e09
+        )
+        self.assertAlmostEqual(odmr.data["Signal"][0], 1.091035609573383e00)
 
         sig, err = self.dh.analyze_mean(odmr.pulsed.laser_pulses.data)
         self.assertAlmostEqual(sig.tolist()[0], 694.41)

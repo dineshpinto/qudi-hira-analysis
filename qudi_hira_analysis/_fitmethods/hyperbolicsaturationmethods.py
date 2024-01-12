@@ -28,8 +28,9 @@ from lmfit.models import Model
 #                                                                              #
 ################################################################################
 
+
 def make_hyperbolicsaturation_model(self, prefix=None):
-    """ Create a model of the fluorescence depending on excitation power with
+    """Create a model of the fluorescence depending on excitation power with
         linear offset.
 
     @return tuple: (object model, object params)
@@ -48,7 +49,7 @@ def make_hyperbolicsaturation_model(self, prefix=None):
     """
 
     def hyperbolicsaturation_function(x, I_sat, P_sat):
-        """ Fluorescence depending excitation power function
+        """Fluorescence depending excitation power function
 
         @param numpy.array x: 1D array as the independent variable e.g. power
         @param float I_sat: Saturation Intensity
@@ -60,14 +61,17 @@ def make_hyperbolicsaturation_model(self, prefix=None):
         return I_sat * (x / (x + P_sat))
 
     if not isinstance(prefix, str) and prefix is not None:
-        self.log.error('The passed prefix <{}> of type {} is not a string and'
-                       'cannot be used as a prefix and will be ignored for now.'
-                       'Correct that!'.format(prefix, type(prefix)))
+        self.log.error(
+            "The passed prefix <{}> of type {} is not a string and"
+            "cannot be used as a prefix and will be ignored for now."
+            "Correct that!".format(prefix, type(prefix))
+        )
 
-        mod_sat = Model(hyperbolicsaturation_function, independent_vars=['x'])
+        mod_sat = Model(hyperbolicsaturation_function, independent_vars=["x"])
     else:
-        mod_sat = Model(hyperbolicsaturation_function, independent_vars=['x'],
-                        prefix=prefix)
+        mod_sat = Model(
+            hyperbolicsaturation_function, independent_vars=["x"], prefix=prefix
+        )
 
     linear_model, params = self.make_linear_model(prefix=prefix)
     complete_model = mod_sat + linear_model
@@ -77,9 +81,10 @@ def make_hyperbolicsaturation_model(self, prefix=None):
     return complete_model, params
 
 
-def make_hyperbolicsaturation_fit(self, x_axis, data, estimator, units=None,
-                                  add_params=None, **kwargs):
-    """ Perform a fit on the provided data with a fluorescence depending function.
+def make_hyperbolicsaturation_fit(
+    self, x_axis, data, estimator, units=None, add_params=None, **kwargs
+):
+    """Perform a fit on the provided data with a fluorescence depending function.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -100,9 +105,7 @@ def make_hyperbolicsaturation_fit(self, x_axis, data, estimator, units=None,
     error, params = estimator(x_axis, data, params)
 
     # overwrite values of additional parameters
-    params = self._substitute_params(
-        initial_params=params,
-        update_params=add_params)
+    params = self._substitute_params(initial_params=params, update_params=add_params)
 
     result = mod_final.fit(data, x=x_axis, params=params, **kwargs)
 
@@ -110,7 +113,7 @@ def make_hyperbolicsaturation_fit(self, x_axis, data, estimator, units=None,
 
 
 def estimate_hyperbolicsaturation(self, x_axis, data, params):
-    """ Provides an estimation for a saturation like function.
+    """Provides an estimation for a saturation like function.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -126,22 +129,23 @@ def estimate_hyperbolicsaturation(self, x_axis, data, params):
 
     error = self._check_1D_input(x_axis=x_axis, data=data, params=params)
 
-    x_axis_half = x_axis[len(x_axis) // 2:]
-    data_half = data[len(x_axis) // 2:]
+    x_axis_half = x_axis[len(x_axis) // 2 :]
+    data_half = data[len(x_axis) // 2 :]
 
-    results_lin = self.make_linear_fit(x_axis=x_axis_half, data=data_half,
-                                       estimator=self.estimate_linear)
+    results_lin = self.make_linear_fit(
+        x_axis=x_axis_half, data=data_half, estimator=self.estimate_linear
+    )
 
-    est_slope = results_lin.params['slope'].value
+    est_slope = results_lin.params["slope"].value
     est_offset = data.min()
 
     data_red = data - est_slope * x_axis - est_offset
-    est_I_sat = np.mean(data_red[len(data_red) // 2:])
+    est_I_sat = np.mean(data_red[len(data_red) // 2 :])
     est_P_sat = est_I_sat / 2
 
-    params['I_sat'].value = est_I_sat
-    params['slope'].value = est_slope
-    params['offset'].value = est_offset
-    params['P_sat'].value = est_P_sat
+    params["I_sat"].value = est_I_sat
+    params["slope"].value = est_slope
+    params["offset"].value = est_offset
+    params["P_sat"].value = est_P_sat
 
     return error, params

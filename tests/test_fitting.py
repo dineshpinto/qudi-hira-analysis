@@ -26,11 +26,15 @@ class TestFitting(TestCase):
 
     def test_autocorrelation_antibunching_fit(self):
         autocorrs = self.dh.load_measurements(measurement_str="Autocorrelation")
-        autocorr = autocorrs['20230306-1732-05']
+        autocorr = autocorrs["20230306-1732-05"]
 
         autocorr.data["Time (ns)"] = autocorr.data["Time (ps)"] * 1e-3
-        fit_x, fit_y, _ = self.dh.fit(x="Time (ns)", y="g2(t) norm", data=autocorr.data,
-                                      fit_function=self.dh.fit_function.antibunching)
+        fit_x, fit_y, _ = self.dh.fit(
+            x="Time (ns)",
+            y="g2(t) norm",
+            data=autocorr.data,
+            fit_function=self.dh.fit_function.antibunching,
+        )
 
         self.assertAlmostEqual(fit_x.tolist()[0], -1000)
         self.assertAlmostEqual(fit_y.tolist()[0], 1.00109277)
@@ -43,7 +47,7 @@ class TestFitting(TestCase):
             x="Controlled variable(Hz)",
             y="Signal",
             data=odmr.data,
-            fit_function=self.dh.fit_function.lorentziandouble
+            fit_function=self.dh.fit_function.lorentziandouble,
         )
         odmr.fit_model = res
         self.assertIsInstance(odmr.fit_model, lmfit.model.ModelResult)
@@ -52,25 +56,26 @@ class TestFitting(TestCase):
 
     def test_pusledrabi_sineexponentialdecay_fit(self):
         rabi_list = self.dh.load_measurements(measurement_str="Rabi", pulsed=True)
-        rabi = rabi_list['20220316-1434-53']
+        rabi = rabi_list["20220316-1434-53"]
         x_fit, y_fit, _ = self.dh.fit(
             x="Controlled variable(s)",
             y="Signal",
             data=rabi.data,
-            fit_function=self.dh.fit_function.sineexponentialdecay
+            fit_function=self.dh.fit_function.sineexponentialdecay,
         )
 
         self.assertAlmostEqual(x_fit.tolist()[0], 0)
         self.assertAlmostEqual(y_fit.tolist()[0], 1.1042166220436456)
 
     def test_saturation_hyperbolicsaturation_fit(self):
-        sat = self.dh.read_excel(self.dh.data_folder_path / "saturation_curve.xlsx",
-                                 skiprows=1)
+        sat = self.dh.read_excel(
+            self.dh.data_folder_path / "saturation_curve.xlsx", skiprows=1
+        )
         x_fit, y_fit, _ = self.dh.fit(
             x="Power",
             y="Counts",
             data=sat,
-            fit_function=self.dh.fit_function.hyperbolicsaturation
+            fit_function=self.dh.fit_function.hyperbolicsaturation,
         )
         self.assertAlmostEqual(x_fit.tolist()[0], 0.83)
         self.assertAlmostEqual(int(y_fit[0]), 54532, delta=2.0)

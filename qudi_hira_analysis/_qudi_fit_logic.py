@@ -29,8 +29,9 @@ from collections import OrderedDict
 import lmfit
 import numpy as np
 
-logging.basicConfig(format='%(name)s :: %(levelname)s :: %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format="%(name)s :: %(levelname)s :: %(message)s", level=logging.INFO
+)
 
 
 class FitLogic:
@@ -56,45 +57,55 @@ class FitLogic:
         filenames = []
         # for path in directories:
         path_list = [
-            os.path.join(os.path.dirname(os.path.realpath(__file__)), '_fitmethods')]
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), "_fitmethods")
+        ]
         # adding additional path, to be defined in the config
         self.log = logging.getLogger(__name__)
 
         if self._additional_methods_import_path:
             if isinstance(self._additional_methods_import_path, str):
                 self._additional_methods_import_path = [
-                    self._additional_methods_import_path]
-                self.log.info('Adding fit methods path: {}'.format(
-                    self._additional_methods_import_path))
+                    self._additional_methods_import_path
+                ]
+                self.log.info(
+                    "Adding fit methods path: {}".format(
+                        self._additional_methods_import_path
+                    )
+                )
 
             if isinstance(self._additional_methods_import_path, (list, tuple, set)):
-                self.log.info('Adding fit methods path list: {}'.format(
-                    self._additional_methods_import_path))
+                self.log.info(
+                    "Adding fit methods path list: {}".format(
+                        self._additional_methods_import_path
+                    )
+                )
                 for method_import_path in self._additional_methods_import_path:
                     if not os.path.exists(method_import_path):
                         self.log.error(
                             'Specified path "{}" for import of additional fit methods '
-                            'does not exist.'.format(method_import_path))
+                            "does not exist.".format(method_import_path)
+                        )
                     else:
                         path_list.append(method_import_path)
             else:
                 self.log.error(
-                    'ConfigOption additional_predefined_methods_path needs to either '
-                    'be a string or'
-                    'a list of strings.')
+                    "ConfigOption additional_predefined_methods_path needs to either "
+                    "be a string or"
+                    "a list of strings."
+                )
 
         for path in path_list:
             for f in os.listdir(path):
-                if os.path.isfile(os.path.join(path, f)) and f.endswith('.py'):
+                if os.path.isfile(os.path.join(path, f)) and f.endswith(".py"):
                     filenames.append(f[:-3])
                     if path not in sys.path:
                         sys.path.append(path)
 
         # A dictionary containing all fit methods and their estimators.
         self.fit_list = OrderedDict()
-        self.fit_list['1d'] = OrderedDict()
-        self.fit_list['2d'] = OrderedDict()
-        self.fit_list['3d'] = OrderedDict()
+        self.fit_list["1d"] = OrderedDict()
+        self.fit_list["2d"] = OrderedDict()
+        self.fit_list["3d"] = OrderedDict()
 
         # Go through the _fitmethods files and import all methods.
         # Also determine which methods need to be added to the fit_list dictionary
@@ -103,7 +114,7 @@ class FitLogic:
         fits_for_dict = []
 
         for files in filenames:
-            mod = importlib.import_module(f'{files}')
+            mod = importlib.import_module(f"{files}")
             for method in dir(mod):
                 ref = getattr(mod, method)
                 if callable(ref) and (inspect.ismethod(ref) or inspect.isfunction(ref)):
@@ -113,23 +124,26 @@ class FitLogic:
                         setattr(FitLogic, method, ref)
                         # append method to a list of methods to include in the
                         # fit_list dictionary
-                        if (
-                                method_str.startswith('make_') and
-                                method_str.endswith('_fit')
+                        if method_str.startswith("make_") and method_str.endswith(
+                            "_fit"
                         ):
                             fits_for_dict.append(
-                                method_str.split('_', 1)[1].rsplit('_', 1)[0])
-                        elif (
-                                method_str.startswith('make_') and
-                                method_str.endswith('_model')
+                                method_str.split("_", 1)[1].rsplit("_", 1)[0]
+                            )
+                        elif method_str.startswith("make_") and method_str.endswith(
+                            "_model"
                         ):
                             models_for_dict.append(
-                                method_str.split('_', 1)[1].rsplit('_', 1)[0])
-                        elif method_str.startswith('estimate_'):
-                            estimators_for_dict.append(method_str.split('_', 1)[1])
+                                method_str.split("_", 1)[1].rsplit("_", 1)[0]
+                            )
+                        elif method_str.startswith("estimate_"):
+                            estimators_for_dict.append(method_str.split("_", 1)[1])
                     except Exception as _:
-                        self.log.error('Method "{}" could not be imported to FitLogic.'
-                                       ''.format(str(method)))
+                        self.log.error(
+                            'Method "{}" could not be imported to FitLogic.' "".format(
+                                str(method)
+                            )
+                        )
 
         fits_for_dict.sort()
         models_for_dict.sort()
@@ -137,56 +151,62 @@ class FitLogic:
         # Now attach the fit, model and estimator methods to the proper dictionary
         # fields
         for fit_name in fits_for_dict:
-            fit_method = 'make_' + fit_name + '_fit'
-            model_method = 'make_' + fit_name + '_model'
+            fit_method = "make_" + fit_name + "_fit"
+            model_method = "make_" + fit_name + "_model"
 
             # Determine fit dimension
-            if 'twoD' in fit_name:
-                dimension = '2d'
-            elif 'threeD' in fit_name:
-                dimension = '3d'
+            if "twoD" in fit_name:
+                dimension = "2d"
+            elif "threeD" in fit_name:
+                dimension = "3d"
             else:
-                dimension = '1d'
+                dimension = "1d"
 
             # Attach make_*_fit method to fit_list
             if fit_name not in self.fit_list[dimension]:
                 self.fit_list[dimension][fit_name] = OrderedDict()
-            self.fit_list[dimension][fit_name]['make_fit'] = getattr(self, fit_method)
+            self.fit_list[dimension][fit_name]["make_fit"] = getattr(self, fit_method)
 
             # Attach make_*_model method to fit_list
             if fit_name in models_for_dict:
-                self.fit_list[dimension][fit_name]['make_model'] = getattr(self,
-                                                                           model_method)
+                self.fit_list[dimension][fit_name]["make_model"] = getattr(
+                    self, model_method
+                )
             else:
-                self.log.error('No make_*_model method for fit "{}" found in FitLogic.'
-                               ''.format(fit_name))
+                self.log.error(
+                    'No make_*_model method for fit "{}" found in FitLogic.' "".format(
+                        fit_name
+                    )
+                )
 
             # Attach all estimate_* methods to corresponding fit method in fit_list
             found_estimator = False
             for estimator_name in estimators_for_dict:
-                estimator_method = 'estimate_' + estimator_name
+                estimator_method = "estimate_" + estimator_name
                 if fit_name == estimator_name:
-                    self.fit_list[dimension][fit_name]['generic'] = getattr(
+                    self.fit_list[dimension][fit_name]["generic"] = getattr(
                         self, estimator_method
                     )
                     found_estimator = True
-                elif estimator_name.startswith(fit_name + '_'):
-                    custom_name = estimator_name.split('_', 1)[1]
+                elif estimator_name.startswith(fit_name + "_"):
+                    custom_name = estimator_name.split("_", 1)[1]
                     self.fit_list[dimension][fit_name][custom_name] = getattr(
                         self, estimator_method
                     )
                     found_estimator = True
             if not found_estimator:
-                self.log.error('No estimator method for fit "{}" found in FitLogic.'
-                               ''.format(fit_name))
+                self.log.error(
+                    'No estimator method for fit "{}" found in FitLogic.' "".format(
+                        fit_name
+                    )
+                )
 
         # self.log.info('Methods were included to FitLogic, but only if naming is
         # right: check the' ' doxygen documentation if you added a new method and it
         # does not show.')
 
     def on_activate(self):
-        """ Initialisation performed during activation of the module.
-        """
+        """Initialisation performed during activation of the module."""
         # FIXME: load all the fits here, otherwise reloading this module is really
         #  questionable
 
@@ -194,7 +214,7 @@ class FitLogic:
         """ """
 
     def validate_load_fits(self, fits):
-        """ Take fit names and estimators from a dict and check if they are valid.
+        """Take fit names and estimators from a dict and check if they are valid.
             @param fits dict: dictionary containing fit and estimator description
 
             @return dict: checked dictionary with references to fit, model and estimator
@@ -219,30 +239,33 @@ class FitLogic:
         """
         user_fits = OrderedDict()
         for dim, dfits in fits.items():
-            if dim not in ('1d', '2d', '3d'):
+            if dim not in ("1d", "2d", "3d"):
                 continue
             user_fits[dim] = OrderedDict()
             for name, fit in dfits.items():
                 try:
-                    fname = fit['fit_function']
-                    new_fit = {'fit_name': fname, 'est_name': fit['estimator'],
-                               'make_fit': self.fit_list[dim][fname]['make_fit'],
-                               'make_model': self.fit_list[dim][fname]['make_model'],
-                               'estimator': self.fit_list[dim][fname][fit['estimator']]}
+                    fname = fit["fit_function"]
+                    new_fit = {
+                        "fit_name": fname,
+                        "est_name": fit["estimator"],
+                        "make_fit": self.fit_list[dim][fname]["make_fit"],
+                        "make_model": self.fit_list[dim][fname]["make_model"],
+                        "estimator": self.fit_list[dim][fname][fit["estimator"]],
+                    }
                     try:
                         par = lmfit.parameter.Parameters()
-                        par.loads(fit['parameters'])
+                        par.loads(fit["parameters"])
                     except KeyError:
-                        model, par = self.fit_list[dim][fname]['make_model']()
-                    new_fit['parameters'] = par
+                        model, par = self.fit_list[dim][fname]["make_model"]()
+                    new_fit["parameters"] = par
                     user_fits[dim][name] = new_fit
                 except KeyError:
-                    self.log.exception(f'Failed to validate fit {name}')
+                    self.log.exception(f"Failed to validate fit {name}")
                     continue
         return user_fits
 
     def prepare_save_fits(self, fits):
-        """ Convert fit dictionary into a storable form.
+        """Convert fit dictionary into a storable form.
             @param fits dict: fit dictionary with function references and parameter objects
 
             @return dict: storable fits description dictionary
@@ -251,23 +274,24 @@ class FitLogic:
         """
         save_fits = OrderedDict()
         for dim, dfits in fits.items():
-            if dim not in ('1d', '2d', '3d'):
+            if dim not in ("1d", "2d", "3d"):
                 continue
             save_fits[dim] = OrderedDict()
             for name, fit in dfits.items():
                 try:
-                    new_fit = {'fit_function': fit['fit_name'],
-                               'estimator': fit['est_name'],
-                               'parameters': fit['parameters'].dumps()}
+                    new_fit = {
+                        "fit_function": fit["fit_name"],
+                        "estimator": fit["est_name"],
+                        "parameters": fit["parameters"].dumps(),
+                    }
                     save_fits[dim][name] = new_fit
                 except KeyError:
-                    self.log.exception(
-                        f'Error while preparing fit {name} for saving.')
+                    self.log.exception(f"Error while preparing fit {name} for saving.")
                     continue
         return save_fits
 
     def make_fit_container(self, container_name, dimension):
-        """ Creare a fit container object.
+        """Creare a fit container object.
             @param container_name str: user-fiendly name for configurable fit
             @param dimension str: dimension of fit input data ('1d', '2d' od '3d')
 
@@ -281,50 +305,49 @@ class FitLogic:
 
 
 class FitContainer:
-    """ A class for managing a single flexible fit setting in a logic module.
-    """
+    """A class for managing a single flexible fit setting in a logic module."""
 
     def __init__(self, fit_logic, name, dimension):
-        """ Create a fit container.
+        """Create a fit container.
 
-            @param fit_logic FitLogic: reference to a FitLogic instance @param name
-            str: user-friendly name for this container @param dimension str:
-            dimension for fit input in this container, '1d', '2d' or '3d'
+        @param fit_logic FitLogic: reference to a FitLogic instance @param name
+        str: user-friendly name for this container @param dimension str:
+        dimension for fit input in this container, '1d', '2d' or '3d'
         """
         super().__init__()
 
         self.fit_logic = fit_logic
         self.name = name
-        if dimension == '1d':
+        if dimension == "1d":
             self.dim = 1
-        elif dimension == '2d':
+        elif dimension == "2d":
             self.dim = 2
-        elif dimension == '3d':
+        elif dimension == "3d":
             self.dim = 3
         else:
-            raise Exception(f'Invalid dimension {dimension}')
+            raise Exception(f"Invalid dimension {dimension}")
         self.dimension = dimension
         self.fit_list = OrderedDict()
         # variables for fitting
         self.fit_granularity_fact = 10
-        self.current_fit = 'No Fit'
+        self.current_fit = "No Fit"
         self.current_fit_param = lmfit.parameter.Parameters()
         self.current_fit_result = None
         self.use_settings = None
-        self.units = [f'independent variable {i + 1}' for i in range(self.dim)]
-        self.units.append('dependent variable')
+        self.units = [f"independent variable {i + 1}" for i in range(self.dim)]
+        self.units.append("dependent variable")
 
     def set_units(self, units):
-        """ Set units for this fit.
-            @param units list(str): list of units (for x axes and y axis)
+        """Set units for this fit.
+        @param units list(str): list of units (for x axes and y axis)
 
-            Number of units must be = dimensions + 1
+        Number of units must be = dimensions + 1
         """
         if len(units) == self.dim + 1:
             self.units = units
 
     def load_from_dict(self, fit_dict):
-        """ Take a list of fits from a storable dictionary, load to self.fit_list and
+        """Take a list of fits from a storable dictionary, load to self.fit_list and
         check. @param fit_dict dict: fit dictionary with function references etc
 
         """
@@ -334,57 +357,54 @@ class FitContainer:
             self.fit_list = OrderedDict()
 
     def save_to_dict(self):
-        """ Convert self.fit_list to a storable dictionary.
+        """Convert self.fit_list to a storable dictionary.
 
-            @return dict: storable configured fits dictionary
+        @return dict: storable configured fits dictionary
         """
         prep = self.fit_logic.prepare_save_fits({self.dimension: self.fit_list})
         return prep
 
     def clear_result(self):
-        """ Reset fit result and fit parameters from result for this container.
-        """
+        """Reset fit result and fit parameters from result for this container."""
         self.current_fit_param = lmfit.parameter.Parameters()
         self.current_fit_result = None
 
     def set_fit_functions(self, fit_functions):
-        """ Set the configured fit functions for this container.
-            @param fit_functions dict: configured fit functions dictionary
+        """Set the configured fit functions for this container.
+        @param fit_functions dict: configured fit functions dictionary
         """
         self.fit_list = fit_functions
         self.set_current_fit(self.current_fit)
 
     def set_current_fit(self, current_fit):
-        """ Check and set the current fit for this container by name.
+        """Check and set the current fit for this container by name.
             @param current_fit str: name of configured fit to be used as current fit
 
         If the name given is not in the list of fits, the current fit will be 'No
         Fit'. This is a reserved name that will do nothing and should not display a
         fit line if set.
         """
-        if current_fit not in self.fit_list and current_fit != 'No Fit':
-            self.fit_logic.log.warning(
-                f'{current_fit} not in {self.name} fit list!')
-            self.current_fit = 'No Fit'
+        if current_fit not in self.fit_list and current_fit != "No Fit":
+            self.fit_logic.log.warning(f"{current_fit} not in {self.name} fit list!")
+            self.current_fit = "No Fit"
         else:
             self.current_fit = current_fit
-            if current_fit != 'No Fit':
-                use_settings = self.fit_list[self.current_fit]['use_settings']
+            if current_fit != "No Fit":
+                use_settings = self.fit_list[self.current_fit]["use_settings"]
                 self.use_settings = lmfit.parameter.Parameters()
                 # Update the use parameter dictionary
                 for para in use_settings:
                     if use_settings[para]:
-                        self.use_settings[para] = \
-                            self.fit_list[self.current_fit]['parameters'][para]
+                        self.use_settings[para] = self.fit_list[self.current_fit][
+                            "parameters"
+                        ][para]
             else:
                 self.use_settings = None
         self.clear_result()
         return self.current_fit, self.use_settings
 
     def do_fit(
-            self,
-            x_data: np.ndarray,
-            y_data: np.ndarray
+        self, x_data: np.ndarray, y_data: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, lmfit.model.ModelResult]:
         """Performs the chosen fit on the measured data.
         @param array x_data: optional, 1D np.array or 1D list with the x values.
@@ -416,38 +436,41 @@ class FitContainer:
         fit_x = np.linspace(
             start=x_data[0],
             stop=x_data[-1],
-            num=int(len(x_data) * self.fit_granularity_fact))
+            num=int(len(x_data) * self.fit_granularity_fact),
+        )
         fit_y = None
 
         # set the keyword arguments, which will be passed to the fit.
         kwargs = {
-            'x_axis': x_data,
-            'data': y_data,
-            'units': self.units,
-            'add_params': self.use_settings}
+            "x_axis": x_data,
+            "data": y_data,
+            "units": self.units,
+            "add_params": self.use_settings,
+        }
 
         result = None
 
         if self.current_fit in self.fit_list:
-            result = self.fit_list[self.current_fit]['make_fit'](
-                estimator=self.fit_list[self.current_fit]['estimator'],
-                **kwargs)
+            result = self.fit_list[self.current_fit]["make_fit"](
+                estimator=self.fit_list[self.current_fit]["estimator"], **kwargs
+            )
 
-        elif self.current_fit == 'No Fit':
+        elif self.current_fit == "No Fit":
             fit_y = np.zeros(fit_x.shape)
 
         else:
             self.fit_logic.log.warning(
                 'The Fit Function "{}" is not implemented to be used in the ODMR Logic.'
-                'Correct that! Fit Call will be skipped and Fit Function will be set to'
-                '"No Fit".'.format(self.current_fit))
+                "Correct that! Fit Call will be skipped and Fit Function will be set to"
+                '"No Fit".'.format(self.current_fit)
+            )
 
-            self.current_fit = 'No Fit'
+            self.current_fit = "No Fit"
 
-        if self.current_fit != 'No Fit':
+        if self.current_fit != "No Fit":
             # after the fit was performed, retrieve the fitting function and
             # evaluate the fitted parameters according to the function:
-            model, params = self.fit_list[self.current_fit]['make_model']()
+            model, params = self.fit_list[self.current_fit]["make_model"]()
             fit_y = model.eval(x=fit_x, params=result.params)
 
         if result is not None:
