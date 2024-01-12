@@ -28,7 +28,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
-ruff = "^0.0.291"
+ruff = "^0.1.0"
 ruff-lsp = "^0.0.39"
 seaborn = "^0.13.0"
 
