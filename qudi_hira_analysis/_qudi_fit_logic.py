@@ -25,7 +25,6 @@ import logging
 import os
 import sys
 from collections import OrderedDict
-from distutils.version import LooseVersion
 
 import lmfit
 import numpy as np
@@ -190,9 +189,7 @@ class FitLogic:
         """
         # FIXME: load all the fits here, otherwise reloading this module is really
         #  questionable
-        fitversion = LooseVersion(lmfit.__version__)
-        if fitversion < LooseVersion('0.9.2'):
-            raise Exception('lmfit needs to be at least version 0.9.2!')
+        pass
 
     def on_deactivate(self):
         """ """
