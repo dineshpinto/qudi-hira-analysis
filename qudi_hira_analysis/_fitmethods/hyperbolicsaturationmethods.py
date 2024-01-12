@@ -62,9 +62,9 @@ def make_hyperbolicsaturation_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error(
-            "The passed prefix <{}> of type {} is not a string and"
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string and"
             "cannot be used as a prefix and will be ignored for now."
-            "Correct that!".format(prefix, type(prefix))
+            "Correct that!"
         )
 
         mod_sat = Model(hyperbolicsaturation_function, independent_vars=["x"])

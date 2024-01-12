@@ -68,9 +68,7 @@ class FitLogic:
                     self._additional_methods_import_path
                 ]
                 self.log.info(
-                    "Adding fit methods path: {}".format(
-                        self._additional_methods_import_path
-                    )
+                    f"Adding fit methods path: {self._additional_methods_import_path}"
                 )
 
             if isinstance(self._additional_methods_import_path, (list, tuple, set)):
@@ -174,9 +172,7 @@ class FitLogic:
                 )
             else:
                 self.log.error(
-                    'No make_*_model method for fit "{}" found in FitLogic.' "".format(
-                        fit_name
-                    )
+                    f'No make_*_model method for fit "{fit_name}" found in FitLogic.' ""
                 )
 
             # Attach all estimate_* methods to corresponding fit method in fit_list
@@ -196,9 +192,7 @@ class FitLogic:
                     found_estimator = True
             if not found_estimator:
                 self.log.error(
-                    'No estimator method for fit "{}" found in FitLogic.' "".format(
-                        fit_name
-                    )
+                    f'No estimator method for fit "{fit_name}" found in FitLogic.' ""
                 )
 
         # self.log.info('Methods were included to FitLogic, but only if naming is

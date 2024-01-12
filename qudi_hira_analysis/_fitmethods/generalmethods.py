@@ -127,10 +127,10 @@ def _substitute_params(self, initial_params, update_params=None):
 
     else:
         self.log.error(
-            "The type of the passed update_params object <{}> is "
+            f"The type of the passed update_params object <{type(update_params)}> is "
             "neither of type lmfit.parameter.Parameters, "
             "OrderedDict or dict! Correct that, the initial_params"
-            "will be returned.".format(type(update_params))
+            "will be returned."
         )
 
     return initial_params
