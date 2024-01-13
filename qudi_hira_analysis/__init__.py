@@ -348,6 +348,7 @@ dh.save_figures(filepath="pys_measurement", fig=fig)
 
 """
 
+from ._version import __version__  # noqa: F401
 from .analysis_logic import AnalysisLogic, FitMethodsAndEstimators
 from .data_handler import DataHandler
 from .io_handler import IOHandler
