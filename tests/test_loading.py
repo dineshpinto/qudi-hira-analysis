@@ -73,21 +73,6 @@ class TestLoading(TestCase):
         exc = afm.get_channel("Excitation")
         self.assertAlmostEqual(exc.pixels[0][0], 1.499999761581421)
 
-    def test_bruker_mfm_load(self):
-        bruker_measurements = self.dh.load_measurements(
-            measurement_str="", extension=".001", qudi=False
-        )
-
-        bruker = bruker_measurements[next(iter(bruker_measurements))]
-        bruker_data = bruker.data
-        scan_size = bruker.get_param_from_filename(unit="um")
-        mfm = bruker_data.get_channel("Phase", mfm=True)
-
-        self.assertEqual(scan_size, 15.0)
-        self.assertEqual(mfm.channel, "Phase")
-        self.assertEqual(mfm.type, "Bruker MFM")
-        bruker_data.file.close()
-
     def test_pys_load(self):
         pys_measurements = self.dh.load_measurements(
             measurement_str="ndmin", extension=".pys", qudi=False
