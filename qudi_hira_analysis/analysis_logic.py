@@ -154,7 +154,7 @@ class AnalysisLogic(FitLogic):
             dims: str = "1d"
 
         if data is None:
-            if isinstance(x, (pd.Series, pd.Index)):
+            if isinstance(x, pd.Series | pd.Index):
                 x: np.ndarray = x.to_numpy()
             if isinstance(y, pd.Series):
                 y: np.ndarray = y.to_numpy()
@@ -493,7 +493,7 @@ class AnalysisLogic(FitLogic):
         x = next(iter(odmr_measurements.values())).data["Freq(MHz)"].to_numpy()
         x_fit = np.linspace(start=x[0], stop=x[-1], num=int(len(x) * 2))
 
-        for odmr, res in zip(odmr_measurements.values(), model_results):
+        for odmr, res in zip(odmr_measurements.values(), model_results, strict=False):
             if len(res.params) == 6:
                 # Evaluate a single Lorentzian
                 y_fit = model1.eval(x=x_fit, params=res.params)

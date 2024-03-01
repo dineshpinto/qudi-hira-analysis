@@ -586,7 +586,7 @@ def _check_1D_input(self, x_axis, data, params):
     error = 0
     parameters = [x_axis, data]
     for var in parameters:
-        if not isinstance(var, (frozenset, list, set, tuple, np.ndarray)):
+        if not isinstance(var, frozenset | list | set | tuple | np.ndarray):
             self.log.error("Given parameter is no array.")
             error = -1
         elif len(np.shape(var)) != 1:

@@ -54,7 +54,7 @@ if __name__ == "__main__":
         - use a set to store all extensions
             - if the length of the set > 2, keep folder
             - else delete folder
-            
+
     Examples
     --------
     python remove_empty_data_folders.py --path "C:\\Data"

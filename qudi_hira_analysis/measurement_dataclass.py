@@ -3,13 +3,14 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import pandas as pd
 from PIL import Image
 
 if TYPE_CHECKING:
     import datetime
+    from collections.abc import Callable
     from pathlib import Path
 
     import lmfit
@@ -200,19 +201,19 @@ class MeasurementDataclass:
 
         Examples:
             filename = "rabi_12dBm"
-            >>> get_param_from_filename(unit='dBm')
+            >>> get_param_from_filename(unit="dBm")
             12.0
 
             filename = "pixelscan_minus100nm"
-            >>> get_param_from_filename(unit='dBm')
+            >>> get_param_from_filename(unit="dBm")
             -100.0
 
             filename = "rabi_2e-6mbar"
-            >>> get_param_from_filename(unit='mbar')
+            >>> get_param_from_filename(unit="mbar")
             2e-6
 
             filename = "rabi_2point3uW"
-            >>> get_param_from_filename(unit='uW')
+            >>> get_param_from_filename(unit="uW")
             2.5
         """
         filename = self.filename

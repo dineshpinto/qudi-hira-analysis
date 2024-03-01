@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from qudi_hira_analysis.analysis_logic import AnalysisLogic
 from qudi_hira_analysis.io_handler import IOHandler
@@ -16,6 +16,8 @@ from qudi_hira_analysis.measurement_dataclass import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     import numpy as np
     import pandas as pd
     import pySPM
@@ -159,7 +161,7 @@ class DataHandler(DataLoader, AnalysisLogic):
         contents = list(dir_path.iterdir())
         # contents each get pointers that are ├── with a final └── :
         pointers = [tee] * (len(contents) - 1) + [last]
-        for pointer, path in zip(pointers, contents):
+        for pointer, path in zip(pointers, contents, strict=False):
             yield prefix + pointer + path.name
             if path.is_dir():  # extend the prefix and recurse:
                 extension = branch if pointer == tee else space

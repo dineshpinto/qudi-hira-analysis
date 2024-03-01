@@ -908,7 +908,7 @@ def estimate_twoDgaussian(self, x_axis, y_axis, data, params):
     for var in parameters:
         # FIXME: Why don't you check earlier?
         # FIXME: Check for 1D array, 2D
-        if not isinstance(var, (frozenset, list, set, tuple, np.ndarray)):
+        if not isinstance(var, frozenset | list | set | tuple | np.ndarray):
             self.log.error("Given parameter is not an array.")
             amplitude = 0.0
             center_x = 0.0
@@ -989,7 +989,7 @@ def estimate_twoDgaussian_MLE(self, x_axis, y_axis, data, params):
     for var in parameters:
         # FIXME: Why don't you check earlier?
         # FIXME: Check for 1D array, 2D
-        if not isinstance(var, (frozenset, list, set, tuple, np.ndarray)):
+        if not isinstance(var, frozenset | list | set | tuple | np.ndarray):
             self.log.error("Given parameter is not an array.")
             amplitude = 0.0
             center_x = 0.0

@@ -14,13 +14,13 @@ packages = [{ include = "qudi_hira_analysis" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
 lmfit = "^1.1.0"
-matplotlib = "^3.6.2"
+matplotlib = "^3.8.2"
 numpy = "^1.26.0"
 pandas = "^2.0.0"
 xlrd = "^2.0.1"
 openpyxl = "^3.0.10"
 tqdm = "^4.64.1"
-pyspm = "^0.5.0"
+pyspm = "^0.6.0"
 
 [tool.poetry.group.dev]
 optional = true
@@ -28,7 +28,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^3.6.2"
 notebook = "^6.5.4"
-ruff = "^0.1.0"
+ruff = "^0.3.0"
 ruff-lsp = "^0.0.39"
 seaborn = "^0.13.0"
 
@@ -49,12 +49,21 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
 extend-select = [
+    "E", # pycodestyle-error
+    "W", # pycodestyle-warning
+    "F", # pyflakes
+    "N", # pep8-naming
     "B", # flake8-bugbear
+    "I", # isort
+    "ASYNC", # flake8-async
+    "BLE", # flake8-blind-except
+    "A", # flake8-builtins
     "C4", # flake8-comprehensions
     "ERA", # flake8-eradicate/eradicate
-    "I", # isort
-    "N", # pep8-naming
     "PIE", # flake8-pie
     "PGH", # pygrep
     "RUF", # ruff checks
@@ -63,3 +72,6 @@ extend-select = [
     "TID", # flake8-tidy-imports
     "UP", # pyupgrade
 ]
+
+[tool.ruff.format]
+docstring-code-format = true

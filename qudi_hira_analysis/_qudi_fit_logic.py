@@ -71,7 +71,7 @@ class FitLogic:
                     f"Adding fit methods path: {self._additional_methods_import_path}"
                 )
 
-            if isinstance(self._additional_methods_import_path, (list, tuple, set)):
+            if isinstance(self._additional_methods_import_path, list | tuple | set):
                 self.log.info(
                     "Adding fit methods path list: {}".format(
                         self._additional_methods_import_path

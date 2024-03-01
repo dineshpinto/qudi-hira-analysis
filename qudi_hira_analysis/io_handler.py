@@ -4,9 +4,9 @@ import datetime
 import inspect
 import itertools
 import pickle
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,8 +19,8 @@ class IOHandler:
 
     def __init__(
         self,
-        base_read_path: Optional[Path] = None,
-        base_write_path: Optional[Path] = None,
+        base_read_path: Path | None = None,
+        base_write_path: Path | None = None,
     ):
         super().__init__()
         self.base_read_path = base_read_path
@@ -130,7 +130,7 @@ class IOHandler:
                             timestamp_str = "".join(line.split(":")[1:]).strip()
                             datetime_str = datetime.datetime.strptime(
                                 timestamp_str, "%d.%m.%Y %Hh%Mmin%Ss"
-                            ).replace(tzinfo=datetime.timezone.utc)
+                            ).replace(tzinfo=datetime.UTC)
                             params[label] = datetime_str
                     except Exception as _:
                         pass

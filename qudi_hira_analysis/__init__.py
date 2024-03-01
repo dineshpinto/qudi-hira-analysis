@@ -16,13 +16,13 @@ import seaborn as sns
 from qudi_hira_analysis import DataHandler
 
 dh = DataHandler(
-    data_folder=Path("C:/Data"), # Path to the data folder
-    figure_folder=Path("C:/QudiHiraAnalysis"), # Path to the figure folder
-    measurement_folder=Path("20230101_NV1") # Name of the measurement folder
- )
- # Output:
- # qudi_hira_analysis.data_handler :: INFO :: Data folder path is C:/Data/20230101_NV1
- # qudi_hira_analysis.data_handler :: INFO :: Figure folder path is C:/QudiHiraAnalysis/20230101_NV1
+    data_folder=Path("C:/Data"),  # Path to the data folder
+    figure_folder=Path("C:/QudiHiraAnalysis"),  # Path to the figure folder
+    measurement_folder=Path("20230101_NV1"),  # Name of the measurement folder
+)
+# Output:
+# qudi_hira_analysis.data_handler :: INFO :: Data folder path is C:/Data/20230101_NV1
+# qudi_hira_analysis.data_handler :: INFO :: Figure folder path is C:/QudiHiraAnalysis/20230101_NV1
 ```
 
 ### Loading data
@@ -90,12 +90,17 @@ The fit functions available are:
 
 
 ```python
-x_fit, y_fit, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
-                              fit_function=dh.fit_function.lorentziandouble,
-                              data=odmr.data)
+x_fit, y_fit, result = dh.fit(
+    x="Controlled variable(Hz)",
+    y="Signal",
+    fit_function=dh.fit_function.lorentziandouble,
+    data=odmr.data,
+)
 
 # Plot the data and the fit
-ax = sns.scatterplot(x="Controlled variable(Hz)", y="Signal", data=odmr.data, label="Data")
+ax = sns.scatterplot(
+    x="Controlled variable(Hz)", y="Signal", data=odmr.data, label="Data"
+)
 sns.lineplot(x=x_fit, y=y_fit, ax=ax, label="Fit")
 ```
 
@@ -143,8 +148,9 @@ to the `matplotlib.pyplot.savefig()` function.
 
 ```python
 # Save the figure to the figure folder specified earlier
-dh.save_figures(filepath=Path("odmr"), fig=ax.get_figure(),
-                only_pdf=True, bbox_inches="tight")
+dh.save_figures(
+    filepath=Path("odmr"), fig=ax.get_figure(), only_pdf=True, bbox_inches="tight"
+)
 
 # The figure is saved to C:/QudiHiraAnalysis/20230101_NV1/odmr.pdf
 ```
@@ -167,11 +173,13 @@ pixels = int(np.sqrt(len(odmr_measurements)))
 image = np.zeros((pixels, pixels))
 
 for idx, odmr in enumerate(odmr_measurements.values()):
-  row, col = odmr.xy_position
-  if len(odmr.fit_model.params) > 6:
-    # Calculate double Lorentzian splitting
-    image[row, col] = np.abs(odmr.fit_model.best_values["l1_center"]
-                             - odmr.fit_model.best_values["l0_center"])
+    row, col = odmr.xy_position
+    if len(odmr.fit_model.params) > 6:
+        # Calculate double Lorentzian splitting
+        image[row, col] = np.abs(
+            odmr.fit_model.best_values["l1_center"]
+            - odmr.fit_model.best_values["l0_center"]
+        )
 
 
 map = sns.heatmap(image, cbar_kws={"label": "Delta E (MHz)"})
@@ -249,9 +257,12 @@ for autocorrelation in autocorrelation_measurements.values():
     # Plot the data
     sns.lineplot(data=autocorrelation.data, x="Time (ns)", y="g2(t) norm", ax=ax)
     # Fit the data using the antibunching function
-    fit_x, fit_y, result = dh.fit(x="Time (ns)", y="g2(t) norm",
-                                  data=autocorrelation.data,
-                                  fit_function=dh.fit_function.antibunching)
+    fit_x, fit_y, result = dh.fit(
+        x="Time (ns)",
+        y="g2(t) norm",
+        data=autocorrelation.data,
+        fit_function=dh.fit_function.antibunching,
+    )
     # Plot the fit
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
@@ -269,9 +280,12 @@ fig, ax = plt.subplots()
 
 for odmr in odmr_measurements.values():
     sns.scatterplot(data=odmr.data, x="Controlled variable(Hz)", y="Signal", ax=ax)
-    fit_x, fit_y, result = dh.fit(x="Controlled variable(Hz)", y="Signal",
-                                  data=odmr.data,
-                                  fit_function=dh.fit_function.lorentziandouble)
+    fit_x, fit_y, result = dh.fit(
+        x="Controlled variable(Hz)",
+        y="Signal",
+        data=odmr.data,
+        fit_function=dh.fit_function.lorentziandouble,
+    )
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
 dh.save_figures(filepath="odmr_variation", fig=fig)
@@ -287,9 +301,12 @@ fig, ax = plt.subplots()
 
 for rabi in rabi_measurements.values():
     sns.scatterplot(data=rabi.data, x="Controlled variable(s)", y="Signal", ax=ax)
-    fit_x, fit_y, result = dh.fit(x="Controlled variable(s)", y="Signal",
-                                  data=rabi.data,
-                                  fit_function=dh.fit_function.sineexponentialdecay)
+    fit_x, fit_y, result = dh.fit(
+        x="Controlled variable(s)",
+        y="Signal",
+        data=rabi.data,
+        fit_function=dh.fit_function.sineexponentialdecay,
+    )
     sns.lineplot(x=fit_x, y=fit_y, ax=ax, color="C1")
 
 dh.save_figures(filepath="rabi_variation", fig=fig)
