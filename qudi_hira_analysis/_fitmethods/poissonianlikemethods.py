@@ -182,7 +182,7 @@ def make_poissonian_fit(
 
     try:
         result = poissonian_model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The poissonian fit did not work. Check if a poisson "
             "distribution is needed or a normal approximation can be"
@@ -270,7 +270,7 @@ def make_poissoniandouble_fit(
 
     try:
         result = double_poissonian_model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The double poissonian fit did not work. Check if a "
             "poisson distribution is needed or a normal "

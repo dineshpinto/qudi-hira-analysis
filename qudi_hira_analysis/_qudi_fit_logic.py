@@ -73,15 +73,14 @@ class FitLogic:
 
             if isinstance(self._additional_methods_import_path, list | tuple | set):
                 self.log.info(
-                    "Adding fit methods path list: {}".format(
-                        self._additional_methods_import_path
-                    )
+                    f"Adding fit methods path list: "
+                    f"{self._additional_methods_import_path}"
                 )
                 for method_import_path in self._additional_methods_import_path:
                     if not os.path.exists(method_import_path):
                         self.log.error(
-                            'Specified path "{}" for import of additional fit methods '
-                            "does not exist.".format(method_import_path)
+                            f'Specified path "{method_import_path}" for import of '
+                            f"additional fit methods does not exist."
                         )
                     else:
                         path_list.append(method_import_path)
@@ -136,11 +135,9 @@ class FitLogic:
                             )
                         elif method_str.startswith("estimate_"):
                             estimators_for_dict.append(method_str.split("_", 1)[1])
-                    except Exception as _:
+                    except:  # noqa: E722
                         self.log.error(
-                            'Method "{}" could not be imported to FitLogic.' "".format(
-                                str(method)
-                            )
+                            f'Method "{method!s}" could not be imported to FitLogic.' ""
                         )
 
         fits_for_dict.sort()
@@ -260,7 +257,8 @@ class FitLogic:
 
     def prepare_save_fits(self, fits):
         """Convert fit dictionary into a storable form.
-            @param fits dict: fit dictionary with function references and parameter objects
+            @param fits dict: fit dictionary with function references and
+                parameter objects
 
             @return dict: storable fits description dictionary
 
@@ -291,8 +289,8 @@ class FitLogic:
 
             @return FitContainer: fit container object
 
-        This is a convenience function so you do not have to mess with an extra import in modules
-        using FitLogic.
+        This is a convenience function so you do not have to mess with an extra import
+        in modules using FitLogic.
         """
 
         return FitContainer(self, container_name, dimension)
@@ -454,9 +452,9 @@ class FitContainer:
 
         else:
             self.fit_logic.log.warning(
-                'The Fit Function "{}" is not implemented to be used in the ODMR Logic.'
-                "Correct that! Fit Call will be skipped and Fit Function will be set to"
-                '"No Fit".'.format(self.current_fit)
+                f'The Fit Function "{self.current_fit}" is not implemented to be used '
+                f"in the ODMR Logic. Correct that! Fit Call will be skipped and Fit "
+                f'Function will be set to "No Fit".'
             )
 
             self.current_fit = "No Fit"

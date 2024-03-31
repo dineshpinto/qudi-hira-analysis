@@ -234,7 +234,7 @@ def make_decayexponential_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = exponentialdecay.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = exponentialdecay.fit(data, x=x_axis, params=params, **kwargs)
         self.log.warning(
             "The exponentialdecay with offset fit did not work. "
@@ -327,7 +327,7 @@ def estimate_decayexponential(self, x_axis, data, params):
             params["amplitude"].set(
                 value=np.exp(linear_result.params["offset"].value), min=ampl
             )
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "Lifetime too small in estimate_exponentialdecay, beyond resolution!"
         )
@@ -370,7 +370,7 @@ def make_decayexponentialstretched_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = stret_exp_decay_offset.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = stret_exp_decay_offset.fit(data, x=x_axis, params=params, **kwargs)
         self.log.warning(
             "The double exponentialdecay with offset fit did not work. "
@@ -409,7 +409,8 @@ def make_decayexponentialstretched_fit(
 
 
 def estimate_decayexponentialstretched(self, x_axis, data, params):
-    """Provide an estimation for initial values for a stretched exponential decay with offset.
+    """Provide an estimation for initial values for a stretched exponential decay
+    with offset.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
@@ -507,7 +508,7 @@ def make_biexponential_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         self.log.warning(f"The double gaussian dip fit did not work: {result.message}")
 
@@ -623,7 +624,7 @@ def estimate_biexponential(self, x_axis, data, params):
             params["e1_amplitude"].set(
                 value=np.exp(linear_result.params["offset"].value), min=ampl
             )
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "Lifetime too small in estimate_exponential, beyond resolution!"
         )

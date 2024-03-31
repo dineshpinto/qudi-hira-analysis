@@ -679,8 +679,8 @@ def estimate_sinewithoutoffset(self, x_axis, data, params):
     diff_array = np.ediff1d(x_axis)
     min_x_diff = diff_array.min()
 
-    # if at least two identical values are in the array, then the difference is of course zero,
-    # catch that case.
+    # if at least two identical values are in the array, then the difference is
+    # of course zero, catch that case.
     for _tries, _diff_array_step in enumerate(diff_array):
         if np.isclose(min_x_diff, 0.0, atol=1e-12):
             index = np.argmin(diff_array)
@@ -690,8 +690,8 @@ def estimate_sinewithoutoffset(self, x_axis, data, params):
         else:
             if len(diff_array) == 0:
                 self.log.error(
-                    "The passed x_axis for the sinus estimation contains the same values!"
-                    " Cannot do the fit!"
+                    "The passed x_axis for the sinus estimation contains the "
+                    "same values! Cannot do the fit!"
                 )
 
                 return -1, params
@@ -765,7 +765,7 @@ def make_sine_fit(self, x_axis, data, estimator, units=None, add_params=None, **
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = sine.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = sine.fit(data, x=x_axis, params=params, **kwargs)
         self.log.error(
             "The sine fit did not work.\n" f"Error message: {result.message}\n"
@@ -908,7 +908,7 @@ def make_sineexponentialdecay_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = sine_exp_decay_offset.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = sine_exp_decay_offset.fit(data, x=x_axis, params=params, **kwargs)
         self.log.error(
             "The sineexponentialdecayoffset fit did not work.\n"
@@ -1126,7 +1126,7 @@ def make_sinestretchedexponentialdecay_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = sine_stretched_exp_decay.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = sine_stretched_exp_decay.fit(data, x=x_axis, params=params, **kwargs)
         self.log.error(
             "The sineexponentialdecay fit did not work.\n"
@@ -1221,11 +1221,13 @@ def make_sinestretchedexponentialdecay_fit(
 
 
 def estimate_sinestretchedexponentialdecay(self, x_axis, data, params):
-    """Provide a estimation of a initial values for a sine stretched exponential decay function.
+    """Provide a estimation of a initial values for a sine stretched exponential
+    decay function.
 
     @param numpy.array x_axis: 1D axis values
     @param numpy.array data: 1D data, should have the same dimension as x_axis.
-    @param Parameters object params: object includes parameter dictionary which can be set
+    @param Parameters object params: object includes parameter dictionary
+        which can be set
 
     @return tuple (error, params):
 
@@ -1272,7 +1274,7 @@ def make_sinedouble_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = two_sine_offset.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The twosineexpdecayoffset fit did not work. "
             f"Error message: {result.message!s}"
@@ -1487,7 +1489,7 @@ def make_sinedoublewithexpdecay_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = two_sine_exp_decay_offset.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The sinedoublewithexpdecay fit did not work. "
             f"Error message: {result.message!s}"
@@ -1716,7 +1718,7 @@ def make_sinedoublewithtwoexpdecay_fit(
         result = two_sine_two_exp_decay_offset.fit(
             data, x=x_axis, params=params, **kwargs
         )
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The sinedoublewithtwoexpdecay fit did not work. "
             f"Error message: {result.message!s}"
@@ -1953,7 +1955,7 @@ def make_sinetriple_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = two_sine_offset.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The threesineexpdecayoffset fit did not work. "
             f"Error message: {result.message!s}"
@@ -2239,7 +2241,7 @@ def make_sinetriplewithexpdecay_fit(
         result = three_sine_exp_decay_offset.fit(
             data, x=x_axis, params=params, **kwargs
         )
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The sinetriplewithexpdecay fit did not work. "
             f"Error message: {result.message!s}"
@@ -2546,7 +2548,7 @@ def make_sinetriplewiththreeexpdecay_fit(
         result = three_sine_three_exp_decay_offset.fit(
             data, x=x_axis, params=params, **kwargs
         )
-    except:
+    except:  # noqa: E722
         self.log.warning(
             "The twosinetwoexpdecayoffset fit did not work. "
             f"Error message: {result.message!s}"

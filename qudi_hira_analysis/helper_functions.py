@@ -28,12 +28,13 @@ def format_exponent_as_str(
         formatted_str = rf"$10^{{ {count} }}$"
     else:
         if decimals == 0:
-            formatted_str = r"${{ {} }} {} 10^{{ {} }}$".format(
-                int(number_to_format), separator, count
+            formatted_str = (
+                rf"${{ {int(number_to_format)} }} " rf"{separator} 10^{{ {count} }}$"
             )
         else:
-            formatted_str = r"${{ {} }} {} 10^{{ {} }}$".format(
-                round(number_to_format, decimals), separator, count
+            formatted_str = (
+                rf"${{ {round(number_to_format, decimals)} }} "
+                rf"{separator} 10^{{ {count} }}$"
             )
 
     return formatted_str

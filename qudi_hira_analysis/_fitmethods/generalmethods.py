@@ -95,7 +95,7 @@ def _substitute_params(self, initial_params, update_params=None):
                 initial_params[para].value = update_params[para].value
 
     # Check the case for an OrderedDict or dict parameter:
-    elif type(update_params) == OrderedDict or type(update_params) == dict:
+    elif isinstance(update_params, OrderedDict | dict):
         for para in update_params:
             if para not in initial_params:
                 initial_params.add(para)
@@ -144,24 +144,25 @@ def create_fit_string(
     decimal_digits_value_given=None,
     decimal_digits_err_given=None,
 ):
-    """This method can produces a well readable string from the results of a fitted model.
+    """
+    This method can produces a well readable string from the results of a fitted model.
     If units is not given or one unit missing there will be no unit in string.
-    If decimal_digits_value_given is not provided it will be set to precision of error and digits
-    of error will be set to 1.
+    If decimal_digits_value_given is not provided it will be set to precision of error
+    and digits of error will be set to 1.
 
     @param lmfit object result: the fitting result
     @param lmfit object model: the corresponding model
-    @param dict units: units for parameters of model if not given all units are set to "arb. u."
-    @param int decimal_digits_err_given: (optional) number of decimals displayed in output for error
-    @param int decimal_digits_value_given: (optional) number of decimals displayed in output for value
+    @param dict units: units for parameters of model if not given all units are set
+        to "arb. u."
+    @param int decimal_digits_err_given: (optional) number of decimals displayed in
+        output for error
+    @param int decimal_digits_value_given: (optional) number of decimals displayed in
+        output for value
 
     @return str fit_result: readable string
     """
     if units is None:
         units = {}
-    # TODO: Add multiplicator
-    # TODO: Add decimal dict
-    # TODO: Add sensible output such that e only multiple of 3 and err and value have same exponent
 
     fit_result = ""
     for variable in model.param_names:
@@ -187,7 +188,7 @@ def create_fit_string(
                     float(result.params[variable].stderr), decimal_digits_err
                 ),
             )
-        except:
+        except:  # noqa: E722
             # self.log.warning('No unit given for parameter {}, setting unit '
             #             'to empty string'.format(variable))
             fit_result += "{} [{}] : {} ± {}\n".format(
@@ -289,8 +290,9 @@ def _search_double_dip(
     sigma_threshold_fraction=0.3,
     make_prints=False,
 ):
-    """This method searches for a double dip. There are three values which can be set in order to adjust
-    the search. A threshold which defines when  a minimum is a dip,
+    """This method searches for a double dip. There are three values which can be set
+    in order to adjust the search.
+    A threshold which defines when  a minimum is a dip,
     this threshold is then lowered if no dip can be found until the
     minimal threshold which sets the absolute boarder and a
     sigma_threshold_fraction which defines when the
@@ -572,7 +574,7 @@ def gaussian_smoothing(self, data=None, filter_len=None, filter_sigma=None):
     return convolve1d(data, gaus / gaus.sum(), mode="mirror")
 
 
-def _check_1D_input(self, x_axis, data, params):
+def _check_1D_input(self, x_axis, data, params):  # noqa: N802
     """Helper function to check the input of the fit for general consistency.
 
     @param numpy.array x_axis: x values

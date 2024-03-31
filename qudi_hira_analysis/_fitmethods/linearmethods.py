@@ -42,8 +42,8 @@ def make_constant_model(self, prefix=None):
 
     Explanation of the objects:
         object lmfit.model.CompositeModel model:
-            A model the lmfit module will use for that fit. Returns an object of the class
-            lmfit.model.CompositeModel.
+            A model the lmfit module will use for that fit. Returns an object of the
+            class lmfit.model.CompositeModel.
 
         object lmfit.parameter.Parameters params:
             It is basically an OrderedDict, so a dictionary, with keys
@@ -68,10 +68,8 @@ def make_constant_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error(
-            "The passed prefix <{}> of type {} is not a string and cannot be used as "
-            "a prefix and will be ignored for now. Correct that!".format(
-                prefix, type(prefix)
-            )
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string and "
+            f"cannot be used as a prefix and will be ignored for now. Correct that!"
         )
         model = Model(constant_function, independent_vars=["x"])
     else:
@@ -107,10 +105,8 @@ def make_amplitude_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error(
-            "The passed prefix <{}> of type {} is not a string and cannot be used as "
-            "a prefix and will be ignored for now. Correct that!".format(
-                prefix, type(prefix)
-            )
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string and "
+            f"cannot be used as a prefix and will be ignored for now. Correct that!"
         )
         model = Model(amplitude_function, independent_vars=["x"])
     else:
@@ -146,10 +142,8 @@ def make_slope_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error(
-            "The passed prefix <{}> of type {} is not a string and cannot be used as "
-            "a prefix and will be ignored for now. Correct that!".format(
-                prefix, type(prefix)
-            )
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string and "
+            f"cannot be used as a prefix and will be ignored for now. Correct that!"
         )
         model = Model(slope_function, independent_vars=["x"])
     else:
@@ -184,10 +178,8 @@ def make_linear_model(self, prefix=None):
 
     if not isinstance(prefix, str) and prefix is not None:
         self.log.error(
-            "The passed prefix <{}> of type {} is not a string and cannot be used as "
-            "a prefix and will be ignored for now. Correct that!".format(
-                prefix, type(prefix)
-            )
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string and "
+            f"cannot be used as a prefix and will be ignored for now. Correct that!"
         )
         linear_mod = Model(linear_function, independent_vars=["x"])
     else:
@@ -281,7 +273,7 @@ def estimate_linear(self, x_axis, data, params):
         intercept = data_mean - slope * x_mean
         params["offset"].value = intercept
         params["slope"].value = slope
-    except:
+    except:  # noqa: E722
         self.log.warning("The estimation for linear fit did not work.")
         params["slope"].value = 0
         params["offset"].value = 0

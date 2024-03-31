@@ -17,7 +17,8 @@ def make_antibunching_model(self, prefix=None):
         """
         Fit to function
             f(x; n, a, tau0, tau1, tau2) =
-                a * ((1 - (1+b) * exp(-|x-tau0|/tau1) + a * exp(-|x-tau0|/tau2)) * 1/n + 1 - 1/n)
+                a * ((1 - (1+b) * exp(-|x-tau0|/tau1) +
+                a * exp(-|x-tau0|/tau2)) * 1/n + 1 - 1/n)
         """
         return a * (
             (
@@ -61,7 +62,7 @@ def make_antibunching_fit(
 
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         self.log.warning(
             "The 1D antibunching fit did not work. Error "

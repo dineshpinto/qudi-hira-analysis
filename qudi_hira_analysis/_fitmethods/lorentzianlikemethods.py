@@ -312,7 +312,7 @@ def make_lorentzian_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         self.log.warning(
             "The 1D lorentzian fit did not work. Error " f"message: {result.message}\n"
@@ -475,7 +475,7 @@ def make_lorentziandouble_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         self.log.error("The double lorentzian fit did not " f"work: {result.message}")
 
@@ -723,7 +723,7 @@ def estimate_lorentziandouble_peak(
 ############################################################################
 
 
-def estimate_lorentziandouble_N15(self, x_axis, data, params):
+def estimate_lorentziandouble_N15(self, x_axis, data, params):  # noqa: N802
     """Estimation of a the hyperfine interaction of a N15 nuclear spin.
 
     @param numpy.array x_axis: 1D axis values
@@ -755,16 +755,16 @@ def estimate_lorentziandouble_N15(self, x_axis, data, params):
     if length_x_scan < hf_splitting / 2 or hf_splitting > 1e9:
         self.log.error(
             "The N15 estimator expects an x_axis with a length in the "
-            "range [{},{}]Hz, but the passed x_axis has a length of "
-            "{}, which is not sensible for the N15 estimator. Correct "
-            "that!".format(hf_splitting / 2, 1e9, length_x_scan)
+            f"range [{hf_splitting / 2},{1e9}]Hz, but the passed x_axis has a length of"
+            f"{length_x_scan}, which is not sensible for the N15 estimator. Correct "
+            "that!"
         )
         return -1, params
 
     data_smooth_lorentz, offset = self.find_offset_parameter(x_axis, data)
 
     # filter should always have a length of approx linewidth 1MHz
-    points_within_1MHz = len(x_axis) / (x_axis.max() - x_axis.min()) * 1e6
+    points_within_1MHz = len(x_axis) / (x_axis.max() - x_axis.min()) * 1e6  # noqa: N806
 
     # filter should have a width of 4 MHz
     x_filter = np.linspace(0, 4 * points_within_1MHz, 4 * points_within_1MHz)
@@ -795,7 +795,7 @@ def estimate_lorentziandouble_N15(self, x_axis, data, params):
     minimum_level = data_level.min()
     # integral of data:
     fit_function = InterpolatedUnivariateSpline(x_axis, data_level, k=1)
-    Integral = fit_function.integral(x_axis[0], x_axis[-1])
+    Integral = fit_function.integral(x_axis[0], x_axis[-1])  # noqa: N806
 
     # assume both peaks contribute to the linewidth, so devive by 2, that makes
     # the peaks narrower
@@ -860,7 +860,7 @@ def make_lorentziantriple_fit(
     params = self._substitute_params(initial_params=params, update_params=add_params)
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         self.log.error("The triple lorentzian fit did not " f"work: {result.message}")
 
@@ -930,7 +930,7 @@ def make_lorentziantriple_fit(
     return result
 
 
-def estimate_lorentziantriple_N14(self, x_axis, data, params):
+def estimate_lorentziantriple_N14(self, x_axis, data, params):  # noqa: N802
     """Estimation of a the hyperfine interaction of a N14 nuclear spin.
 
     @param numpy.array x_axis: 1D axis values
@@ -968,9 +968,9 @@ def estimate_lorentziantriple_N14(self, x_axis, data, params):
     if length_x_scan < hf_splitting / 2 or hf_splitting > 1e9:
         self.log.error(
             "The N14 estimator expects an x_axis with a length in the "
-            "range [{},{}]Hz, but the passed x_axis has a length of "
-            "{}, which is not sensible for the N14 estimator. Correct "
-            "that!".format(hf_splitting / 2, 1e9, length_x_scan)
+            f"range [{hf_splitting / 2},{1e9}]Hz, but the passed x_axis has a length of"
+            f" {length_x_scan}, which is not sensible for the N14 estimator. Correct "
+            "that!"
         )
         return -1, params
 
@@ -983,7 +983,7 @@ def estimate_lorentziantriple_N14(self, x_axis, data, params):
     # filter. Take that to obtain from that the accurate peak position:
 
     # filter of one dip should always have a length of approx linewidth 1MHz
-    points_within_1MHz = len(x_axis) / (x_axis.max() - x_axis.min()) * 1e6
+    points_within_1MHz = len(x_axis) / (x_axis.max() - x_axis.min()) * 1e6  # noqa: N806
 
     # filter should have a width of 5MHz
     x_filter = np.linspace(0, 5 * points_within_1MHz, 5 * points_within_1MHz)

@@ -44,10 +44,8 @@ def make_constant_model(prefix=None):
     global const_model
     if not isinstance(prefix, str) and prefix is not None:
         log.warning(
-            "The passed prefix <{}> of type {} is not a string and cannot be used as "
-            "a prefix and will be ignored for now. Correct that!".format(
-                prefix, type(prefix)
-            )
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string and "
+            f"cannot be used as a prefix and will be ignored for now. Correct that!"
         )
         const_model = Model(constant_function, independent_vars=["x"])
     else:
@@ -69,10 +67,8 @@ def make_amplitude_model(prefix=None):
     global amp_model
     if not isinstance(prefix, str) and prefix is not None:
         print(
-            "The passed prefix <{}> of type {} is not a string and cannot"
-            "be used as a prefix and will be ignored for now. Correct that!".format(
-                prefix, type(prefix)
-            )
+            f"The passed prefix <{prefix}> of type {type(prefix)} is not a string "
+            f"and cannot be used as a prefix and will be ignored for now. Correct that!"
         )
         amp_model = Model(amplitude_function, independent_vars=["x"])
     else:
@@ -257,7 +253,7 @@ def estimate_lorentzian_dip(x_axis, data, params):
 def make_lorentzian_fit(x_axis, data, model, params, units=None, **kwargs):
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         log.error(
             "The 1D lorentzian fit did not work. Error " f"message: {result.message}\n"
@@ -654,7 +650,7 @@ def estimate_lorentziandouble_dip(
 def make_lorentziandouble_fit(x_axis, data, model, params, units=None, **kwargs):
     try:
         result = model.fit(data, x=x_axis, params=params, **kwargs)
-    except:
+    except:  # noqa: E722
         result = model.fit(data, x=x_axis, params=params, **kwargs)
         log.error("The double lorentzian fit did not " f"work: {result.message}")
 

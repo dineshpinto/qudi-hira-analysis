@@ -48,7 +48,7 @@ def make_hyperbolicsaturation_model(self, prefix=None):
             information about the current value.
     """
 
-    def hyperbolicsaturation_function(x, I_sat, P_sat):
+    def hyperbolicsaturation_function(x, I_sat, P_sat):  # noqa: N803
         """Fluorescence depending excitation power function
 
         @param numpy.array x: 1D array as the independent variable e.g. power
@@ -140,8 +140,8 @@ def estimate_hyperbolicsaturation(self, x_axis, data, params):
     est_offset = data.min()
 
     data_red = data - est_slope * x_axis - est_offset
-    est_I_sat = np.mean(data_red[len(data_red) // 2 :])
-    est_P_sat = est_I_sat / 2
+    est_I_sat = np.mean(data_red[len(data_red) // 2 :])  # noqa: N806
+    est_P_sat = est_I_sat / 2  # noqa: N806
 
     params["I_sat"].value = est_I_sat
     params["slope"].value = est_slope

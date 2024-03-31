@@ -132,7 +132,7 @@ class IOHandler:
                                 timestamp_str, "%d.%m.%Y %Hh%Mmin%Ss"
                             ).replace(tzinfo=datetime.UTC)
                             params[label] = datetime_str
-                    except Exception as _:
+                    except Exception as _:  # noqa: BLE001
                         pass
         return params
 
